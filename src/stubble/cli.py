@@ -135,5 +135,50 @@ def m1(config: ConfigOpt = None, verbose: bool = False) -> None:
     quicklook(config=config, verbose=verbose)
 
 
+@app.command()
+def detect(config: ConfigOpt = None, force: bool = False, verbose: bool = False) -> None:
+    """M2 step 1: per-pixel S2 time-series scan -> burn-date windows + quality bands."""
+    from stubble.aoi import aoi_mask, build_aoi, grid_spec
+    from stubble.detect.timeseries import run_pixel_scan
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    stats = run_pixel_scan(cfg, spec, aoi_mask(cfg, gdf, spec), force=force)
+    console.print(f"pixel scan: {stats.get('n_days')} S2 days, raw burn-like area in AOI "
+                  f"{stats.get('raw_burnt_ha_in_aoi')} ha")
+
+
+@app.command()
+def polygons(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """M2 step 2: clean the mask, vectorise candidates, attach quality + S1 support."""
+    from stubble.aoi import aoi_mask, build_analysis_grid, build_aoi, grid_spec
+    from stubble.detect.polygons import build_candidates
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    res = build_candidates(cfg, spec, aoi_mask(cfg, gdf, spec), build_analysis_grid(cfg, gdf))
+    console.print(res)
+
+
+@app.command("report-m2")
+def report_m2(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """M2 step 3: figures, weekly summaries and reports/m2/REPORT.md."""
+    from stubble.report_m2 import make_report
+
+    cfg = _setup(config, verbose)
+    for p in make_report(cfg):
+        console.print(f"wrote {p}")
+
+
+@app.command()
+def m2(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """Run the whole M2 baseline: detect -> polygons -> report-m2."""
+    detect(config=config, verbose=verbose)
+    polygons(config=config, verbose=verbose)
+    report_m2(config=config, verbose=verbose)
+
+
 if __name__ == "__main__":
     app()

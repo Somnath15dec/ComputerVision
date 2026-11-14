@@ -1,0 +1,44 @@
+{
+  "aoi_ha": 293550.9,
+  "raw_ha": 260865.5,
+  "after_opening_ha": 259825.4,
+  "final_ha": 236566.4,
+  "min_patch_px": 10,
+  "n_polygons": 236415,
+  "n_single_observation": 4138,
+  "single_observation_ha": 3068.4,
+  "n_no_s1_pair": 96,
+  "w04_composite_flag_ha": 248410.2,
+  "w04_composite_flag_pct_from_1obs": 73.7,
+  "w04_aoi_pct_0obs": 0.0,
+  "w04_aoi_pct_1obs": 72.52,
+  "w04_aoi_pct_2plus": 27.48,
+  "zoom_w04_1obs_detected_ha": 1222.3,
+  "polygon_area_ha_p50_p90_p99": [
+    0.3,
+    1.99,
+    10.02
+  ],
+  "largest_polygon_ha": 2840.43,
+  "s1_pair_pct": 100.0,
+  "gradual_drop_ha": 59776.3,
+  "haze_at_detection_ha": 6529.3,
+  "fp_groups": {
+    "abrupt + dark (burn-like reference)": [
+      "SGR-103421",
+      "SGR-88247"
+    ],
+    "gradual NBR decline (harvest-like?)": [
+      "SGR-79494",
+      "SGR-19714"
+    ],
+    "bright post-surface (tilled-soil-like?)": [
+      "SGR-164554",
+      "SGR-144989"
+    ],
+    "dark, low SWIR (wet-soil-like?)": [
+      "SGR-71677",
+      "SGR-47681"
+    ]
+  }
+}

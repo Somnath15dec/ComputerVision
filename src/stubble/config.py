@@ -75,6 +75,26 @@ class IOConfig(BaseModel):
     max_retries: int = 3
 
 
+class DetectionConfig(BaseModel):
+    dnbr_threshold: float = 0.27
+    opening_radius_px: int = 1
+    min_patch_ha: float = 0.1
+    connectivity: int = 8
+    confirm_days: int = 10
+    same_day_merge: str = "mean"
+
+
+class QualityConfig(BaseModel):
+    haze_blue_threshold: float = 0.15
+    haze_cloud_classes: list[int] = [8, 9, 10]
+    haze_cloud_buffer_m: float = 300
+    wide_window_days: int = 10
+
+
+class S1SupportConfig(BaseModel):
+    min_valid_frac: float = 0.5
+
+
 class ProjectConfig(BaseModel):
     name: str
     district_code: str
@@ -100,6 +120,9 @@ class Config(BaseModel):
     provider: str
     sentinel2: S2Config
     sentinel1: S1Config
+    detection: DetectionConfig = DetectionConfig()
+    quality: QualityConfig = QualityConfig()
+    s1_support: S1SupportConfig = S1SupportConfig()
     paths: PathsConfig
     io: IOConfig
     root: Path = Path(".")

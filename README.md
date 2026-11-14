@@ -18,6 +18,20 @@ stubble quicklook    # QA figures -> reports/m1/
 pytest && ruff check src tests
 ```
 
+## M2 baseline burn detection
+
+```bash
+stubble detect       # per-pixel S2 time-series scan: burn-date windows + quality bands
+stubble polygons     # clean mask, vectorise candidates, quality + Sentinel-1 support attributes
+stubble report-m2    # figures, weekly summaries, single-observation list -> reports/m2/REPORT.md
+# or: stubble m2
+```
+
+Detection uses each pixel's full series of clear S2 observations, not weekly median
+composites. The burn-date window runs from the last clear pre-burn look to the first
+post-burn look. Sentinel-1 VV/VH change is stored per polygon as supporting evidence only.
+It never creates a flag. See `reports/m2/REPORT.md`.
+
 ## Data sources (M1)
 | Data | Source | Licence |
 |---|---|---|

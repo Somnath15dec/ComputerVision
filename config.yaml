@@ -49,6 +49,23 @@ sentinel1:
   orbit_state: any               # any | ascending | descending
   db_scale: 100                  # stored int16 = dB * scale
 
+detection:                       # M2 baseline (per-pixel time series, not weekly composites)
+  dnbr_threshold: 0.27           # burnt if NBR_pre - NBR_obs > threshold
+  opening_radius_px: 1           # morphological opening, (2r+1) x (2r+1) square
+  min_patch_ha: 0.1              # minimum polygon area after cleaning
+  connectivity: 8                # pixel connectivity for patches
+  confirm_days: 10               # look-ahead for supporting post-burn observations
+  same_day_merge: mean           # how two S2 passes on one day are merged (clear obs only)
+
+quality:
+  haze_blue_threshold: 0.15      # clear-by-SCL obs with B02 reflectance above this = hazy
+  haze_cloud_classes: [8, 9, 10] # obs within haze_cloud_buffer_m of these = hazy
+  haze_cloud_buffer_m: 300
+  wide_window_days: 10           # burn-date window wider than this gets a quality flag
+
+s1_support:                      # Sentinel-1 is supporting evidence only (never flags alone)
+  min_valid_frac: 0.5            # polygon pixels with valid backscatter for a usable acq
+
 paths:
   raw: data/raw
   cache: data/cache

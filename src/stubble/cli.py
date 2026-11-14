@@ -180,5 +180,48 @@ def m2(config: ConfigOpt = None, verbose: bool = False) -> None:
     report_m2(config=config, verbose=verbose)
 
 
+@app.command("detect-harvest")
+def detect_harvest(config: ConfigOpt = None, force: bool = False, verbose: bool = False) -> None:
+    """M2.1 step 1: harvest-aware per-pixel scan (harvest date, burn window, labels)."""
+    from stubble.aoi import aoi_mask, build_aoi, grid_spec
+    from stubble.detect.harvest import run_harvest_scan
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    console.print(run_harvest_scan(cfg, spec, aoi_mask(cfg, gdf, spec), force=force))
+
+
+@app.command("polygons-harvest")
+def polygons_harvest(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """M2.1 step 2: clean + vectorise harvest-aware candidates."""
+    from stubble.aoi import aoi_mask, build_analysis_grid, build_aoi, grid_spec
+    from stubble.detect.polygons import build_candidates, harvest_product
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    console.print(build_candidates(cfg, spec, aoi_mask(cfg, gdf, spec),
+                                   build_analysis_grid(cfg, gdf), harvest_product(cfg)))
+
+
+@app.command("report-m21")
+def report_m21(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """M2.1 step 3: old-vs-new comparison report -> reports/m21/REPORT.md."""
+    from stubble.report_m21 import make_report
+
+    cfg = _setup(config, verbose)
+    for p in make_report(cfg):
+        console.print(f"wrote {p}")
+
+
+@app.command()
+def m21(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """Run M2.1: detect-harvest -> polygons-harvest -> report-m21 (needs M2 outputs)."""
+    detect_harvest(config=config, verbose=verbose)
+    polygons_harvest(config=config, verbose=verbose)
+    report_m21(config=config, verbose=verbose)
+
+
 if __name__ == "__main__":
     app()

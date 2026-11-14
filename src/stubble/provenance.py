@@ -26,8 +26,15 @@ def params_hash(params: dict[str, Any]) -> str:
     return hashlib.sha256(blob).hexdigest()[:16]
 
 
+CODE_PATHS = ["src", "config.yaml", "pyproject.toml", "requirements.txt"]
+
+
 def code_version() -> str:
-    """Git commit (with ``-dirty`` suffix) or ``nogit``."""
+    """Git commit, with ``-dirty`` if code or config differ from it; ``nogit`` otherwise.
+
+    Only code and config paths are checked: regenerated reports (tracked files written by
+    the pipeline itself) must not mark later outputs as dirty.
+    """
     try:
         root = Path(__file__).resolve().parents[2]
         sha = subprocess.run(
@@ -35,7 +42,8 @@ def code_version() -> str:
             text=True, check=True,
         ).stdout.strip()
         dirty = subprocess.run(
-            ["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True,
+            ["git", "status", "--porcelain", "--", *CODE_PATHS], cwd=root,
+            capture_output=True, text=True,
         ).stdout.strip()
         return sha + ("-dirty" if dirty else "")
     except Exception:

@@ -24,6 +24,8 @@ import hashlib
 import logging
 import math
 import os
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -224,26 +226,92 @@ def _field_ids(gdf: gpd.GeoDataFrame, code: str) -> tuple[list[str], list[str]]:
 
 # ---------------------------------------------------------------------------- main
 
-def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
-                     cells: gpd.GeoDataFrame) -> dict[str, Any]:
-    """Clean, vectorise and attribute candidate burn polygons. Returns summary stats."""
-    det_path = cfg.path("processed", "m2", "s2_pixel_detect.tif")
-    q_path = cfg.path("processed", "m2", "s2_quality.tif")
-    det = _read_bands(det_path)
-    q = _read_bands(q_path)
+@dataclass
+class Product:
+    """What differs between the M2 baseline and the M2.1 harvest-aware candidates."""
+
+    name: str                     # output folder under data/outputs
+    det_path: Path
+    raw_mask: Callable[[dict[str, np.ndarray]], np.ndarray]
+    event_band: str               # first burnt-view day-of-year
+    start_band: str               # last unburnt-view day-of-year
+    index_bands: list[str]        # x10000 bands averaged per polygon
+    id_prefix: str
+    detection_source: str
+    params: dict[str, Any]
+    opening_radius_px: int
+    min_patch_ha: float
+    connectivity: int
+    haze_band: str | None = None  # per-pixel 0/1 haze at detection
+    extra: Callable[..., dict] | None = None
+
+
+def baseline_product(cfg: Config) -> Product:
+    """M2 baseline (brief): dNBR against the pre-season median. IDs ``SGR-B-0001``."""
     d = cfg.detection
+    return Product(
+        name="m2", det_path=cfg.path("processed", "m2", "s2_pixel_detect.tif"),
+        raw_mask=lambda b: b["burnt_raw"] == 1, event_band="detect_doy",
+        start_band="window_start_doy",
+        index_bands=["dnbr_detect", "dnbr_peak", "dnbr_local", "nbr_pre"],
+        id_prefix=f"{cfg.project.district_code}-B", detection_source="s2_dnbr_baseline",
+        params={"detection": d.model_dump(), "quality": cfg.quality.model_dump(),
+                "s1_support": cfg.s1_support.model_dump()},
+        opening_radius_px=d.opening_radius_px, min_patch_ha=d.min_patch_ha,
+        connectivity=d.connectivity, haze_band="haze_at_detect")
+
+
+def harvest_product(cfg: Config) -> Product:
+    """M2.1 harvest-aware candidates. IDs ``SGR-0001``."""
+    from stubble.detect.harvest import BURNT
+
+    b = cfg.burn_detection
+
+    def extra(det: dict, g: Callable, lab: np.ndarray, n: int) -> dict:
+        hd = g(det["harvest_doy"])
+        mode = (pd.DataFrame({"lab": lab, "h": hd}).groupby(["lab", "h"]).size()
+                .rename("n").reset_index().sort_values(["lab", "n"], ascending=[True, False])
+                .drop_duplicates("lab").set_index("lab")["h"].reindex(np.arange(1, n + 1)))
+        return {"harvest_date": [doy_to_date(int(v)).isoformat() for v in mode],
+                "n_hazy_skipped_mean": np.round(
+                    _group_mean(g(det["n_hazy_skipped"]).astype(float), lab, n), 2),
+                "n_views_post_harvest_mean": np.round(
+                    _group_mean(g(det["n_views_post_harvest"]).astype(float), lab, n), 1)}
+
+    return Product(
+        name="m21", det_path=cfg.path("processed", "m21", "s2_harvest_burn.tif"),
+        raw_mask=lambda d: d["label"] == BURNT, event_band="burn_doy",
+        start_band="burn_prev_doy",
+        index_bands=["dnbr_short", "albedo_drop_rel", "dnbr2", "nbr_prev", "nbr_burn",
+                     "albedo_burn", "albedo_harvest", "nbr_harvest", "ndvi_peak"],
+        id_prefix=cfg.project.district_code, detection_source="s2_harvest_aware_v1",
+        params={"harvest": cfg.harvest_detection.model_dump(), "burn": b.model_dump(),
+                "quality": cfg.quality.model_dump(),
+                "s1_support": cfg.s1_support.model_dump()},
+        opening_radius_px=b.opening_radius_px, min_patch_ha=b.min_patch_ha,
+        connectivity=b.connectivity, extra=extra)
+
+
+def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
+                     cells: gpd.GeoDataFrame, product: Product | None = None
+                     ) -> dict[str, Any]:
+    """Clean, vectorise and attribute candidate burn polygons. Returns summary stats."""
+    pr = product or baseline_product(cfg)
+    q_path = cfg.path("processed", "m2", "s2_quality.tif")
+    det = _read_bands(pr.det_path)
+    q = _read_bands(q_path)
     px_ha = grid.resolution ** 2 / 1e4
 
-    raw = (det["burnt_raw"] == 1) & aoi_mask
-    opened = clean_mask(raw, d.opening_radius_px)
-    min_px = min_patch_px(d.min_patch_ha, grid.resolution)
-    labels = label_by_event(opened, det["detect_doy"], min_px, d.connectivity)
+    raw = pr.raw_mask(det) & aoi_mask
+    opened = clean_mask(raw, pr.opening_radius_px)
+    min_px = min_patch_px(pr.min_patch_ha, grid.resolution)
+    labels = label_by_event(opened, det[pr.event_band], min_px, pr.connectivity)
     cleaned = labels > 0
-    weeks = np.where(cleaned, week_index(det["detect_doy"], cfg), 0).astype(np.int16)
+    weeks = np.where(cleaned, week_index(det[pr.event_band], cfg), 0).astype(np.int16)
     n = int(labels.max())
     log.info("%d candidate polygons", n)
 
-    out_dir = cfg.path("outputs", "m2")
+    out_dir = cfg.path("outputs", pr.name)
     out_dir.mkdir(parents=True, exist_ok=True)
     burnt_tif = out_dir / "burnt_area.tif"
     tmp = burnt_tif.with_suffix(".tmp.tif")
@@ -269,13 +337,14 @@ def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
     npx = np.bincount(lab, minlength=n + 1)[1:]
     att = pd.DataFrame({"label": np.arange(1, n + 1), "n_px": npx,
                         "area_ha": np.round(npx * px_ha, 2)})
-    for k in ("dnbr_detect", "dnbr_peak", "dnbr_local", "nbr_pre"):
+    for k in pr.index_bands:
         v = sc(det[k])
         att[f"{k}_mean"] = np.round(_group_mean(np.nan_to_num(v), lab, n, np.isfinite(v)), 4)
     sup = g(det["n_support"])
     att["n_support_mean"] = np.round(_group_mean(sup.astype(float), lab, n), 2)
     att["frac_single_obs"] = np.round(_group_mean((sup == 1).astype(float), lab, n), 3)
-    att["haze_frac"] = np.round(_group_mean(g(det["haze_at_detect"]).astype(float), lab, n), 3)
+    att["haze_frac"] = (np.round(_group_mean(g(det[pr.haze_band]).astype(float), lab, n), 3)
+                        if pr.haze_band else 0.0)
     att["n_clear_mean"] = np.round(_group_mean(g(q["n_clear"]).astype(float), lab, n), 1)
     att["n_clear_min"] = _group_ext(g(q["n_clear"]).astype(float), lab, n, "min").astype(int)
     att["n_clear_pre_min"] = _group_ext(g(q["n_clear_pre"]).astype(float), lab, n,
@@ -285,8 +354,11 @@ def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
                                      "max").astype(int)
     att["days_since_last_clear_max"] = _group_ext(
         g(q["days_since_last_clear"]).astype(float), lab, n, "max").astype(int)
+    if pr.extra:
+        for k, v in pr.extra(det, g, lab, n).items():
+            att[k] = v
 
-    mw = _modal_window(lab, g(det["detect_doy"]), g(det["window_start_doy"]))
+    mw = _modal_window(lab, g(det[pr.event_band]), g(det[pr.start_band]))
     mw = mw.reindex(np.arange(1, n + 1))
     det_doy = mw["det"].to_numpy().astype(int)
     start_doy = mw["start"].to_numpy().astype(int)
@@ -325,8 +397,8 @@ def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
     att["quality_flags"] = flags
     att["single_observation"] = att["frac_single_obs"] >= 0.5
     att["burn_confidence"] = None
-    att["confidence_note"] = "not calibrated: baseline threshold only (model + calibration in M4)"
-    att["detection_source"] = "s2_dnbr_baseline"
+    att["confidence_note"] = "not calibrated: threshold rules only (model + calibration in M4)"
+    att["detection_source"] = pr.detection_source
     att["status"] = STATUS
 
     # ------------------------------------------------------------ vectorise
@@ -337,7 +409,7 @@ def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
     att["geometry"] = [unary_union(geoms[i]) if len(geoms[i]) > 1 else geoms[i][0]
                        for i in att["label"]]
     gdf = gpd.GeoDataFrame(att, geometry="geometry", crs=grid.crs)
-    ids, hashes = _field_ids(gdf, cfg.project.district_code)
+    ids, hashes = _field_ids(gdf, pr.id_prefix)
     gdf.insert(0, "field_id", ids)
     gdf.insert(1, "geom_hash", hashes)
     cu = cells.to_crs(grid.crs)[["cell_id", "geometry"]]
@@ -359,16 +431,15 @@ def build_candidates(cfg: Config, grid: GridSpec, aoi_mask: np.ndarray,
         "min_patch_px": min_px,
         "n_polygons": n,
         "n_single_observation": int(gdf["single_observation"].sum()),
-        "single_observation_ha": round(float(gdf.loc[gdf.single_observation, "area_ha"].sum()), 1),
+        "single_observation_ha": round(float(gdf.loc[gdf.single_observation, "area_ha"].sum()),
+                                       1),
         "n_no_s1_pair": int(gdf["quality_flags"].str.contains("no_s1_pair").sum()),
     }
     inputs = [{"file": p.name, "provenance": (read_provenance(p) or {}).get("params_hash")}
-              for p in (det_path, q_path)]
+              for p in (pr.det_path, q_path)]
     inputs += [{"file": p.name} for _, _, p in _s1_acqs(cfg)]
-    params = {"detection": d.model_dump(), "quality": qd.model_dump(),
-              "s1_support": cfg.s1_support.model_dump()}
     for p in (burnt_tif, lab_tif, out):
-        write_provenance(p, step="m2_candidates", params=params, inputs=inputs,
+        write_provenance(p, step=f"{pr.name}_candidates", params=pr.params, inputs=inputs,
                          extra={"stats": stats})
     return stats
 

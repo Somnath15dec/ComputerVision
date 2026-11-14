@@ -91,6 +91,23 @@ class QualityConfig(BaseModel):
     wide_window_days: int = 10
 
 
+class HarvestConfig(BaseModel):
+    ndvi_green: float = 0.6
+    min_green_views: int = 1
+    ndvi_harvest: float = 0.3
+
+
+class BurnConfig(BaseModel):
+    dnbr_short_min: float = 0.10
+    albedo_rel_drop_min: float = 0.15
+    dnbr2_min: float = 0.02
+    use_hazy_views: bool = False
+    confirm_days: int = 10
+    opening_radius_px: int = 1
+    min_patch_ha: float = 0.1
+    connectivity: int = 8
+
+
 class S1SupportConfig(BaseModel):
     min_valid_frac: float = 0.5
 
@@ -123,6 +140,8 @@ class Config(BaseModel):
     detection: DetectionConfig = DetectionConfig()
     quality: QualityConfig = QualityConfig()
     s1_support: S1SupportConfig = S1SupportConfig()
+    harvest_detection: HarvestConfig = HarvestConfig()
+    burn_detection: BurnConfig = BurnConfig()
     paths: PathsConfig
     io: IOConfig
     root: Path = Path(".")

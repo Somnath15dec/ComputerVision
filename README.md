@@ -32,6 +32,21 @@ composites. The burn-date window runs from the last clear pre-burn look to the f
 post-burn look. Sentinel-1 VV/VH change is stored per polygon as supporting evidence only.
 It never creates a flag. See `reports/m2/REPORT.md`.
 
+## M2.1 harvest-aware detection
+
+The M2 baseline compares against pre-season green paddy, so harvest alone crosses its
+threshold (81 % of the district flagged). M2.1 finds each pixel's harvest date (NDVI) and
+tests for burns only between consecutive clear views after harvest. A burn needs a
+short-interval NBR drop, a visible+NIR albedo drop and an NBR2 drop. Pixels with no clear
+view after harvest are `unobserved`, never `not_burnt`. All thresholds are in `config.yaml`
+(`harvest_detection`, `burn_detection`).
+
+```bash
+stubble detect-harvest     # per-pixel labels, harvest date, burn-date window
+stubble polygons-harvest   # candidates -> data/outputs/m21/candidates.gpkg (IDs SGR-nnnn)
+stubble report-m21         # old vs new comparison -> reports/m21/REPORT.md
+```
+
 ## Data sources (M1)
 | Data | Source | Licence |
 |---|---|---|

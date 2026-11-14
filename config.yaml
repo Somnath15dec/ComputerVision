@@ -63,6 +63,21 @@ quality:
   haze_cloud_buffer_m: 300
   wide_window_days: 10           # burn-date window wider than this gets a quality flag
 
+harvest_detection:               # M2.1: per-pixel harvest date from NDVI
+  ndvi_green: 0.6                # a clear view above this counts as "green" (standing crop)
+  min_green_views: 1             # green views required before a harvest can be detected
+  ndvi_harvest: 0.3              # harvest = first clear view below this after the green period
+
+burn_detection:                  # M2.1: burns only between consecutive clear views after harvest
+  dnbr_short_min: 0.10           # NBR(prev) - NBR(cur) must exceed this
+  albedo_rel_drop_min: 0.15      # (alb_prev - alb_cur) / alb_prev, alb = mean(B02,B03,B04,B08)
+  dnbr2_min: 0.02                # NBR2(prev) - NBR2(cur), NBR2 = (B11-B12)/(B11+B12)
+  use_hazy_views: false          # hazy views are skipped (they widen windows, never trigger)
+  confirm_days: 10               # look-ahead for views that keep the burn signal
+  opening_radius_px: 1
+  min_patch_ha: 0.1
+  connectivity: 8
+
 s1_support:                      # Sentinel-1 is supporting evidence only (never flags alone)
   min_valid_frac: 0.5            # polygon pixels with valid backscatter for a usable acq
 

@@ -1,0 +1,52 @@
+[project]
+name = "stubble-audit"
+version = "0.1.0"
+description = "Burnt-area audit for stubble burning (Sangrur, Punjab): decision support only."
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "numpy>=1.26,<2.3",
+    "scipy>=1.12",
+    "scikit-image>=0.22",
+    "xarray>=2024.1",
+    "dask[array]>=2024.1",
+    "rasterio>=1.3.9",
+    "rioxarray>=0.15",
+    "geopandas>=0.14",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "pystac-client>=0.7",
+    "planetary-computer>=1.0",
+    "odc-stac>=0.3.9",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "typer>=0.12",
+    "requests>=2.31",
+    "matplotlib>=3.8",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+
+[project.scripts]
+stubble = "stubble.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stubble"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["network: tests that hit remote data services"]

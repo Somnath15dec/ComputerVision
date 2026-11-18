@@ -22,7 +22,14 @@ from matplotlib.colors import BoundaryNorm, ListedColormap
 
 from stubble.config import Config
 from stubble.data.composites import NODATA
-from stubble.detect.harvest import BURNT, LABELS, NO_HARVEST, NOT_BURNT, UNOBSERVED
+from stubble.detect.harvest import (
+    BURNT,
+    LABELS,
+    NO_HARVEST,
+    NOT_BURNT,
+    SAME_WINDOW,
+    UNOBSERVED,
+)
 from stubble.detect.timeseries import DOY_BASE, INDEX_SCALE, _s2_days
 from stubble.report_m2 import _best_file, _chip, _extent, _md_table, _read, _rgb
 
@@ -44,11 +51,12 @@ def fig_labels_harvest(cfg: Config, aoi: gpd.GeoDataFrame, out: Path, factor: in
     lab, t = _read(src, "label", factor)
     hd, _ = _read(src, "harvest_doy", factor)
     fig, axes = plt.subplots(1, 2, figsize=(15, 9))
-    cm = ListedColormap(["#ffffff", "#bdbdbd", "#7b3294", "#a6d96a", "#d7191c"])
+    cm = ListedColormap(["#ffffff", "#bdbdbd", "#7b3294", "#a6d96a", "#d7191c", "#fdae61"])
     axes[0].imshow(lab, extent=_extent(t, lab.shape), cmap=cm,
-                   norm=BoundaryNorm(np.arange(-0.5, 5), cm.N), interpolation="nearest")
-    handles = [plt.Rectangle((0, 0), 1, 1, color=cm(i)) for i in (1, 2, 3, 4)]
-    axes[0].legend(handles, [LABELS[i] for i in (1, 2, 3, 4)], loc="lower left", fontsize=8)
+                   norm=BoundaryNorm(np.arange(-0.5, 6), cm.N), interpolation="nearest")
+    handles = [plt.Rectangle((0, 0), 1, 1, color=cm(i)) for i in (1, 2, 3, 4, 5)]
+    axes[0].legend(handles, [LABELS[i] for i in (1, 2, 3, 4, 5)], loc="lower left",
+                   fontsize=8)
     axes[0].set_title("Per-pixel label (raw, before cleaning)\nburnt = model estimate, "
                       "pending field verification", fontsize=10)
     wins = _weeks(cfg)
@@ -334,8 +342,8 @@ def make_report(cfg: Config) -> list[Path]:
     lab, _ = _read(cfg.path("processed", "m21", "s2_harvest_burn.tif"), "label")
     lab_in = lab[m]
     counts = {LABELS[k]: int((lab_in == k).sum()) for k in (NO_HARVEST, UNOBSERVED, NOT_BURNT,
-                                                            BURNT)}
-    harvested_ha = (counts["unobserved"] + counts["not_burnt"] + counts["burnt"]) * px_ha
+                                                            BURNT, SAME_WINDOW)}
+    harvested_ha = sum(v for k, v in counts.items() if k != "no_harvest") * px_ha
     del lab, lab_in
 
     written = [fig_labels_harvest(cfg, aoi_u, out_dir / "labels_and_harvest_dates.png")]
@@ -356,6 +364,17 @@ def make_report(cfg: Config) -> list[Path]:
     pairs = pair_table(cfg, m)
     pairs.to_csv(out_dir / "date_pair_scene_change.csv", index=False)
     written.append(out_dir / "date_pair_scene_change.csv")
+    haze, offs, rad = radiometry_tables(cfg)
+    haze.to_csv(out_dir / "haze_loss_per_scene.csv", index=False)
+    offs.to_csv(out_dir / "radiometric_offsets.csv", index=False)
+    written += [out_dir / "haze_loss_per_scene.csv", out_dir / "radiometric_offsets.csv"]
+    early = {"same_window_polygons": int((new.burn_type == "harvest_and_burn_same_window")
+                                         .sum()),
+             "same_window_ha": round(float(new.loc[new.burn_type ==
+                                                   "harvest_and_burn_same_window",
+                                                   "area_ha"].sum()), 1)}
+    before_p = out_dir / "before_fixes" / "m21_summary_a753719.json"
+    before = json.loads(before_p.read_text(encoding="utf-8")) if before_p.exists() else None
 
     cmp = pd.DataFrame([
         {"method": f"M2 baseline (pre-season median dNBR > {cfg.detection.dnbr_threshold:.2f})",
@@ -363,7 +382,12 @@ def make_report(cfg: Config) -> list[Path]:
          "pct_aoi": round(100 * so["final_ha"] / so["aoi_ha"], 1),
          "pct_harvested": round(100 * so["final_ha"] / harvested_ha, 1),
          "n_polygons": so["n_polygons"]},
-        {"method": "M2.1 harvest-aware",
+        *([{"method": "M2.1 frozen (a753719: blue haze test, no normalisation)",
+            "raw_ha": before["new"]["raw_ha"], "final_ha": before["new"]["final_ha"],
+            "pct_aoi": round(100 * before["new"]["final_ha"] / before["new"]["aoi_ha"], 1),
+            "pct_harvested": round(100 * before["new"]["final_ha"] / before["harvested_ha"], 1),
+            "n_polygons": before["new"]["n_polygons"]}] if before else []),
+        {"method": "M2.1 + AOT haze mask + PIF normalisation + early burns",
          "raw_ha": sn["raw_ha"], "final_ha": sn["final_ha"],
          "pct_aoi": round(100 * sn["final_ha"] / sn["aoi_ha"], 1),
          "pct_harvested": round(100 * sn["final_ha"] / harvested_ha, 1),
@@ -378,16 +402,44 @@ def make_report(cfg: Config) -> list[Path]:
                "random_chip_ids": chip_ids,
                "new_polygon_area_ha_p50_p90_p99": new.area_ha.quantile([.5, .9, .99]).round(2)
                .tolist(), "new_largest_polygon_ha": float(new.area_ha.max()),
-               "code_version": new_prov.get("code_version")}
+               "code_version": new_prov.get("code_version"),
+               "flagged_pct_aoi": round(100 * sn["final_ha"] / sn["aoi_ha"], 1),
+               "early_burns": early, "n_pif": rad["n_pif"],
+               "excluded_days": rad["excluded_days"],
+               "before_fixes_label_ha": before["label_ha"] if before else None}
     (out_dir / "m21_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     written.append(out_dir / "m21_summary.json")
-    written.append(_write_md(cfg, out_dir, summary, cmp, wk, w4tab, sens, pairs))
+    written.append(_write_md(cfg, out_dir, summary, cmp, wk, w4tab, sens, pairs, haze, offs))
     return written
 
 
+def radiometry_tables(cfg: Config) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Per-scene haze loss and per-file offsets from ``radiometry.json``."""
+    from stubble.detect.radiometry import radiometry_path
+
+    rad = json.loads(radiometry_path(cfg).read_text(encoding="utf-8"))
+    haze = pd.DataFrame([{
+        "file": x["file"], "scl_clear_pct_aoi": x["scl_clear_pct_aoi"],
+        "blue_pct": x["blue_pct_of_clear"], "cloud_buffer_pct": x["buffer_pct_of_clear"],
+        "aot_pct": x["aot_pct_of_clear"], "aot_only_pct": x["aot_only_pct_of_clear"],
+        "hazy_pct": x["hazy_pct_of_clear"], "usable_pct": x["usable_pct_of_clear"],
+        "aot_p10": x.get("aot_p10"), "aot_p50": x.get("aot_p50"), "aot_p90": x.get("aot_p90"),
+        "excluded": x["excluded"]} for x in rad["scenes"]])
+    offs = pd.DataFrame([{"file": x["file"], "n_pif_usable": x["n_pif_usable"],
+                          "applied": x["offset_applied"],
+                          **{f"off_{b}": x["offset"][b] for b in rad["bands"]},
+                          **{f"spread_{b}": x["pif_residual_spread"][b] for b in rad["bands"]}}
+                         for x in rad["scenes"]])
+    return haze, offs, rad
+
+
 def _write_md(cfg: Config, out_dir: Path, s: dict, cmp: pd.DataFrame, wk: pd.DataFrame,
-              w4: pd.DataFrame, sens: pd.DataFrame, pairs: pd.DataFrame) -> Path:
+              w4: pd.DataFrame, sens: pd.DataFrame, pairs: pd.DataFrame, haze: pd.DataFrame,
+              offs: pd.DataFrame) -> Path:
     h, b = cfg.harvest_detection, cfg.burn_detection
+    hm, rc = cfg.haze_mask, cfg.radiometry
+    nov4 = haze[haze.file.str.startswith("20251104")]
+    ex = s["excluded_days"]
     lh = s["label_ha"]
     n = s["new"]
     a = s["albedo"]
@@ -409,10 +461,25 @@ def _write_md(cfg: Config, out_dir: Path, s: dict, cmp: pd.DataFrame, wk: pd.Dat
         f"{b.albedo_rel_drop_min} (albedo = mean of B02, B03, B04, B08), NBR2 drop > "
         f"{b.dnbr2_min} (NBR2 = (B11-B12)/(B11+B12)).",
         "- **Burn-date window** = [last clear unburnt view, first clear burnt view].",
-        f"- Hazy views are {'used' if b.use_hazy_views else 'skipped'} (haze flag from M2); "
-        "skipped views widen windows but never trigger a burn.",
+        f"- Hazy views are {'used' if b.use_hazy_views else 'skipped'}: blue B02 > "
+        f"{cfg.quality.haze_blue_threshold}, within {cfg.quality.haze_cloud_buffer_m:g} m of SCL "
+        f"cloud, or Sen2Cor AOT > {hm.haze_aot_threshold}. Skipped views widen windows but "
+        "never trigger a burn. s2cloudless is not used (needs L1C bands incl. B10, not in the "
+        "PC L2A collection).",
+        f"- **Scene rule** (fixed before the run): a date is dropped if < "
+        f"{hm.scene_min_usable_frac:.0%} of its SCL-clear AOI pixels survive the haze mask, or "
+        f"its PIF residual spread exceeds {hm.scene_max_pif_spread_factor:g}x the median. "
+        f"Dropped: {', '.join(sorted(ex)) if ex else 'none'}.",
+        f"- **Radiometric normalisation**: per acquisition and band, the median deviation of "
+        f"{s['n_pif']:,} pseudo-invariant pixels (WorldCover classes {rc.worldcover_classes}, "
+        f"eroded {rc.erode_px} px, NDVI max < {rc.pif_ndvi_max}, relative spread < "
+        f"{rc.pif_max_rel_spread}) from their season median is subtracted before any index.",
+        f"- **Early burns**: if the first non-green view already has NBR <= {b.char_nbr_max} and "
+        f"albedo <= {b.char_albedo_max} (p25 of the frozen M2.1 burns), the pixel is "
+        "`harvest_and_burn_same_window` with window [last green view, that view]; otherwise "
+        "the interval before the first post-harvest view stays unobserved for burning.",
         "- **Labels**: `no_harvest`, `unobserved` (harvest seen, no usable view after it; never "
-        "reported as not burnt), `not_burnt`, `burnt`.",
+        "reported as not burnt), `not_burnt`, `burnt`, `harvest_and_burn_same_window`.",
         f"- Cleaning as M2: opening r={b.opening_radius_px}, patches < {b.min_patch_ha} ha "
         "dropped, polygons split by first burnt-view date. Sentinel-1 change stored as "
         "supporting evidence only.",
@@ -421,6 +488,35 @@ def _write_md(cfg: Config, out_dir: Path, s: dict, cmp: pd.DataFrame, wk: pd.Dat
         "",
         "## Old vs new",
         _md_table(cmp),
+        "",
+        f"**Flagged after fixes: {s['flagged_pct_aoi']}% of the AOI.** Early burns "
+        f"(`harvest_and_burn_same_window`): {s['early_burns']['same_window_polygons']:,} "
+        f"polygons, {s['early_burns']['same_window_ha']:,.0f} ha.",
+        "",
+        "## Haze loss per scene",
+        "Shares of the scene's SCL-clear AOI pixels removed by each test (tests overlap; "
+        "`aot_only` = removed by AOT and by neither older test). Full table: "
+        "`haze_loss_per_scene.csv`.",
+        "",
+        _md_table(haze),
+        "",
+        *([f"**4 Nov**: {r.hazy_pct}% of SCL-clear pixels masked ({r.aot_only_pct} points by "
+           f"AOT alone), {r.usable_pct}% usable; "
+           f"{'excluded by the scene rule' if r.excluded else 'kept'}."
+           for r in nov4.itertuples()]),
+        "",
+        f"Sen2Cor AOT is close to constant inside each scene: median per-scene p10-p90 width "
+        f"{(haze.aot_p90 - haze.aot_p10).median():.2f} (max "
+        f"{(haze.aot_p90 - haze.aot_p10).max():.2f}). It works as a scene-level haze "
+        "indicator, not a per-pixel smoke-plume mask, so it cannot catch local smoke; the "
+        "blue test and the scene rule do the per-pixel and per-date work.",
+        "",
+        "## Radiometric offsets (reflectance, subtracted)",
+        "`spread_*` = PIF residual spread after removing the offset. Full table: "
+        "`radiometric_offsets.csv`.",
+        "",
+        _md_table(offs[["file", "n_pif_usable", "applied",
+                        *[c for c in offs.columns if c.startswith("off_")]]]),
         "",
         f"Harvested area (any harvest label) = {s['harvested_ha']:,.0f} ha.",
         "",
@@ -466,10 +562,8 @@ def _write_md(cfg: Config, out_dir: Path, s: dict, cmp: pd.DataFrame, wk: pd.Dat
         _md_table(pairs),
         "",
         "## Diagnostics and caveats",
-        "- Haze leak: the blue threshold "
-        f"({cfg.quality.haze_blue_threshold}) only removes part of the smoky 4 Nov scene; "
-        "several random chips use visibly hazy 4 Nov views as the unburnt reference. A hazy -> "
-        "clear transition lowers albedo, NBR and NBR2 together.",
+        "- The date-pair table above applies only the blue haze test at its decimated scale "
+        "(no AOT, no offsets), so it describes the raw imagery, not the corrected inputs.",
         f"- Median albedo at the first burnt view: {a['albedo_burn_p50']}; at the harvest view of "
         f"`not_burnt` pixels: {a['albedo_harvest_notburnt_p50']}. "
         f"{a['pct_notburnt_harvest_view_darker_than_burn_p50']}% of `not_burnt` pixels already "

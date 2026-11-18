@@ -63,6 +63,20 @@ quality:
   haze_cloud_buffer_m: 300
   wide_window_days: 10           # burn-date window wider than this gets a quality flag
 
+haze_mask:                       # M2.1 only (M2 keeps `quality`); set a priori, not tuned
+  # Sen2Cor aerosol optical thickness at 550 nm (L2A AOT asset, stored x1000). A clear-by-SCL
+  # view with AOT above this is hazy/smoky and skipped (ORed with the blue and cloud tests).
+  haze_aot_threshold: 0.6
+  # s2cloudless is not used: it needs L1C top-of-atmosphere bands incl. B10, which the
+  # Planetary Computer L2A collection does not carry (not cheap: a second product download).
+  # Scene exclusion rule (decided before the run): after haze masking a scene is dropped
+  # entirely if fewer than this share of its SCL-clear AOI pixels remain usable ...
+  scene_min_usable_frac: 0.2
+  # ... or if its pseudo-invariant-pixel residual spread (after offset removal, any analysis
+  # band) exceeds this multiple of the median spread across scenes.
+  scene_max_pif_spread_factor: 3.0
+  exclude_days: []               # manual exclusions (YYYY-MM-DD), applied on top of the rule
+
 harvest_detection:               # M2.1: per-pixel harvest date from NDVI
   ndvi_green: 0.6                # a clear view above this counts as "green" (standing crop)
   min_green_views: 1             # green views required before a harvest can be detected
@@ -77,6 +91,26 @@ burn_detection:                  # M2.1: burns only between consecutive clear vi
   opening_radius_px: 1
   min_patch_ha: 0.1
   connectivity: 8
+  # Early burns: a pixel whose first post-harvest view (straight after a green view) already
+  # has a strong absolute char signature is labelled harvest_and_burn_same_window; otherwise
+  # the interval before that view stays unobserved for burning. "Strong" = darker than 75 %
+  # of the frozen M2.1 consecutive-view burns (p25 of their post-burn NBR and albedo).
+  char_nbr_max: -0.24
+  char_albedo_max: 0.09
+
+radiometry:                      # M2.1 relative radiometric normalisation (per acquisition)
+  # Pseudo-invariant pixels: ESA WorldCover 2021 v200 built-up (50) and bare/sparse (60),
+  # eroded by erode_px, never green (season NDVI max below pif_ndvi_max) and stable
+  # (robust spread (p84-p16)/2 / median of every analysis band below pif_max_rel_spread).
+  worldcover_classes: [50, 60]
+  erode_px: 1
+  pif_ndvi_max: 0.3
+  pif_max_rel_spread: 0.15
+  pif_min_views: 8               # usable views needed to judge stability
+  sample_px: 200000              # random candidate pixels kept (seeded) for the statistics
+  min_pif_px: 500                # fewer usable PIFs on a date -> no offset, flagged
+  seed: 20251001
+  bands: [B02, B03, B04, B08, B11, B12]
 
 s1_support:                      # Sentinel-1 is supporting evidence only (never flags alone)
   min_valid_frac: 0.5            # polygon pixels with valid backscatter for a usable acq
@@ -93,3 +127,15 @@ io:
   block_rows: 512                # rows per block when compositing
   download_chunk: 2048           # dask chunk size for remote reads
   max_retries: 3
+
+labelling:                       # M3: stratified sample + labelling tool
+  n_total: 400
+  flagged_frac: 0.8              # share drawn from M2.1 candidate polygons
+  n_score_bins: 5                # equal-count (quantile) bins of detection_score
+  extra_weeks: {w04: 2.0}        # week weights (default 1); w04 gets double allocation
+  unflagged_unit_px: 10          # unflagged cropland units = 100 m x 100 m grid cells ...
+  unflagged_min_frac: 0.9        # ... with at least this share unflagged-cropland pixels
+  seed: 20251118
+  classes: [burnt, tilled_not_burnt, harvested_not_burnt, wet, unsure]
+  chip_pad_m: 250                # context around the polygon in chips
+  rgb_max_reflectance: 0.3       # fixed display stretch (same for every date)

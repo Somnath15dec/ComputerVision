@@ -1,4 +1,6 @@
-/data/
+/data/*
+!/data/labels/
+/data/labels/*.sqlite-journal
 .venv/
 .env
 __pycache__/

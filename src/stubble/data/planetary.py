@@ -58,6 +58,40 @@ class PlanetaryComputerProvider:
             refs = [r for r in refs if r.orbit_state == self.cfg.sentinel1.orbit_state]
         return sorted(refs, key=lambda r: (r.datetime, r.id))
 
+    def get_items(self, sensor: Sensor, ids: list[str]) -> list[SceneRef]:
+        """Fetch catalogue items by ID (adds assets for already-cached acquisitions)."""
+        items = self.client.search(collections=[self._collection(sensor)], ids=ids
+                                   ).item_collection()
+        refs = [SceneRef(id=it.id, datetime=it.datetime,
+                         platform=it.properties.get("platform", ""),
+                         orbit_state=it.properties.get("sat:orbit_state"),
+                         properties=dict(it.properties), handle=it) for it in items]
+        missing = set(ids) - {r.id for r in refs}
+        if missing:
+            raise RuntimeError(f"items not found in catalogue: {sorted(missing)}")
+        return sorted(refs, key=lambda r: (r.datetime, r.id))
+
+    def load_static(self, collection: str, asset: str, grid: GridSpec,
+                    bbox_wgs84: tuple[float, float, float, float]
+                    ) -> tuple[np.ndarray, list[str]]:
+        """Mosaic a static categorical layer (e.g. ESA WorldCover) onto ``grid`` (nearest).
+
+        Returns the uint8 array (0 = no data) and the item IDs used.
+        """
+        items = list(self.client.search(collections=[collection], bbox=list(bbox_wgs84)
+                                        ).items())
+        if collection == "esa-worldcover":  # keep the newest version only (2021 v200)
+            key = "esa_worldcover:product_version"
+            newest = max(it.properties.get(key, "") for it in items)
+            items = [it for it in items if it.properties.get(key) == newest]
+        items = [pc.sign(it) for it in items]
+        geobox = GeoBox((grid.height, grid.width), grid.transform, grid.crs)
+        ds = stac_load(items, bands=[asset], geobox=geobox, groupby="id",
+                       chunks={"x": 2048, "y": 2048}, resampling="nearest", dtype="uint8",
+                       nodata=0)
+        arr = ds[asset].max("time").compute().values  # tiles do not overlap: max = mosaic
+        return arr, [it.id for it in items]
+
     def load(self, acq: Acquisition, grid: GridSpec, bands: list[str]) -> dict[str, np.ndarray]:
         items = [pc.sign(s.handle) for s in acq.scenes]
         geobox = GeoBox((grid.height, grid.width), grid.transform, grid.crs)

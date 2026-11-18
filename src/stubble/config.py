@@ -91,6 +91,13 @@ class QualityConfig(BaseModel):
     wide_window_days: int = 10
 
 
+class HazeMaskConfig(BaseModel):
+    haze_aot_threshold: float | None = None
+    scene_min_usable_frac: float = 0.2
+    scene_max_pif_spread_factor: float = 3.0
+    exclude_days: list[date] = []
+
+
 class HarvestConfig(BaseModel):
     ndvi_green: float = 0.6
     min_green_views: int = 1
@@ -106,6 +113,33 @@ class BurnConfig(BaseModel):
     opening_radius_px: int = 1
     min_patch_ha: float = 0.1
     connectivity: int = 8
+    char_nbr_max: float | None = None
+    char_albedo_max: float | None = None
+
+
+class RadiometryConfig(BaseModel):
+    worldcover_classes: list[int] = [50, 60]
+    erode_px: int = 1
+    pif_ndvi_max: float = 0.3
+    pif_max_rel_spread: float = 0.15
+    pif_min_views: int = 8
+    sample_px: int = 200000
+    min_pif_px: int = 500
+    seed: int = 20251001
+    bands: list[str] = ["B02", "B03", "B04", "B08", "B11", "B12"]
+
+
+class LabellingConfig(BaseModel):
+    n_total: int = 400
+    flagged_frac: float = 0.8
+    n_score_bins: int = 5
+    extra_weeks: dict[str, float] = {"w04": 2.0}
+    unflagged_unit_px: int = 10
+    unflagged_min_frac: float = 0.9
+    seed: int = 20251118
+    classes: list[str] = ["burnt", "tilled_not_burnt", "harvested_not_burnt", "wet", "unsure"]
+    chip_pad_m: float = 250
+    rgb_max_reflectance: float = 0.3
 
 
 class S1SupportConfig(BaseModel):
@@ -142,6 +176,9 @@ class Config(BaseModel):
     s1_support: S1SupportConfig = S1SupportConfig()
     harvest_detection: HarvestConfig = HarvestConfig()
     burn_detection: BurnConfig = BurnConfig()
+    radiometry: RadiometryConfig | None = None
+    haze_mask: HazeMaskConfig = HazeMaskConfig()
+    labelling: LabellingConfig = LabellingConfig()
     paths: PathsConfig
     io: IOConfig
     root: Path = Path(".")

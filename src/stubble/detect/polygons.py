@@ -261,9 +261,22 @@ def baseline_product(cfg: Config) -> Product:
         connectivity=d.connectivity, haze_band="haze_at_detect")
 
 
+def detection_score(dnbr_short: np.ndarray, albedo_drop: np.ndarray, dnbr2: np.ndarray,
+                    b: Any) -> np.ndarray:
+    """Weakest-link margin of the three burn tests: ``min_i(drop_i / threshold_i)``.
+
+    1.0 = exactly at threshold on the weakest test. A rule-based ranking for stratified
+    sampling, NOT a calibrated probability. For ``harvest_and_burn_same_window`` pixels the
+    drops are measured from the last green view, so they rank high by construction.
+    """
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.minimum(np.minimum(dnbr_short / b.dnbr_short_min,
+                                     albedo_drop / b.albedo_rel_drop_min), dnbr2 / b.dnbr2_min)
+
+
 def harvest_product(cfg: Config) -> Product:
     """M2.1 harvest-aware candidates. IDs ``SGR-0001``."""
-    from stubble.detect.harvest import BURNT
+    from stubble.detect.harvest import BURN_LABELS, SAME_WINDOW
 
     b = cfg.burn_detection
 
@@ -272,7 +285,16 @@ def harvest_product(cfg: Config) -> Product:
         mode = (pd.DataFrame({"lab": lab, "h": hd}).groupby(["lab", "h"]).size()
                 .rename("n").reset_index().sort_values(["lab", "n"], ascending=[True, False])
                 .drop_duplicates("lab").set_index("lab")["h"].reindex(np.arange(1, n + 1)))
+        same = _group_mean((g(det["label"]) == SAME_WINDOW).astype(float), lab, n)
+        score = detection_score(
+            *(np.where(g(det[k]) == NODATA, np.nan, g(det[k]) / INDEX_SCALE)
+              for k in ("dnbr_short", "albedo_drop_rel", "dnbr2")), b)
+        ok = np.isfinite(score)
         return {"harvest_date": [doy_to_date(int(v)).isoformat() for v in mode],
+                "frac_same_window": np.round(same, 3),
+                "burn_type": np.where(same >= 0.5, "harvest_and_burn_same_window",
+                                      "consecutive_views"),
+                "detection_score": np.round(_group_mean(np.nan_to_num(score), lab, n, ok), 3),
                 "n_hazy_skipped_mean": np.round(
                     _group_mean(g(det["n_hazy_skipped"]).astype(float), lab, n), 2),
                 "n_views_post_harvest_mean": np.round(
@@ -280,7 +302,7 @@ def harvest_product(cfg: Config) -> Product:
 
     return Product(
         name="m21", det_path=cfg.path("processed", "m21", "s2_harvest_burn.tif"),
-        raw_mask=lambda d: d["label"] == BURNT, event_band="burn_doy",
+        raw_mask=lambda d: np.isin(d["label"], BURN_LABELS), event_band="burn_doy",
         start_band="burn_prev_doy",
         index_bands=["dnbr_short", "albedo_drop_rel", "dnbr2", "nbr_prev", "nbr_burn",
                      "albedo_burn", "albedo_harvest", "nbr_harvest", "ndvi_peak"],

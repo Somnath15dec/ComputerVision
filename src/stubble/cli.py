@@ -85,6 +85,23 @@ def download(sensor: SensorOpt = "all", config: ConfigOpt = None, verbose: bool 
         console.print(f"{sen}: {new} downloaded, {len(acqs) - new} already cached")
 
 
+@app.command("download-ancillary")
+def download_ancillary(config: ConfigOpt = None, verbose: bool = False) -> None:
+    """M2.1: fetch the S2 AOT band for cached acquisitions + ESA WorldCover (cached)."""
+    from stubble.aoi import build_aoi, grid_spec
+    from stubble.data.ancillary import download_aot, download_worldcover
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    prov = _provider(cfg)
+    bbox = tuple(gdf.to_crs(4326).total_bounds)
+    p, new = download_worldcover(cfg, prov, spec, bbox)
+    console.print(f"worldcover: {p.name} {'downloaded' if new else 'cached'}")
+    for key, new in download_aot(cfg, prov, spec):
+        console.print(f"  aot {key} {'downloaded' if new else 'cached'}")
+
+
 @app.command()
 def composite(sensor: SensorOpt = "all", config: ConfigOpt = None, force: bool = False,
               verbose: bool = False) -> None:
@@ -180,6 +197,30 @@ def m2(config: ConfigOpt = None, verbose: bool = False) -> None:
     report_m2(config=config, verbose=verbose)
 
 
+@app.command()
+def radiometry(config: ConfigOpt = None, force: bool = False, verbose: bool = False) -> None:
+    """M2.1 step 0: per-scene haze loss, PIF offsets and scene exclusions."""
+    from stubble.aoi import aoi_mask, build_aoi, grid_spec
+    from stubble.detect.radiometry import run_radiometry
+
+    cfg = _setup(config, verbose)
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    res = run_radiometry(cfg, spec, aoi_mask(cfg, gdf, spec), force=force)
+    t = Table(title=f"Haze loss per scene (AOT > {cfg.haze_mask.haze_aot_threshold})")
+    for c in ("file", "SCL-clear % AOI", "blue %", "buffer %", "AOT %", "AOT-only %",
+              "usable %", "AOT p50", "excluded"):
+        t.add_column(c)
+    for s in res["scenes"]:
+        t.add_row(s["file"], str(s["scl_clear_pct_aoi"]), str(s["blue_pct_of_clear"]),
+                  str(s["buffer_pct_of_clear"]), str(s["aot_pct_of_clear"]),
+                  str(s["aot_only_pct_of_clear"]), str(s["usable_pct_of_clear"]),
+                  str(s.get("aot_p50", "")), "yes" if s["excluded"] else "")
+    console.print(t)
+    console.print(f"PIFs: {res['n_pif']} of {res['n_pif_candidates_sampled']} sampled; "
+                  f"excluded days: {res['excluded_days'] or 'none'}")
+
+
 @app.command("detect-harvest")
 def detect_harvest(config: ConfigOpt = None, force: bool = False, verbose: bool = False) -> None:
     """M2.1 step 1: harvest-aware per-pixel scan (harvest date, burn window, labels)."""
@@ -215,9 +256,59 @@ def report_m21(config: ConfigOpt = None, verbose: bool = False) -> None:
         console.print(f"wrote {p}")
 
 
+@app.command("sample-m3")
+def sample_m3(config: ConfigOpt = None, force: bool = False, verbose: bool = False) -> None:
+    """M3: draw the seeded stratified labelling sample (refuses to overwrite one in use)."""
+    from stubble.aoi import aoi_mask, build_aoi, grid_spec
+    from stubble.labelling.sample import build_sample
+    from stubble.labelling.store import db_path, latest_labels
+
+    cfg = _setup(config, verbose)
+    man = cfg.path("labels", "m3_sample_manifest.json")
+    if man.exists() and not force:
+        raise typer.BadParameter(f"{man} exists; pass --force to redraw")
+    if db_path(cfg).exists() and len(latest_labels(cfg)) and force:
+        raise typer.BadParameter("labels already exist for the current sample; not redrawing")
+    gdf = build_aoi(cfg)
+    spec = grid_spec(cfg, gdf)
+    m = build_sample(cfg, spec, aoi_mask(cfg, gdf, spec))
+    console.print(f"seed {m['seed']}: {m['n_flagged']} flagged + {m['n_unflagged']} unflagged; "
+                  f"score bin edges {m['score_bin_edges']}")
+    t = Table(title="Sample per week")
+    for c in ("source", "week", "n"):
+        t.add_column(c)
+    for r in m["per_week"]:
+        t.add_row(r["source"], r["sample_week"], str(r["n"]))
+    console.print(t)
+
+
+@app.command()
+def label(config: ConfigOpt = None, port: int = 8501) -> None:
+    """M3: open the labelling tool (Streamlit) in the browser."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    app_py = Path(__file__).parent / "labelling" / "app.py"
+    subprocess.run([sys.executable, "-m", "streamlit", "run", str(app_py),
+                    "--server.port", str(port)], check=False)
+
+
+@app.command("export-labels")
+def export_labels(config: ConfigOpt = None) -> None:
+    """M3: write data/labels/labels.geojson from the SQLite store."""
+    from stubble.labelling.store import export_geojson
+
+    cfg = _setup(config, False)
+    console.print(f"wrote {export_geojson(cfg)}")
+
+
 @app.command()
 def m21(config: ConfigOpt = None, verbose: bool = False) -> None:
-    """Run M2.1: detect-harvest -> polygons-harvest -> report-m21 (needs M2 outputs)."""
+    """Run M2.1: download-ancillary -> radiometry -> detect-harvest -> polygons-harvest ->
+    report-m21 (needs M1 raw data and M2 outputs)."""
+    download_ancillary(config=config, verbose=verbose)
+    radiometry(config=config, verbose=verbose)
     detect_harvest(config=config, verbose=verbose)
     polygons_harvest(config=config, verbose=verbose)
     report_m21(config=config, verbose=verbose)

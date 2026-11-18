@@ -92,7 +92,7 @@ after = c2.selectbox("After view", days, index=days.index(d_after),
 orbit = row.get("s1_orbit") if isinstance(row.get("s1_orbit"), str) and row.get("s1_orbit") \
     else None
 st.image(figure_png(row.sample_id, row.geometry.wkb, before, after, orbit),
-         use_container_width=True)
+         width="stretch")
 
 cur = labels.label.get(row.sample_id) if row.sample_id in labels.index else None
 classes = cfg.labelling.classes

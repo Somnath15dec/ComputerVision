@@ -1,0 +1,2768 @@
+{
+ "created_utc": "2026-11-18T16:32:43+00:00",
+ "code_version": "fd0a910",
+ "seed": 20251118,
+ "config": {
+  "n_total": 400,
+  "flagged_frac": 0.8,
+  "n_score_bins": 5,
+  "extra_weeks": {
+   "w04": 2.0
+  },
+  "unflagged_unit_px": 10,
+  "unflagged_min_frac": 0.9,
+  "seed": 20251118,
+  "classes": [
+   "burnt",
+   "tilled_not_burnt",
+   "harvested_not_burnt",
+   "wet",
+   "unsure"
+  ],
+  "chip_pad_m": 250.0,
+  "rgb_max_reflectance": 0.3
+ },
+ "candidates": {
+  "file": "candidates.gpkg",
+  "code_version": "3825483",
+  "params_hash": "5b5544526ab4c3f0",
+  "n": 97137,
+  "n_scored": 97137
+ },
+ "score_definition": "detection_score = polygon mean of min(dNBR/dnbr_short_min, albedo_drop/albedo_rel_drop_min, dNBR2/dnbr2_min); rule-based ranking, not a probability",
+ "score_bin_edges": [
+  -45.302,
+  1.476,
+  1.8,
+  2.143,
+  2.543,
+  6.161
+ ],
+ "week_weights_flagged": {
+  "w01": 1.0,
+  "w02": 1.0,
+  "w03": 1.0,
+  "w04": 2.0,
+  "w05": 1.0,
+  "w06": 1.0,
+  "w07": 1.0,
+  "w08": 1.0
+ },
+ "week_weights_unflagged": {
+  "w01": 1.0,
+  "w02": 1.0,
+  "w03": 1.0,
+  "w04": 2.0,
+  "w05": 1.0,
+  "w06": 1.0,
+  "w07": 1.0,
+  "w08": 1.0,
+  "none": 1.0
+ },
+ "n_flagged": 320,
+ "n_unflagged": 80,
+ "unflagged_population_cells": 22898,
+ "strata": {
+  "flagged": {
+   "b1|w01": {
+    "population": 157,
+    "sampled": 7
+   },
+   "b1|w02": {
+    "population": 988,
+    "sampled": 7
+   },
+   "b1|w03": {
+    "population": 2712,
+    "sampled": 7
+   },
+   "b1|w04": {
+    "population": 3928,
+    "sampled": 15
+   },
+   "b1|w05": {
+    "population": 8387,
+    "sampled": 7
+   },
+   "b1|w06": {
+    "population": 2205,
+    "sampled": 7
+   },
+   "b1|w07": {
+    "population": 702,
+    "sampled": 7
+   },
+   "b1|w08": {
+    "population": 414,
+    "sampled": 7
+   },
+   "b2|w01": {
+    "population": 115,
+    "sampled": 7
+   },
+   "b2|w02": {
+    "population": 597,
+    "sampled": 7
+   },
+   "b2|w03": {
+    "population": 1134,
+    "sampled": 7
+   },
+   "b2|w04": {
+    "population": 3871,
+    "sampled": 15
+   },
+   "b2|w05": {
+    "population": 9692,
+    "sampled": 7
+   },
+   "b2|w06": {
+    "population": 2703,
+    "sampled": 7
+   },
+   "b2|w07": {
+    "population": 887,
+    "sampled": 7
+   },
+   "b2|w08": {
+    "population": 401,
+    "sampled": 7
+   },
+   "b3|w01": {
+    "population": 113,
+    "sampled": 7
+   },
+   "b3|w02": {
+    "population": 657,
+    "sampled": 7
+   },
+   "b3|w03": {
+    "population": 983,
+    "sampled": 7
+   },
+   "b3|w04": {
+    "population": 4727,
+    "sampled": 15
+   },
+   "b3|w05": {
+    "population": 9333,
+    "sampled": 7
+   },
+   "b3|w06": {
+    "population": 2528,
+    "sampled": 7
+   },
+   "b3|w07": {
+    "population": 756,
+    "sampled": 7
+   },
+   "b3|w08": {
+    "population": 319,
+    "sampled": 7
+   },
+   "b4|w01": {
+    "population": 90,
+    "sampled": 7
+   },
+   "b4|w02": {
+    "population": 643,
+    "sampled": 7
+   },
+   "b4|w03": {
+    "population": 899,
+    "sampled": 7
+   },
+   "b4|w04": {
+    "population": 4634,
+    "sampled": 15
+   },
+   "b4|w05": {
+    "population": 9530,
+    "sampled": 7
+   },
+   "b4|w06": {
+    "population": 2615,
+    "sampled": 7
+   },
+   "b4|w07": {
+    "population": 706,
+    "sampled": 7
+   },
+   "b4|w08": {
+    "population": 308,
+    "sampled": 7
+   },
+   "b5|w01": {
+    "population": 132,
+    "sampled": 7
+   },
+   "b5|w02": {
+    "population": 994,
+    "sampled": 7
+   },
+   "b5|w03": {
+    "population": 1133,
+    "sampled": 7
+   },
+   "b5|w04": {
+    "population": 2743,
+    "sampled": 15
+   },
+   "b5|w05": {
+    "population": 10012,
+    "sampled": 7
+   },
+   "b5|w06": {
+    "population": 3246,
+    "sampled": 7
+   },
+   "b5|w07": {
+    "population": 762,
+    "sampled": 7
+   },
+   "b5|w08": {
+    "population": 381,
+    "sampled": 7
+   }
+  },
+  "unflagged_cropland": {
+   "all|none": {
+    "population": 3160,
+    "sampled": 8
+   },
+   "all|w01": {
+    "population": 45,
+    "sampled": 8
+   },
+   "all|w02": {
+    "population": 265,
+    "sampled": 8
+   },
+   "all|w03": {
+    "population": 1963,
+    "sampled": 8
+   },
+   "all|w04": {
+    "population": 15385,
+    "sampled": 16
+   },
+   "all|w05": {
+    "population": 1453,
+    "sampled": 8
+   },
+   "all|w06": {
+    "population": 273,
+    "sampled": 8
+   },
+   "all|w07": {
+    "population": 247,
+    "sampled": 8
+   },
+   "all|w08": {
+    "population": 107,
+    "sampled": 8
+   }
+  }
+ },
+ "per_week": [
+  {
+   "source": "flagged",
+   "sample_week": "w01",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w02",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w03",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w04",
+   "n": 75
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w05",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w06",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w07",
+   "n": 35
+  },
+  {
+   "source": "flagged",
+   "sample_week": "w08",
+   "n": 35
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "none",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w01",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w02",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w03",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w04",
+   "n": 16
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w05",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w06",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w07",
+   "n": 8
+  },
+  {
+   "source": "unflagged_cropland",
+   "sample_week": "w08",
+   "n": 8
+  }
+ ],
+ "per_bin": {
+  "b1": 64,
+  "b2": 64,
+  "b3": 64,
+  "b4": 64,
+  "b5": 64
+ },
+ "per_burn_type": {
+  "consecutive_views": 313,
+  "harvest_and_burn_same_window": 7
+ },
+ "sample_ids": [
+  {
+   "sample_id": "M3-0001",
+   "field_id": "SGR-88470",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0002",
+   "field_id": "SGR-23193",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0003",
+   "field_id": "SGR-19834",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0004",
+   "field_id": "SGR-12769",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0005",
+   "field_id": "SGR-51235",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0006",
+   "field_id": "SGR-U-9de9462c",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0007",
+   "field_id": "SGR-U-ddec75f6",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0008",
+   "field_id": "SGR-28880",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0009",
+   "field_id": "SGR-50041",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0010",
+   "field_id": "SGR-U-3db138a6",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0011",
+   "field_id": "SGR-U-0e4ef0ac",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0012",
+   "field_id": "SGR-87282",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0013",
+   "field_id": "SGR-60708",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0014",
+   "field_id": "SGR-83259",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0015",
+   "field_id": "SGR-9349",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0016",
+   "field_id": "SGR-76387",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0017",
+   "field_id": "SGR-87513",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0018",
+   "field_id": "SGR-53953",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0019",
+   "field_id": "SGR-U-bb43b7f4",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0020",
+   "field_id": "SGR-40616",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0021",
+   "field_id": "SGR-50604",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0022",
+   "field_id": "SGR-U-20fe6ebb",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0023",
+   "field_id": "SGR-36512",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0024",
+   "field_id": "SGR-23682",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0025",
+   "field_id": "SGR-36960",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0026",
+   "field_id": "SGR-65140",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0027",
+   "field_id": "SGR-88971",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0028",
+   "field_id": "SGR-17793",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0029",
+   "field_id": "SGR-70253",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0030",
+   "field_id": "SGR-25050",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0031",
+   "field_id": "SGR-U-e5cbd962",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0032",
+   "field_id": "SGR-94132",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0033",
+   "field_id": "SGR-U-624f8c9c",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0034",
+   "field_id": "SGR-U-c7ca454e",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0035",
+   "field_id": "SGR-36481",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0036",
+   "field_id": "SGR-13268",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0037",
+   "field_id": "SGR-92766",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0038",
+   "field_id": "SGR-U-1589363a",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0039",
+   "field_id": "SGR-91209",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0040",
+   "field_id": "SGR-U-3196111f",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0041",
+   "field_id": "SGR-26980",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0042",
+   "field_id": "SGR-24610",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0043",
+   "field_id": "SGR-87003",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0044",
+   "field_id": "SGR-48459",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0045",
+   "field_id": "SGR-40561",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0046",
+   "field_id": "SGR-10461",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0047",
+   "field_id": "SGR-50047",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0048",
+   "field_id": "SGR-95396",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0049",
+   "field_id": "SGR-19698",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0050",
+   "field_id": "SGR-96983",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0051",
+   "field_id": "SGR-81439",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0052",
+   "field_id": "SGR-87461",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0053",
+   "field_id": "SGR-87609",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0054",
+   "field_id": "SGR-53872",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0055",
+   "field_id": "SGR-36127",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0056",
+   "field_id": "SGR-31347",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0057",
+   "field_id": "SGR-94255",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0058",
+   "field_id": "SGR-69682",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0059",
+   "field_id": "SGR-7629",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0060",
+   "field_id": "SGR-96466",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0061",
+   "field_id": "SGR-60919",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0062",
+   "field_id": "SGR-64040",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0063",
+   "field_id": "SGR-63154",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0064",
+   "field_id": "SGR-U-a3f13e7f",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0065",
+   "field_id": "SGR-19317",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0066",
+   "field_id": "SGR-74630",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0067",
+   "field_id": "SGR-63668",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0068",
+   "field_id": "SGR-89917",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0069",
+   "field_id": "SGR-42597",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0070",
+   "field_id": "SGR-U-c3d79181",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0071",
+   "field_id": "SGR-24316",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0072",
+   "field_id": "SGR-95639",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0073",
+   "field_id": "SGR-U-cc58203b",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0074",
+   "field_id": "SGR-28754",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0075",
+   "field_id": "SGR-51625",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0076",
+   "field_id": "SGR-U-917c1581",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0077",
+   "field_id": "SGR-22705",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0078",
+   "field_id": "SGR-78736",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0079",
+   "field_id": "SGR-67563",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0080",
+   "field_id": "SGR-4512",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0081",
+   "field_id": "SGR-44049",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0082",
+   "field_id": "SGR-49375",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0083",
+   "field_id": "SGR-U-14ce9b60",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0084",
+   "field_id": "SGR-U-16623ff2",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0085",
+   "field_id": "SGR-84058",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0086",
+   "field_id": "SGR-32322",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0087",
+   "field_id": "SGR-51699",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0088",
+   "field_id": "SGR-60791",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0089",
+   "field_id": "SGR-91043",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0090",
+   "field_id": "SGR-61996",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0091",
+   "field_id": "SGR-58829",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0092",
+   "field_id": "SGR-65455",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0093",
+   "field_id": "SGR-35457",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0094",
+   "field_id": "SGR-U-98203cfb",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0095",
+   "field_id": "SGR-19222",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0096",
+   "field_id": "SGR-67566",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0097",
+   "field_id": "SGR-45891",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0098",
+   "field_id": "SGR-77479",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0099",
+   "field_id": "SGR-11238",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0100",
+   "field_id": "SGR-3795",
+   "source": "flagged",
+   "stratum": "b2|w02"
+  },
+  {
+   "sample_id": "M3-0101",
+   "field_id": "SGR-69887",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0102",
+   "field_id": "SGR-46432",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0103",
+   "field_id": "SGR-50822",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0104",
+   "field_id": "SGR-60043",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0105",
+   "field_id": "SGR-66396",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0106",
+   "field_id": "SGR-58244",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0107",
+   "field_id": "SGR-72071",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0108",
+   "field_id": "SGR-U-fd87d124",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0109",
+   "field_id": "SGR-U-192baa86",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0110",
+   "field_id": "SGR-51988",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0111",
+   "field_id": "SGR-3347",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0112",
+   "field_id": "SGR-54353",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0113",
+   "field_id": "SGR-30514",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0114",
+   "field_id": "SGR-62071",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0115",
+   "field_id": "SGR-33165",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0116",
+   "field_id": "SGR-70018",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0117",
+   "field_id": "SGR-9776",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0118",
+   "field_id": "SGR-17429",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0119",
+   "field_id": "SGR-U-67d8f5c6",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0120",
+   "field_id": "SGR-52962",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0121",
+   "field_id": "SGR-34953",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0122",
+   "field_id": "SGR-91424",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0123",
+   "field_id": "SGR-36012",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0124",
+   "field_id": "SGR-39637",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0125",
+   "field_id": "SGR-34146",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0126",
+   "field_id": "SGR-82233",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0127",
+   "field_id": "SGR-28586",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0128",
+   "field_id": "SGR-85193",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0129",
+   "field_id": "SGR-42315",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0130",
+   "field_id": "SGR-82117",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0131",
+   "field_id": "SGR-63847",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0132",
+   "field_id": "SGR-22154",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0133",
+   "field_id": "SGR-11836",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0134",
+   "field_id": "SGR-U-88df4291",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0135",
+   "field_id": "SGR-5511",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0136",
+   "field_id": "SGR-12408",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0137",
+   "field_id": "SGR-30566",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0138",
+   "field_id": "SGR-U-f3dc8572",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0139",
+   "field_id": "SGR-71111",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0140",
+   "field_id": "SGR-81832",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0141",
+   "field_id": "SGR-40424",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0142",
+   "field_id": "SGR-22686",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0143",
+   "field_id": "SGR-15647",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0144",
+   "field_id": "SGR-83816",
+   "source": "flagged",
+   "stratum": "b2|w05"
+  },
+  {
+   "sample_id": "M3-0145",
+   "field_id": "SGR-21830",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0146",
+   "field_id": "SGR-25766",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0147",
+   "field_id": "SGR-U-3f040565",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0148",
+   "field_id": "SGR-16531",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0149",
+   "field_id": "SGR-88819",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0150",
+   "field_id": "SGR-U-300827ed",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0151",
+   "field_id": "SGR-19195",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0152",
+   "field_id": "SGR-27518",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0153",
+   "field_id": "SGR-94797",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0154",
+   "field_id": "SGR-8153",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0155",
+   "field_id": "SGR-U-79c69bbb",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0156",
+   "field_id": "SGR-42412",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0157",
+   "field_id": "SGR-24688",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0158",
+   "field_id": "SGR-40705",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0159",
+   "field_id": "SGR-30195",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0160",
+   "field_id": "SGR-76333",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0161",
+   "field_id": "SGR-20827",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0162",
+   "field_id": "SGR-19890",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0163",
+   "field_id": "SGR-41241",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0164",
+   "field_id": "SGR-8162",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0165",
+   "field_id": "SGR-88707",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0166",
+   "field_id": "SGR-U-d4f80bce",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0167",
+   "field_id": "SGR-6333",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0168",
+   "field_id": "SGR-84672",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0169",
+   "field_id": "SGR-57218",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0170",
+   "field_id": "SGR-56739",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0171",
+   "field_id": "SGR-58910",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0172",
+   "field_id": "SGR-93088",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0173",
+   "field_id": "SGR-33518",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0174",
+   "field_id": "SGR-U-5337bc9c",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0175",
+   "field_id": "SGR-89563",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0176",
+   "field_id": "SGR-88371",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0177",
+   "field_id": "SGR-71020",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0178",
+   "field_id": "SGR-U-f5025830",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0179",
+   "field_id": "SGR-U-dd34655e",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0180",
+   "field_id": "SGR-96746",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0181",
+   "field_id": "SGR-15990",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0182",
+   "field_id": "SGR-26777",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0183",
+   "field_id": "SGR-64463",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0184",
+   "field_id": "SGR-86445",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0185",
+   "field_id": "SGR-16346",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0186",
+   "field_id": "SGR-97109",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0187",
+   "field_id": "SGR-U-6e15b02f",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0188",
+   "field_id": "SGR-27339",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0189",
+   "field_id": "SGR-U-2570f3f9",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0190",
+   "field_id": "SGR-28385",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0191",
+   "field_id": "SGR-U-002e4465",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0192",
+   "field_id": "SGR-5407",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0193",
+   "field_id": "SGR-8535",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0194",
+   "field_id": "SGR-37558",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0195",
+   "field_id": "SGR-88983",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0196",
+   "field_id": "SGR-73708",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0197",
+   "field_id": "SGR-54223",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0198",
+   "field_id": "SGR-54629",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0199",
+   "field_id": "SGR-36031",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0200",
+   "field_id": "SGR-U-e85dc79e",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0201",
+   "field_id": "SGR-16664",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0202",
+   "field_id": "SGR-68230",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0203",
+   "field_id": "SGR-80506",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0204",
+   "field_id": "SGR-4695",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0205",
+   "field_id": "SGR-17540",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0206",
+   "field_id": "SGR-81458",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0207",
+   "field_id": "SGR-43768",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0208",
+   "field_id": "SGR-U-0213f8ee",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0209",
+   "field_id": "SGR-U-38b67f85",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0210",
+   "field_id": "SGR-U-9498826d",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0211",
+   "field_id": "SGR-U-d8628810",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0212",
+   "field_id": "SGR-23339",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0213",
+   "field_id": "SGR-84358",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0214",
+   "field_id": "SGR-11188",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0215",
+   "field_id": "SGR-19937",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0216",
+   "field_id": "SGR-1832",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0217",
+   "field_id": "SGR-U-024dccf8",
+   "source": "unflagged_cropland",
+   "stratum": "w03"
+  },
+  {
+   "sample_id": "M3-0218",
+   "field_id": "SGR-88024",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0219",
+   "field_id": "SGR-U-73291b21",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0220",
+   "field_id": "SGR-34535",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0221",
+   "field_id": "SGR-U-3ef144cd",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0222",
+   "field_id": "SGR-8253",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0223",
+   "field_id": "SGR-U-5a9d88af",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0224",
+   "field_id": "SGR-U-ca6b4b39",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0225",
+   "field_id": "SGR-U-f0044c80",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0226",
+   "field_id": "SGR-8123",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0227",
+   "field_id": "SGR-41237",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0228",
+   "field_id": "SGR-14171",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0229",
+   "field_id": "SGR-17942",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0230",
+   "field_id": "SGR-15979",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0231",
+   "field_id": "SGR-88970",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0232",
+   "field_id": "SGR-14014",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0233",
+   "field_id": "SGR-82678",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0234",
+   "field_id": "SGR-8270",
+   "source": "flagged",
+   "stratum": "b3|w07"
+  },
+  {
+   "sample_id": "M3-0235",
+   "field_id": "SGR-U-21e5e0fc",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0236",
+   "field_id": "SGR-25463",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0237",
+   "field_id": "SGR-48604",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0238",
+   "field_id": "SGR-46244",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0239",
+   "field_id": "SGR-86617",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0240",
+   "field_id": "SGR-31753",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0241",
+   "field_id": "SGR-95509",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0242",
+   "field_id": "SGR-73280",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0243",
+   "field_id": "SGR-57428",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0244",
+   "field_id": "SGR-U-f0fec698",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0245",
+   "field_id": "SGR-86841",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0246",
+   "field_id": "SGR-79309",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0247",
+   "field_id": "SGR-74478",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0248",
+   "field_id": "SGR-9228",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0249",
+   "field_id": "SGR-80588",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0250",
+   "field_id": "SGR-U-964a2b0f",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0251",
+   "field_id": "SGR-75598",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0252",
+   "field_id": "SGR-19478",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0253",
+   "field_id": "SGR-76847",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0254",
+   "field_id": "SGR-65382",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0255",
+   "field_id": "SGR-82000",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0256",
+   "field_id": "SGR-18957",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0257",
+   "field_id": "SGR-70929",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0258",
+   "field_id": "SGR-41167",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0259",
+   "field_id": "SGR-37196",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0260",
+   "field_id": "SGR-U-50660628",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0261",
+   "field_id": "SGR-16973",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0262",
+   "field_id": "SGR-49496",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0263",
+   "field_id": "SGR-25871",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0264",
+   "field_id": "SGR-89292",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0265",
+   "field_id": "SGR-34573",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0266",
+   "field_id": "SGR-37643",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0267",
+   "field_id": "SGR-13235",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0268",
+   "field_id": "SGR-49029",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0269",
+   "field_id": "SGR-12214",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0270",
+   "field_id": "SGR-82125",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0271",
+   "field_id": "SGR-17601",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0272",
+   "field_id": "SGR-43693",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0273",
+   "field_id": "SGR-85978",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0274",
+   "field_id": "SGR-77973",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0275",
+   "field_id": "SGR-U-4e3cd974",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0276",
+   "field_id": "SGR-52304",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0277",
+   "field_id": "SGR-U-ede1f19b",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0278",
+   "field_id": "SGR-87046",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0279",
+   "field_id": "SGR-18367",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0280",
+   "field_id": "SGR-87789",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0281",
+   "field_id": "SGR-80882",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0282",
+   "field_id": "SGR-23721",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0283",
+   "field_id": "SGR-57903",
+   "source": "flagged",
+   "stratum": "b5|w01"
+  },
+  {
+   "sample_id": "M3-0284",
+   "field_id": "SGR-48754",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0285",
+   "field_id": "SGR-37271",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0286",
+   "field_id": "SGR-11552",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0287",
+   "field_id": "SGR-U-c4af550c",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0288",
+   "field_id": "SGR-28720",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0289",
+   "field_id": "SGR-11262",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0290",
+   "field_id": "SGR-13731",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0291",
+   "field_id": "SGR-U-30c8f68f",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0292",
+   "field_id": "SGR-92697",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0293",
+   "field_id": "SGR-5920",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0294",
+   "field_id": "SGR-10093",
+   "source": "flagged",
+   "stratum": "b1|w01"
+  },
+  {
+   "sample_id": "M3-0295",
+   "field_id": "SGR-57806",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0296",
+   "field_id": "SGR-90848",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0297",
+   "field_id": "SGR-18235",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0298",
+   "field_id": "SGR-89016",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0299",
+   "field_id": "SGR-U-5680f65a",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0300",
+   "field_id": "SGR-U-aa8c0b0a",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0301",
+   "field_id": "SGR-70883",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0302",
+   "field_id": "SGR-64001",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0303",
+   "field_id": "SGR-24756",
+   "source": "flagged",
+   "stratum": "b3|w02"
+  },
+  {
+   "sample_id": "M3-0304",
+   "field_id": "SGR-66867",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0305",
+   "field_id": "SGR-49506",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0306",
+   "field_id": "SGR-13176",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0307",
+   "field_id": "SGR-14152",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0308",
+   "field_id": "SGR-U-cf6094f9",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0309",
+   "field_id": "SGR-U-e6d36a9f",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0310",
+   "field_id": "SGR-53488",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0311",
+   "field_id": "SGR-U-7c775229",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0312",
+   "field_id": "SGR-91592",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0313",
+   "field_id": "SGR-35209",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0314",
+   "field_id": "SGR-U-50fda7d0",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0315",
+   "field_id": "SGR-10479",
+   "source": "flagged",
+   "stratum": "b2|w06"
+  },
+  {
+   "sample_id": "M3-0316",
+   "field_id": "SGR-17253",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0317",
+   "field_id": "SGR-87153",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0318",
+   "field_id": "SGR-42422",
+   "source": "flagged",
+   "stratum": "b1|w08"
+  },
+  {
+   "sample_id": "M3-0319",
+   "field_id": "SGR-U-46c446f1",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0320",
+   "field_id": "SGR-90672",
+   "source": "flagged",
+   "stratum": "b2|w01"
+  },
+  {
+   "sample_id": "M3-0321",
+   "field_id": "SGR-11907",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0322",
+   "field_id": "SGR-U-5091d48b",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0323",
+   "field_id": "SGR-76674",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0324",
+   "field_id": "SGR-66218",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0325",
+   "field_id": "SGR-42220",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0326",
+   "field_id": "SGR-U-ba99e473",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0327",
+   "field_id": "SGR-U-260dbdcd",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0328",
+   "field_id": "SGR-69762",
+   "source": "flagged",
+   "stratum": "b5|w08"
+  },
+  {
+   "sample_id": "M3-0329",
+   "field_id": "SGR-82764",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0330",
+   "field_id": "SGR-U-81e16cb7",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0331",
+   "field_id": "SGR-U-0fbba2f6",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0332",
+   "field_id": "SGR-U-068c4c45",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0333",
+   "field_id": "SGR-U-dcabc6cd",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0334",
+   "field_id": "SGR-90028",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0335",
+   "field_id": "SGR-73225",
+   "source": "flagged",
+   "stratum": "b3|w05"
+  },
+  {
+   "sample_id": "M3-0336",
+   "field_id": "SGR-62266",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0337",
+   "field_id": "SGR-19131",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0338",
+   "field_id": "SGR-42637",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0339",
+   "field_id": "SGR-13528",
+   "source": "flagged",
+   "stratum": "b1|w02"
+  },
+  {
+   "sample_id": "M3-0340",
+   "field_id": "SGR-59934",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0341",
+   "field_id": "SGR-U-b698e486",
+   "source": "unflagged_cropland",
+   "stratum": "w01"
+  },
+  {
+   "sample_id": "M3-0342",
+   "field_id": "SGR-2412",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0343",
+   "field_id": "SGR-27780",
+   "source": "flagged",
+   "stratum": "b1|w06"
+  },
+  {
+   "sample_id": "M3-0344",
+   "field_id": "SGR-30791",
+   "source": "flagged",
+   "stratum": "b3|w03"
+  },
+  {
+   "sample_id": "M3-0345",
+   "field_id": "SGR-86233",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0346",
+   "field_id": "SGR-U-86e431ed",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0347",
+   "field_id": "SGR-57022",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0348",
+   "field_id": "SGR-56047",
+   "source": "flagged",
+   "stratum": "b3|w01"
+  },
+  {
+   "sample_id": "M3-0349",
+   "field_id": "SGR-79614",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0350",
+   "field_id": "SGR-U-c0813044",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0351",
+   "field_id": "SGR-U-61180cba",
+   "source": "unflagged_cropland",
+   "stratum": "w06"
+  },
+  {
+   "sample_id": "M3-0352",
+   "field_id": "SGR-96367",
+   "source": "flagged",
+   "stratum": "b4|w03"
+  },
+  {
+   "sample_id": "M3-0353",
+   "field_id": "SGR-59991",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0354",
+   "field_id": "SGR-84018",
+   "source": "flagged",
+   "stratum": "b5|w03"
+  },
+  {
+   "sample_id": "M3-0355",
+   "field_id": "SGR-77094",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0356",
+   "field_id": "SGR-U-58ee8706",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0357",
+   "field_id": "SGR-49981",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0358",
+   "field_id": "SGR-55162",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0359",
+   "field_id": "SGR-37414",
+   "source": "flagged",
+   "stratum": "b2|w03"
+  },
+  {
+   "sample_id": "M3-0360",
+   "field_id": "SGR-67861",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0361",
+   "field_id": "SGR-95196",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  },
+  {
+   "sample_id": "M3-0362",
+   "field_id": "SGR-38763",
+   "source": "flagged",
+   "stratum": "b1|w07"
+  },
+  {
+   "sample_id": "M3-0363",
+   "field_id": "SGR-31349",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0364",
+   "field_id": "SGR-64241",
+   "source": "flagged",
+   "stratum": "b5|w04"
+  },
+  {
+   "sample_id": "M3-0365",
+   "field_id": "SGR-6315",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0366",
+   "field_id": "SGR-52909",
+   "source": "flagged",
+   "stratum": "b3|w06"
+  },
+  {
+   "sample_id": "M3-0367",
+   "field_id": "SGR-7923",
+   "source": "flagged",
+   "stratum": "b4|w01"
+  },
+  {
+   "sample_id": "M3-0368",
+   "field_id": "SGR-92912",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0369",
+   "field_id": "SGR-16527",
+   "source": "flagged",
+   "stratum": "b4|w08"
+  },
+  {
+   "sample_id": "M3-0370",
+   "field_id": "SGR-5896",
+   "source": "flagged",
+   "stratum": "b4|w04"
+  },
+  {
+   "sample_id": "M3-0371",
+   "field_id": "SGR-U-4e3803b1",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0372",
+   "field_id": "SGR-74898",
+   "source": "flagged",
+   "stratum": "b2|w04"
+  },
+  {
+   "sample_id": "M3-0373",
+   "field_id": "SGR-U-cfb9c867",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0374",
+   "field_id": "SGR-29239",
+   "source": "flagged",
+   "stratum": "b5|w07"
+  },
+  {
+   "sample_id": "M3-0375",
+   "field_id": "SGR-57152",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0376",
+   "field_id": "SGR-77146",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0377",
+   "field_id": "SGR-84235",
+   "source": "flagged",
+   "stratum": "b4|w02"
+  },
+  {
+   "sample_id": "M3-0378",
+   "field_id": "SGR-90831",
+   "source": "flagged",
+   "stratum": "b1|w04"
+  },
+  {
+   "sample_id": "M3-0379",
+   "field_id": "SGR-23076",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0380",
+   "field_id": "SGR-35764",
+   "source": "flagged",
+   "stratum": "b4|w06"
+  },
+  {
+   "sample_id": "M3-0381",
+   "field_id": "SGR-90953",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0382",
+   "field_id": "SGR-84767",
+   "source": "flagged",
+   "stratum": "b5|w05"
+  },
+  {
+   "sample_id": "M3-0383",
+   "field_id": "SGR-21901",
+   "source": "flagged",
+   "stratum": "b5|w06"
+  },
+  {
+   "sample_id": "M3-0384",
+   "field_id": "SGR-26963",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0385",
+   "field_id": "SGR-U-4f617b4c",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0386",
+   "field_id": "SGR-12593",
+   "source": "flagged",
+   "stratum": "b1|w05"
+  },
+  {
+   "sample_id": "M3-0387",
+   "field_id": "SGR-77257",
+   "source": "flagged",
+   "stratum": "b4|w07"
+  },
+  {
+   "sample_id": "M3-0388",
+   "field_id": "SGR-71255",
+   "source": "flagged",
+   "stratum": "b2|w07"
+  },
+  {
+   "sample_id": "M3-0389",
+   "field_id": "SGR-92470",
+   "source": "flagged",
+   "stratum": "b1|w03"
+  },
+  {
+   "sample_id": "M3-0390",
+   "field_id": "SGR-32761",
+   "source": "flagged",
+   "stratum": "b4|w05"
+  },
+  {
+   "sample_id": "M3-0391",
+   "field_id": "SGR-U-22b2b7fd",
+   "source": "unflagged_cropland",
+   "stratum": "w05"
+  },
+  {
+   "sample_id": "M3-0392",
+   "field_id": "SGR-U-9e11d4f7",
+   "source": "unflagged_cropland",
+   "stratum": "w08"
+  },
+  {
+   "sample_id": "M3-0393",
+   "field_id": "SGR-11319",
+   "source": "flagged",
+   "stratum": "b2|w08"
+  },
+  {
+   "sample_id": "M3-0394",
+   "field_id": "SGR-U-3a3085f5",
+   "source": "unflagged_cropland",
+   "stratum": "w04"
+  },
+  {
+   "sample_id": "M3-0395",
+   "field_id": "SGR-21777",
+   "source": "flagged",
+   "stratum": "b5|w02"
+  },
+  {
+   "sample_id": "M3-0396",
+   "field_id": "SGR-U-2dd7c057",
+   "source": "unflagged_cropland",
+   "stratum": "w02"
+  },
+  {
+   "sample_id": "M3-0397",
+   "field_id": "SGR-U-a8abd293",
+   "source": "unflagged_cropland",
+   "stratum": "w07"
+  },
+  {
+   "sample_id": "M3-0398",
+   "field_id": "SGR-U-9dc64090",
+   "source": "unflagged_cropland",
+   "stratum": "none"
+  },
+  {
+   "sample_id": "M3-0399",
+   "field_id": "SGR-19946",
+   "source": "flagged",
+   "stratum": "b3|w08"
+  },
+  {
+   "sample_id": "M3-0400",
+   "field_id": "SGR-9637",
+   "source": "flagged",
+   "stratum": "b3|w04"
+  }
+ ],
+ "geojson": "m3_sample.geojson"
+}

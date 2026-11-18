@@ -1,3 +1,4 @@
 method,raw_ha,final_ha,pct_aoi,pct_harvested,n_polygons
-M2 baseline (pre-season median dNBR > 0.27),260865.5,236566.4,80.6,95.3,236415
-M2.1 harvest-aware,156085.9,138678.2,47.2,55.9,101894
+M2 baseline (pre-season median dNBR > 0.27),260865.5,236566.4,80.6,94.8,236415
+"M2.1 frozen (a753719: blue haze test, no normalisation)",156085.9,138678.2,47.2,55.9,101894
+M2.1 + AOT haze mask + PIF normalisation + early burns,152834.1,135979.3,46.3,54.5,97137

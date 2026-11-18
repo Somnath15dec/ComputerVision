@@ -12,61 +12,83 @@
   },
   "new": {
     "aoi_ha": 293550.9,
-    "raw_ha": 156085.9,
-    "after_opening_ha": 141209.3,
-    "final_ha": 138678.2,
+    "raw_ha": 152834.1,
+    "after_opening_ha": 138113.2,
+    "final_ha": 135979.3,
     "min_patch_px": 10,
-    "n_polygons": 101894,
-    "n_single_observation": 1448,
-    "single_observation_ha": 548.2,
-    "n_no_s1_pair": 79
+    "n_polygons": 97137,
+    "n_single_observation": 1138,
+    "single_observation_ha": 456.2,
+    "n_no_s1_pair": 77
   },
   "label_px": {
-    "no_harvest": 4530945,
-    "unobserved": 25752,
-    "not_burnt": 9189801,
-    "burnt": 15608591
+    "no_harvest": 4394508,
+    "unobserved": 28316,
+    "not_burnt": 9648853,
+    "burnt": 15155239,
+    "harvest_and_burn_same_window": 128173
   },
   "label_ha": {
+    "no_harvest": 43945.1,
+    "unobserved": 283.2,
+    "not_burnt": 96488.5,
+    "burnt": 151552.4,
+    "harvest_and_burn_same_window": 1281.7
+  },
+  "harvested_ha": 249605.8,
+  "albedo": {
+    "albedo_burn_p50": 0.1072,
+    "albedo_harvest_notburnt_p50": 0.1289,
+    "pct_notburnt_harvest_view_darker_than_burn_p50": 19.1,
+    "harvested_px": 24960581
+  },
+  "random_chip_ids": [
+    "SGR-0880",
+    "SGR-34242",
+    "SGR-37436",
+    "SGR-37819",
+    "SGR-39823",
+    "SGR-46878",
+    "SGR-49280",
+    "SGR-5509",
+    "SGR-57108",
+    "SGR-5721",
+    "SGR-5832",
+    "SGR-65864",
+    "SGR-66039",
+    "SGR-67415",
+    "SGR-67677",
+    "SGR-68483",
+    "SGR-79714",
+    "SGR-84505",
+    "SGR-8685",
+    "SGR-95170"
+  ],
+  "new_polygon_area_ha_p50_p90_p99": [
+    0.53,
+    3.05,
+    13.61
+  ],
+  "new_largest_polygon_ha": 181.43,
+  "code_version": "3825483",
+  "flagged_pct_aoi": 46.3,
+  "early_burns": {
+    "same_window_polygons": 672,
+    "same_window_ha": 287.5
+  },
+  "n_pif": 84724,
+  "excluded_days": {
+    "2025-10-30": [
+      "PIF residual spread > 3x median in band idx [4, 5]"
+    ],
+    "2025-11-22": [
+      "usable 0.0% of SCL-clear < 20%"
+    ]
+  },
+  "before_fixes_label_ha": {
     "no_harvest": 45309.5,
     "unobserved": 257.5,
     "not_burnt": 91898.0,
     "burnt": 156085.9
-  },
-  "harvested_ha": 248241.4,
-  "albedo": {
-    "albedo_burn_p50": 0.1068,
-    "albedo_harvest_notburnt_p50": 0.1317,
-    "pct_notburnt_harvest_view_darker_than_burn_p50": 18.3,
-    "harvested_px": 24824144
-  },
-  "random_chip_ids": [
-    "SGR-100833",
-    "SGR-100973",
-    "SGR-10586",
-    "SGR-1197",
-    "SGR-23694",
-    "SGR-28125",
-    "SGR-29242",
-    "SGR-39889",
-    "SGR-52541",
-    "SGR-59305",
-    "SGR-66285",
-    "SGR-7830",
-    "SGR-7979",
-    "SGR-79988",
-    "SGR-82630",
-    "SGR-83310",
-    "SGR-85621",
-    "SGR-88259",
-    "SGR-92279",
-    "SGR-95745"
-  ],
-  "new_polygon_area_ha_p50_p90_p99": [
-    0.51,
-    2.98,
-    13.16
-  ],
-  "new_largest_polygon_ha": 237.49,
-  "code_version": "c2cb311"
+  }
 }

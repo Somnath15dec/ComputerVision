@@ -1,0 +1,3 @@
+method,raw_ha,final_ha,pct_aoi,pct_harvested,n_polygons
+M2 baseline (pre-season median dNBR > 0.27),260865.5,236566.4,80.6,95.3,236415
+M2.1 harvest-aware,156085.9,138678.2,47.2,55.9,101894

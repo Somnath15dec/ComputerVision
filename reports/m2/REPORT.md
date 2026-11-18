@@ -61,31 +61,31 @@ Full list: `single_observation_polygons.csv`.
 
 | field_id | grid_cell | area_ha | detected_window | n_clear_week_mean | haze_frac | dnbr_detect_mean | vh_change_db | quality_flags |
 |---|---|---|---|---|---|---|---|---|
-| SGR-34998 | SGR-G-028 | 66.47 | 2025-09-30/2025-10-08 | 1 | 1 | 0.34 | -0.04 | single_observation,haze_at_detection |
-| SGR-99028 | SGR-G-080 | 58.46 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.28 | single_observation,haze_at_detection |
-| SGR-29146 | SGR-G-029 | 48.55 | 2025-09-30/2025-10-08 | 1 | 1 | 0.36 | -0.55 | single_observation,haze_at_detection |
-| SGR-155272 | SGR-G-110 | 24.42 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 0.51 | single_observation,haze_at_detection |
-| SGR-43051 | SGR-G-038 | 21.94 | 2025-09-30/2025-10-08 | 1 | 1 | 0.34 | -0.18 | single_observation,haze_at_detection |
-| SGR-146440 | SGR-G-100 | 18.62 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 0.05 | single_observation,haze_at_detection |
-| SGR-106355 | SGR-G-080 | 15.45 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.32 | single_observation,haze_at_detection |
-| SGR-134492 | SGR-G-100 | 14.41 | 2025-10-05/2025-10-08 | 2 | 1 | 0.33 | 1.29 | single_observation,haze_at_detection |
-| SGR-88607 | SGR-G-066 | 12.88 | 2025-10-05/2025-10-08 | 2 | 1 | 0.3 | 1.54 | single_observation,haze_at_detection |
-| SGR-103622 | SGR-G-080 | 12.74 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 1.26 | single_observation,haze_at_detection |
-| SGR-129117 | SGR-G-090 | 12.66 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.33 | single_observation,haze_at_detection |
-| SGR-145570 | SGR-G-100 | 12.25 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 0.86 | single_observation,haze_at_detection |
-| SGR-158497 | SGR-G-110 | 11.77 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 0.78 | single_observation,haze_at_detection |
-| SGR-74436 | SGR-G-050 | 11.34 | 2025-10-03/2025-10-08 | 1 | 1 | 0.34 | 0.61 | single_observation,haze_at_detection |
-| SGR-112689 | SGR-G-078 | 11.08 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 0.93 | single_observation,haze_at_detection |
-| SGR-144171 | SGR-G-100 | 10.95 | 2025-10-05/2025-10-08 | 2 | 1 | 0.36 | 1.16 | single_observation,haze_at_detection |
-| SGR-77547 | SGR-G-050 | 10.87 | 2025-09-30/2025-10-08 | 1 | 1 | 0.32 | -0.3 | single_observation,haze_at_detection |
-| SGR-141171 | SGR-G-100 | 10.81 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.08 | single_observation,haze_at_detection |
-| SGR-47500 | SGR-G-046 | 10.45 | 2025-10-05/2025-10-08 | 2 | 1 | 0.38 | -0.17 | single_observation,haze_at_detection |
-| SGR-135524 | SGR-G-101 | 10.29 | 2025-10-05/2025-10-08 | 2 | 1 | 0.33 | 0.99 | single_observation,haze_at_detection |
-| SGR-34257 | SGR-G-029 | 10.09 | 2025-10-03/2025-10-08 | 1 | 1 | 0.37 | 0.89 | single_observation,haze_at_detection |
-| SGR-149766 | SGR-G-100 | 10.05 | 2025-10-05/2025-10-08 | 2 | 1 | 0.38 | 0.48 | single_observation,haze_at_detection |
-| SGR-145228 | SGR-G-099 | 9.35 | 2025-10-05/2025-10-08 | 2 | 1 | 0.36 | 1.51 | single_observation,haze_at_detection |
-| SGR-124479 | SGR-G-090 | 9.35 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.58 | single_observation,haze_at_detection |
-| SGR-149007 | SGR-G-102 | 9.12 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.22 | single_observation,haze_at_detection |
+| SGR-B-34998 | SGR-G-028 | 66.47 | 2025-09-30/2025-10-08 | 1 | 1 | 0.34 | -0.04 | single_observation,haze_at_detection |
+| SGR-B-99028 | SGR-G-080 | 58.46 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.28 | single_observation,haze_at_detection |
+| SGR-B-29146 | SGR-G-029 | 48.55 | 2025-09-30/2025-10-08 | 1 | 1 | 0.36 | -0.55 | single_observation,haze_at_detection |
+| SGR-B-155272 | SGR-G-110 | 24.42 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 0.51 | single_observation,haze_at_detection |
+| SGR-B-43051 | SGR-G-038 | 21.94 | 2025-09-30/2025-10-08 | 1 | 1 | 0.34 | -0.18 | single_observation,haze_at_detection |
+| SGR-B-146440 | SGR-G-100 | 18.62 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 0.05 | single_observation,haze_at_detection |
+| SGR-B-106355 | SGR-G-080 | 15.45 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.32 | single_observation,haze_at_detection |
+| SGR-B-134492 | SGR-G-100 | 14.41 | 2025-10-05/2025-10-08 | 2 | 1 | 0.33 | 1.29 | single_observation,haze_at_detection |
+| SGR-B-88607 | SGR-G-066 | 12.88 | 2025-10-05/2025-10-08 | 2 | 1 | 0.3 | 1.54 | single_observation,haze_at_detection |
+| SGR-B-103622 | SGR-G-080 | 12.74 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 1.26 | single_observation,haze_at_detection |
+| SGR-B-129117 | SGR-G-090 | 12.66 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.33 | single_observation,haze_at_detection |
+| SGR-B-145570 | SGR-G-100 | 12.25 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 0.86 | single_observation,haze_at_detection |
+| SGR-B-158497 | SGR-G-110 | 11.77 | 2025-10-05/2025-10-08 | 2 | 1 | 0.37 | 0.78 | single_observation,haze_at_detection |
+| SGR-B-74436 | SGR-G-050 | 11.34 | 2025-10-03/2025-10-08 | 1 | 1 | 0.34 | 0.61 | single_observation,haze_at_detection |
+| SGR-B-112689 | SGR-G-078 | 11.08 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 0.93 | single_observation,haze_at_detection |
+| SGR-B-144171 | SGR-G-100 | 10.95 | 2025-10-05/2025-10-08 | 2 | 1 | 0.36 | 1.16 | single_observation,haze_at_detection |
+| SGR-B-77547 | SGR-G-050 | 10.87 | 2025-09-30/2025-10-08 | 1 | 1 | 0.32 | -0.3 | single_observation,haze_at_detection |
+| SGR-B-141171 | SGR-G-100 | 10.81 | 2025-10-05/2025-10-08 | 2 | 1 | 0.35 | 1.08 | single_observation,haze_at_detection |
+| SGR-B-47500 | SGR-G-046 | 10.45 | 2025-10-05/2025-10-08 | 2 | 1 | 0.38 | -0.17 | single_observation,haze_at_detection |
+| SGR-B-135524 | SGR-G-101 | 10.29 | 2025-10-05/2025-10-08 | 2 | 1 | 0.33 | 0.99 | single_observation,haze_at_detection |
+| SGR-B-34257 | SGR-G-029 | 10.09 | 2025-10-03/2025-10-08 | 1 | 1 | 0.37 | 0.89 | single_observation,haze_at_detection |
+| SGR-B-149766 | SGR-G-100 | 10.05 | 2025-10-05/2025-10-08 | 2 | 1 | 0.38 | 0.48 | single_observation,haze_at_detection |
+| SGR-B-145228 | SGR-G-099 | 9.35 | 2025-10-05/2025-10-08 | 2 | 1 | 0.36 | 1.51 | single_observation,haze_at_detection |
+| SGR-B-124479 | SGR-G-090 | 9.35 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.58 | single_observation,haze_at_detection |
+| SGR-B-149007 | SGR-G-102 | 9.12 | 2025-10-05/2025-10-08 | 2 | 1 | 0.34 | 1.22 | single_observation,haze_at_detection |
 
 ## Suspected false positives (unlabelled)
 Picked from a random sample of 1 to 10 ha polygons using measured post-detection reflectance (`fp_sample_reflectance.csv`): darkest NIR with an abrupt drop (burn-like reference), drop since previous look < 0.05 (gradual, harvest-like), brightest red (tilled-soil-like) and darkest NIR with low SWIR (wet-soil-like). These are **hypotheses for M3 labelling**, not verified classes.

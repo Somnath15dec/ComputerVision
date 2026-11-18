@@ -25,20 +25,20 @@
   "haze_at_detection_ha": 6529.3,
   "fp_groups": {
     "abrupt + dark (burn-like reference)": [
-      "SGR-103421",
-      "SGR-88247"
+      "SGR-B-103421",
+      "SGR-B-88247"
     ],
     "gradual NBR decline (harvest-like?)": [
-      "SGR-79494",
-      "SGR-19714"
+      "SGR-B-79494",
+      "SGR-B-19714"
     ],
     "bright post-surface (tilled-soil-like?)": [
-      "SGR-164554",
-      "SGR-144989"
+      "SGR-B-164554",
+      "SGR-B-144989"
     ],
     "dark, low SWIR (wet-soil-like?)": [
-      "SGR-71677",
-      "SGR-47681"
+      "SGR-B-71677",
+      "SGR-B-47681"
     ]
   }
 }

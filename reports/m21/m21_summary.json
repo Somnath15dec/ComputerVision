@@ -1,0 +1,72 @@
+{
+  "old": {
+    "aoi_ha": 293550.9,
+    "raw_ha": 260865.5,
+    "after_opening_ha": 259825.4,
+    "final_ha": 236566.4,
+    "min_patch_px": 10,
+    "n_polygons": 236415,
+    "n_single_observation": 4138,
+    "single_observation_ha": 3068.4,
+    "n_no_s1_pair": 96
+  },
+  "new": {
+    "aoi_ha": 293550.9,
+    "raw_ha": 156085.9,
+    "after_opening_ha": 141209.3,
+    "final_ha": 138678.2,
+    "min_patch_px": 10,
+    "n_polygons": 101894,
+    "n_single_observation": 1448,
+    "single_observation_ha": 548.2,
+    "n_no_s1_pair": 79
+  },
+  "label_px": {
+    "no_harvest": 4530945,
+    "unobserved": 25752,
+    "not_burnt": 9189801,
+    "burnt": 15608591
+  },
+  "label_ha": {
+    "no_harvest": 45309.5,
+    "unobserved": 257.5,
+    "not_burnt": 91898.0,
+    "burnt": 156085.9
+  },
+  "harvested_ha": 248241.4,
+  "albedo": {
+    "albedo_burn_p50": 0.1068,
+    "albedo_harvest_notburnt_p50": 0.1317,
+    "pct_notburnt_harvest_view_darker_than_burn_p50": 18.3,
+    "harvested_px": 24824144
+  },
+  "random_chip_ids": [
+    "SGR-100833",
+    "SGR-100973",
+    "SGR-10586",
+    "SGR-1197",
+    "SGR-23694",
+    "SGR-28125",
+    "SGR-29242",
+    "SGR-39889",
+    "SGR-52541",
+    "SGR-59305",
+    "SGR-66285",
+    "SGR-7830",
+    "SGR-7979",
+    "SGR-79988",
+    "SGR-82630",
+    "SGR-83310",
+    "SGR-85621",
+    "SGR-88259",
+    "SGR-92279",
+    "SGR-95745"
+  ],
+  "new_polygon_area_ha_p50_p90_p99": [
+    0.51,
+    2.98,
+    13.16
+  ],
+  "new_largest_polygon_ha": 237.49,
+  "code_version": "c2cb311"
+}

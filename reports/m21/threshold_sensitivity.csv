@@ -1,0 +1,12 @@
+variant,burnt_pct_aoi,burnt_pct_harvested,unobserved_pct_aoi,harvested_pct_aoi
+default,52.3,62.4,0.07,83.7
+dnbr_short_min x0.5,57.4,68.6,0.07,83.7
+dnbr_short_min x2,34.1,40.8,0.07,83.7
+albedo_rel_drop_min x0.5,55.6,66.4,0.07,83.7
+albedo_rel_drop_min x2,40.6,48.6,0.07,83.7
+dnbr2_min x0.5,52.6,62.8,0.07,83.7
+dnbr2_min x2,51.0,61.0,0.07,83.7
+ndvi_harvest -0.05,41.8,51.2,0.07,81.7
+ndvi_harvest +0.05,57.2,67.1,0.08,85.3
+ndvi_green -0.05,52.5,61.9,0.08,84.7
+ndvi_green +0.05,51.9,63.0,0.06,82.3

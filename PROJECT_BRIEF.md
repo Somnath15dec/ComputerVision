@@ -48,16 +48,31 @@ Official stubble-burning counts in Punjab/Haryana come mostly from polar-orbitin
 - U-Net trained on chips derived from the labels. **Spatially split** train/val/test by tile (no random pixel splits, since that leaks).
 - Report precision, recall, F1 and IoU on the test split, plus a confusion matrix against the baseline from M2. Be honest if the model doesn't beat the baseline.
 - Calibrate confidence (temperature scaling or similar).
-- **Observation-density breakdown** (added 2026-11-19, fixed before labelling). Report the
-  label distribution, my repeat self-agreement (raw and kappa, from `stubble label-agreement`)
-  and every model metric (baseline and U-Net) separately for:
+- **Observation-density breakdown** (added 2026-11-19, fixed before labelling; reporting
+  layout revised 2026-11-19). Splits:
   - **strip length**: short (<= 16 usable dates in the labelling strip) vs long (> 16);
   - **region**: west vs east of easting 584 602 m (EPSG:32643; the midpoint of the AOI
     bounding box).
-  In the M3 sample, every short strip is in the west, so the two splits are nested. Report
-  the three cells west/short, west/long and east, plus the margins. Counts in the sample are
-  106 / 72 / 222 items, of which unflagged 41 / 9 / 30. Use inclusion weights and give
-  confidence intervals; some cells are small.
+  Every short strip is in the west, so the two splits are nested: west/short, west/long, east.
+  - **Headline: west vs east** (west = west/short + west/long). For each region: label
+    distribution, repeat agreement, and every model metric (baseline and U-Net: precision,
+    recall, F1, IoU) with confidence intervals, plus the all-items margin.
+  - **Supplement: full per-cell table** (west/short, west/long, east, margins) with the same
+    quantities and confidence intervals. In the 200 labelled items the cells hold 58 / 30 /
+    112 items, of which unflagged 25 / 3 / 13 (full 400-item sample: 106 / 72 / 222, unflagged
+    41 / 9 / 30). West/long has only 3 unflagged items: show its CIs, do not over-read it.
+  - Use `subset_inclusion_weight` from the label export (stratum population / items of that
+    stratum in the 200) for every estimate.
+- **Label-aid bias check, next to the baseline metrics** (added 2026-11-19). The labelling
+  tool shows the crosshair NBR/albedo/NDVI chart and the ΔNBR row on first showings, but the
+  20 hidden repeats get imagery only (true colour + SWIR). The chart shows the same features
+  the M2.1 rule uses, so it may pull labels toward the rule and flatter the baseline. Report
+  from `stubble label-agreement`, beside the baseline metrics table: chart-on vs chart-off
+  agreement (raw, kappa), burnt and unsure rates with and without the chart, the discordant
+  burnt pairs in each direction (exact McNemar p), and how often the label matches the M2.1
+  flag with and without the chart. With no chart-off/chart-off control, repeat noise and
+  the chart effect cannot be separated, so read the gap as an upper bound. With 20 pairs it is
+  a rough check: say so.
 
 ### M5: FIRMS comparison (the headline result)
 - Pull VIIRS hotspots for the AOI and season.
@@ -70,6 +85,13 @@ Official stubble-burning counts in Punjab/Haryana come mostly from polar-orbitin
   State this next to the results, and use the M4 west/short metrics to size the effect.
 - Show an **observation-count map** (usable clear S2 views per pixel or grid cell over the
   season) next to the burnt-area map, at the same extent and grid.
+- **External reference: ISRO NRSC burnt-area figures** (added 2026-11-19). If ISRO's National
+  Remote Sensing Centre has published MIRBI-based (Mid-Infrared Burn Index) burnt-area figures
+  for Sangrur for the 2025 season, put them next to our estimate and the FIRMS counts as a
+  third reference that does not depend on my labels. Record the source document, date,
+  method, spatial unit and date window. Compare like with like (same boundary and dates, or
+  say how they differ). If no figure for Sangrur 2025 can be found, or only state-level totals,
+  say so and stop to ask; never estimate or back-fill an NRSC number.
 
 ### M6: Evidence packs and certificates
 - For each flagged polygon, an evidence pack:

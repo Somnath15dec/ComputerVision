@@ -162,3 +162,7 @@ labelling:                       # M3: stratified sample + labelling tool
   n_label: 200
   n_repeats: 20
   repeat_min_gap: 40
+  # Hidden repeats are shown WITHOUT the chart and ΔNBR row (true colour + SWIR only), so the
+  # repeat pairs measure chart-on vs chart-off agreement (how far the aids pull labels toward
+  # the M2.1 rule features). Still unmarked; first showings always have the aids.
+  repeat_show_aids: false

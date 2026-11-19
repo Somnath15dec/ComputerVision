@@ -210,3 +210,55 @@ def test_series_delta_upscale_and_render():
     assert len(set(st["tc"].values())) == 1  # true colour: shared range, natural colours
     img = Image.open(io.BytesIO(render_strip(cfg, g, views)))
     assert img.width >= 3 * 31 * cfg.labelling.tile_upscale  # tiles drawn at least x4
+
+
+def test_chart_effect_counts():
+    import pandas as pd
+
+    from stubble.labelling.blind import chart_effect
+
+    m = pd.DataFrame({"label_1": ["burnt", "burnt", "not_burnt", "burnt", "unsure"],
+                      "label_2": ["burnt", "not_burnt", "not_burnt", "unsure", "burnt"],
+                      "flagged": [True, True, False, False, True]})
+    ce = chart_effect(m)
+    assert ce["n_pairs"] == 5
+    assert ce["burnt_rate"] == {"chart_on": 0.6, "chart_off": 0.4}
+    assert ce["burnt_discordant"]["n_pairs"] == 3
+    assert ce["burnt_discordant"]["burnt_only_with_chart"] == 1
+    assert ce["burnt_discordant"]["burnt_only_without_chart"] == 0
+    # chart on: 4 non-unsure, matches flag in 3 (row 4 burnt but unflagged)
+    assert ce["matches_m21_flag"]["chart_on"] == {"n": 4, "share": 0.75}
+    assert ce["matches_m21_flag"]["chart_off"] == {"n": 4, "share": 0.75}  # rows 0, 2, 4
+    assert chart_effect(m.iloc[:0])["n_pairs"] == 0
+
+
+def test_display_recorded_and_chart_effect_filter(tmp_path, monkeypatch):
+    cfg = load_config()
+    assert cfg.labelling.repeat_show_aids is False
+    monkeypatch.setattr(store, "db_path", lambda c: tmp_path / "l.sqlite")
+    store.save_label(cfg, "M3-0001", "F1", "burnt", pass_no=1, display="aids")
+    store.save_label(cfg, "M3-0001", "F1", "not_burnt", pass_no=2, display="imagery")
+    store.save_label(cfg, "M3-0002", "F2", "burnt", pass_no=1)            # earlier tool
+    store.save_label(cfg, "M3-0002", "F2", "burnt", pass_no=2, display="imagery")
+    with pytest.raises(ValueError):
+        store.save_label(cfg, "M3-0003", "F3", "burnt", display="chart")
+    agr = store.repeat_agreement(cfg)
+    assert agr["n_pairs"] == 2                       # plain agreement uses every pair
+    assert agr["chart_effect"]["n_pairs"] == 1       # chart effect: aids -> imagery pairs only
+    assert agr["chart_effect"]["burnt_discordant"]["burnt_only_with_chart"] == 1
+
+
+def test_render_without_aids_is_shorter():
+    import io
+
+    from PIL import Image
+    from shapely.geometry import box
+
+    from stubble.labelling.chips import render_strip
+
+    cfg = load_config()
+    views, _t = _views()
+    g = box(500150, 3400150, 500160, 3400160)
+    on = Image.open(io.BytesIO(render_strip(cfg, g, views, aids=True)))
+    off = Image.open(io.BytesIO(render_strip(cfg, g, views, aids=False)))
+    assert on.width == off.width and off.height < 0.6 * on.height

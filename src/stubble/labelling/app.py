@@ -12,6 +12,9 @@
 * Keys: 1 burnt, 2 not_burnt, 3 unsure (saves and moves on); left / right arrows = previous /
   next item. The burn date (first date the burn is visible) is optional and is picked before
   pressing 1.
+* Hidden repeats are shown with imagery only (no chart, no ΔNBR row), so their agreement with
+  the first showing measures how much the aids move labels (``labelling.repeat_show_aids``).
+  Labels from the earlier tool (no ``display``) count as unlabelled until labelled again.
 * Autosave: every label, burn-date or note change is written to SQLite at once.
 """
 
@@ -51,24 +54,29 @@ def _prefetch_state() -> dict:
     return {"lock": threading.Lock(), "busy": set()}
 
 
-def get_strip(sample_id: str) -> tuple[list[date], bytes]:
-    return strip(cfg, sample_id, load_sample().geometry[sample_id])
+def shows_aids(pass_no: int) -> bool:
+    """First showings get the chart + ΔNBR row; hidden repeats imagery only (by default)."""
+    return pass_no == 1 or lc.repeat_show_aids
 
 
-def prefetch(sample_ids: list[str]) -> None:
-    """Render upcoming strips into the disk cache on a background thread."""
+def get_strip(sample_id: str, aids: bool = True) -> tuple[list[date], bytes]:
+    return strip(cfg, sample_id, load_sample().geometry[sample_id], aids)
+
+
+def prefetch(entries: list[tuple[str, bool]]) -> None:
+    """Render upcoming strips ``(sample_id, aids)`` into the disk cache on a background thread."""
     stt = _prefetch_state()
     with stt["lock"]:
-        todo = [s for s in sample_ids if s not in stt["busy"]]
+        todo = [e for e in entries if e not in stt["busy"]]
         stt["busy"].update(todo)
     if not todo:
         return
 
     def run() -> None:
         try:
-            for s in todo:
+            for sid, aids in todo:
                 with contextlib.suppress(Exception):  # best effort; the page retries
-                    get_strip(s)
+                    get_strip(sid, aids)
         finally:
             with stt["lock"]:
                 stt["busy"].difference_update(todo)
@@ -81,9 +89,15 @@ saved = {(r.sample_id, int(r["pass"])): r for _, r in latest_labels(cfg, None).i
 n_q = len(q)
 
 
+def is_done(sample_id: str, pass_no: int) -> bool:
+    """Labelled in this tool (labels from the earlier tool, display NULL, need re-labelling)."""
+    r = saved.get((sample_id, pass_no))
+    return r is not None and isinstance(r.display, str)
+
+
 def first_unlabelled() -> int:
     for it in q:
-        if (it.sample_id, it.pass_no) not in saved:
+        if not is_done(it.sample_id, it.pass_no):
             return it.position
     return n_q - 1
 
@@ -110,7 +124,8 @@ def _save(pos: int, label: str, days: list[date], advance: bool) -> None:
     save_label(cfg, it.sample_id, smp.field_id[it.sample_id], label,
                st.session_state.get(f"note_{pos}", ""), code_version=code_version(),
                pass_no=it.pass_no, queue_position=pos, burn_first_seen=first,
-               burn_last_clear_before=prev)
+               burn_last_clear_before=prev,
+               display="aids" if shows_aids(it.pass_no) else "imagery")
     st.toast(f"item {pos + 1}: saved {label}")
     if advance:
         go(1)
@@ -124,7 +139,7 @@ def _resave(pos: int, days: list[date]) -> None:
 
 
 # ---------------------------------------------------------------------------- sidebar
-n_done = sum((it.sample_id, it.pass_no) in saved for it in q)
+n_done = sum(is_done(it.sample_id, it.pass_no) for it in q)
 st.sidebar.markdown(f"**{n_done} / {n_q} labelled**")
 st.sidebar.progress(n_done / max(n_q, 1))
 st.sidebar.button("Next unlabelled", on_click=lambda: go_to(first_unlabelled()),
@@ -144,23 +159,30 @@ if st.sidebar.button("Export labels"):
 pos = st.session_state.pos
 it = q[pos]
 cur = saved.get((it.sample_id, it.pass_no))
-if cur is not None and cur.label in lc.legacy_classes:  # 5-class label from an earlier tool
-    st.warning(f"Earlier label **{cur.label}** (counts as {lc.legacy_classes[cur.label]}). "
-               "Press a key to replace it.")
+if cur is not None and not isinstance(cur.display, str):  # label from the earlier tool
+    st.warning(f"Labelled earlier as **{cur.label}** in the old tool, which had no chart. "
+               "Please label again: press a key.")
 st.caption("Decision support only: labels describe what the imagery shows, not an offence. "
            "No personal data is collected.")
 st.subheader(f"Item {pos + 1} / {n_q}")
 
-days, png = get_strip(it.sample_id)
-prefetch([q[k].sample_id for k in range(pos + 1, min(pos + 4, n_q))])
+aids = shows_aids(it.pass_no)
+days, png = get_strip(it.sample_id, aids)
+prefetch([(q[k].sample_id, shows_aids(q[k].pass_no)) for k in range(pos + 1, min(pos + 4, n_q))])
 st.image(png, width="stretch")
-st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). Per row: "
-           "chart at the crosshair (NBR red, albedo x4 dark, NDVI green; each marker sits above "
-           "its date), true colour (B4, B3, B2), SWIR false colour (B12, B8A, B4), and ΔNBR = "
-           "NBR(previous date) - NBR(this date), red = drop, fixed scale ±"
-           f"{lc.dnbr_display_max}, grey = cloud. A burn after harvest: NBR and albedo fall "
-           "suddenly, one red ΔNBR date. One contrast stretch per item. Only usable clear dates "
-           "are shown.")
+if not aids:
+    st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). "
+               "Imagery only for this item: true colour (B4, B3, B2) above SWIR false colour "
+               "(B12, B8A, B4). One contrast stretch per item. Only usable clear dates are "
+               "shown.")
+else:
+    st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). "
+               "Per row: chart at the crosshair (NBR red, albedo x4 dark, NDVI green; each "
+               "marker sits above its date), true colour (B4, B3, B2), SWIR false colour (B12, "
+               "B8A, B4), and ΔNBR = NBR(previous date) - NBR(this date), red = drop, fixed "
+               f"scale ±{lc.dnbr_display_max}, grey = cloud. A burn after harvest: NBR and "
+               "albedo fall suddenly, one red ΔNBR date. One contrast stretch per item. Only "
+               "usable clear dates are shown.")
 
 cur_bd = (date.fromisoformat(cur.burn_first_seen)
           if cur is not None and isinstance(cur.burn_first_seen, str) else None)

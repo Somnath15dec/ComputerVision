@@ -154,6 +154,7 @@ class LabellingConfig(BaseModel):
     n_label: int | None = 200      # label only the first n_label items of the shuffled order
     n_repeats: int = 20
     repeat_min_gap: int = 40
+    repeat_show_aids: bool = False  # repeats: imagery only (no chart / ΔNBR)
 
 
 class S1SupportConfig(BaseModel):

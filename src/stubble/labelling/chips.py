@@ -29,6 +29,10 @@ The strip is laid out in rows of ``strip_cols`` dates. Each row has, top to bott
   on a fixed diverging scale ``+-dnbr_display_max`` for every item. The first date has no
   previous view. Pixels that are cloudy / hazy in either view are grey.
 
+Hidden repeats are drawn with ``aids=False``: true colour and SWIR only, no chart and no ΔNBR
+row (``labelling.repeat_show_aids``), so the repeat pairs measure chart-on vs chart-off
+agreement.
+
 Contrast: one fixed stretch per item, computed from the clear pixels of all its dates
 (``stretch_percentiles``; one range shared by the three
 true-colour bands, per band for SWIR), so brightness is comparable along the strip.
@@ -320,8 +324,13 @@ ALBEDO_PLOT_SCALE = 4.0  # albedo (~0.05-0.25) drawn x4 so it shares the index a
 ROW_LABELS = ("true colour", "SWIR", "ΔNBR prev-cur")
 
 
-def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
-    """PNG of the strip: per row of dates a chart, true colour, SWIR and ΔNBR (see module)."""
+def render_strip(cfg: Config, geom: BaseGeometry, views: list[View], aids: bool = True
+                 ) -> bytes:
+    """PNG of the strip: per row of dates a chart, true colour, SWIR and ΔNBR (see module).
+
+    ``aids=False`` draws imagery only (true colour + SWIR, no chart, no ΔNBR row); it is used
+    for the hidden repeats, to measure how much the chart / ΔNBR aids move the labels.
+    """
     lc = cfg.labelling
     cw = chip_window(cfg, geom)
     up, n_px = lc.tile_upscale, lc.chip_window_px
@@ -329,7 +338,10 @@ def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
     cols = max(1, min(lc.strip_cols, len(views) or 1))
     rows = max(1, math.ceil(len(views) / cols))
     chart_in, tile_h = 1.6, tile_in + 0.24
-    fig = Figure(figsize=(0.7 + cols * (tile_in + 0.08), rows * (chart_in + 3 * tile_h + 0.45)))
+    heights = [chart_in, tile_h, tile_h, tile_h] if aids else [tile_h, tile_h]
+    per = len(heights)  # gridspec rows per strip row
+    fig = Figure(figsize=(0.7 + cols * (tile_in + 0.08),
+                          rows * (sum(heights) + (0.45 if aids else 0.25))))
     FigureCanvasAgg(fig)
     buf = io.BytesIO()
     if not views:
@@ -343,34 +355,21 @@ def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
     dn = delta_nbr(views)
     cmap = matplotlib.colormaps["RdBu_r"].with_extremes(bad="0.6")
     ext = (-0.5, n_px - 0.5, n_px - 0.5, -0.5)  # keep original pixel coordinates
-    gs = fig.add_gridspec(rows * 4, cols, height_ratios=[chart_in, tile_h, tile_h, tile_h] * rows,
+    gs = fig.add_gridspec(rows * per, cols, height_ratios=heights * rows,
                           hspace=0.22, wspace=0.08)
+    first_tile = 1 if aids else 0
     for r in range(rows):
         idx = list(range(r * cols, min((r + 1) * cols, len(views))))
-        axc = fig.add_subplot(gs[4 * r, :])
-        lead = [idx[0] - 1] if idx[0] > 0 else []
-        xs = np.array([i - r * cols for i in lead + idx], dtype=float)
-        for name, (lab, col) in SERIES_STYLE.items():
-            y = ser[name][lead + idx] * (ALBEDO_PLOT_SCALE if name == "albedo" else 1.0)
-            axc.plot(xs, y, "-o", color=col, ms=4, lw=1.4, label=lab)
-        axc.set_xlim(-0.5, cols - 0.5)
-        axc.set_ylim(-0.4, 1.0)
-        axc.set_xticks(range(len(idx)))
-        axc.set_xticklabels([])  # the date is the tile title just below each tick
-        axc.grid(axis="x", color="0.85", lw=0.8)
-        axc.axhline(0, color="0.7", lw=0.6)
-        axc.tick_params(axis="y", labelsize=7)
-        if r == 0:
-            axc.legend(fontsize=7, ncol=3, loc="upper right", frameon=False)
-            axc.set_title(f"at crosshair ({lc.series_window_px}x{lc.series_window_px} mean of "
-                          "clear pixels)", fontsize=8, loc="left", pad=2)
+        if aids:
+            _chart(fig.add_subplot(gs[per * r, :]), cfg, ser, idx, r, cols)
         for k in idx:
             c, v = k - r * cols, views[k]
             tiles = [upscale(_stretch(v, TC_BANDS, st["tc"]), up),
-                     upscale(_stretch(v, SWIR_BANDS, st["swir"]), up),
-                     None if dn[k] is None else upscale(dn[k], up)]
+                     upscale(_stretch(v, SWIR_BANDS, st["swir"]), up)]
+            if aids:
+                tiles.append(None if dn[k] is None else upscale(dn[k], up))
             for j, img in enumerate(tiles):
-                ax = fig.add_subplot(gs[4 * r + 1 + j, c])
+                ax = fig.add_subplot(gs[per * r + first_tile + j, c])
                 ax.set_xticks([])
                 ax.set_yticks([])
                 if img is None:
@@ -396,10 +395,32 @@ def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
     return buf.getvalue()
 
 
-def _cache_key(cfg: Config, sample_id: str, geom: BaseGeometry) -> str:
+def _chart(axc, cfg: Config, ser: dict[str, np.ndarray], idx: list[int], r: int, cols: int
+           ) -> None:
+    """Index chart for one strip row; marker i sits above tile column i."""
+    lc = cfg.labelling
+    lead = [idx[0] - 1] if idx[0] > 0 else []
+    xs = np.array([i - r * cols for i in lead + idx], dtype=float)
+    for name, (lab, col) in SERIES_STYLE.items():
+        y = ser[name][lead + idx] * (ALBEDO_PLOT_SCALE if name == "albedo" else 1.0)
+        axc.plot(xs, y, "-o", color=col, ms=4, lw=1.4, label=lab)
+    axc.set_xlim(-0.5, cols - 0.5)
+    axc.set_ylim(-0.4, 1.0)
+    axc.set_xticks(range(len(idx)))
+    axc.set_xticklabels([])  # the date is the tile title just below each tick
+    axc.grid(axis="x", color="0.85", lw=0.8)
+    axc.axhline(0, color="0.7", lw=0.6)
+    axc.tick_params(axis="y", labelsize=7)
+    if r == 0:
+        axc.legend(fontsize=7, ncol=3, loc="upper right", frameon=False)
+        axc.set_title(f"at crosshair ({lc.series_window_px}x{lc.series_window_px} mean of "
+                      "clear pixels)", fontsize=8, loc="left", pad=2)
+
+
+def _cache_key(cfg: Config, sample_id: str, geom: BaseGeometry, aids: bool = True) -> str:
     lc = cfg.labelling
     files = sorted(p.name for ps in _s2_days(cfg).values() for p in ps)
-    blob = json.dumps({"v": STRIP_VERSION, "id": sample_id, "files": files,
+    blob = json.dumps({"v": STRIP_VERSION, "id": sample_id, "files": files, "aids": aids,
                        "excl": sorted(d.isoformat() for d in excluded_days(cfg)),
                        "p": [lc.chip_window_px, lc.crosshair_box_m, lc.tile_upscale,
                              lc.stretch_percentiles, lc.dnbr_display_max, lc.series_window_px,
@@ -409,16 +430,20 @@ def _cache_key(cfg: Config, sample_id: str, geom: BaseGeometry) -> str:
     return hashlib.sha1(blob).hexdigest()[:16]
 
 
-def strip(cfg: Config, sample_id: str, geom: BaseGeometry) -> tuple[list[date], bytes]:
-    """(usable dates, PNG) for one item, from the disk cache when possible."""
+def strip(cfg: Config, sample_id: str, geom: BaseGeometry, aids: bool = True
+          ) -> tuple[list[date], bytes]:
+    """(usable dates, PNG) for one item, from the disk cache when possible.
+
+    ``aids=False``: imagery only (no chart, no ΔNBR row), as shown for the hidden repeats.
+    """
     d = cfg.path("cache", "m3_strips")
-    key = _cache_key(cfg, sample_id, geom)
+    key = _cache_key(cfg, sample_id, geom, aids)
     png, meta = d / f"{sample_id}_{key}.png", d / f"{sample_id}_{key}.json"
     if png.exists() and meta.exists():
         days = [date.fromisoformat(x) for x in json.loads(meta.read_text("utf-8"))["days"]]
         return days, png.read_bytes()
     views = usable_views(cfg, geom)
-    data = render_strip(cfg, geom, views)
+    data = render_strip(cfg, geom, views, aids)
     d.mkdir(parents=True, exist_ok=True)
     tmp = png.with_suffix(".tmp")
     tmp.write_bytes(data)

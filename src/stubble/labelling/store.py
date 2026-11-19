@@ -14,6 +14,10 @@ and stored as written; reads keep the raw ``label`` and add ``label_3`` (folded)
 Burn date: ``burn_first_seen`` is the first strip date on which the labeller sees the burn;
 ``burn_last_clear_before`` is the strip date just before it, so the burn happened in
 ``(burn_last_clear_before, burn_first_seen]``. Only kept for ``burnt`` labels.
+
+Display: ``display`` records what the labeller saw: ``aids`` (chart + ΔNBR row, every first
+showing) or ``imagery`` (true colour + SWIR only, the hidden repeats). NULL = a label from the
+earlier tool, made without the chart; the app asks for those to be re-labelled.
 """
 
 from __future__ import annotations
@@ -43,12 +47,15 @@ CREATE TABLE IF NOT EXISTS labels (
     pass INTEGER NOT NULL DEFAULT 1,
     queue_position INTEGER,
     burn_first_seen TEXT,
-    burn_last_clear_before TEXT
+    burn_last_clear_before TEXT,
+    display TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_labels_sample ON labels(sample_id);
 """
+DISPLAYS = ("aids", "imagery")
 _ADDED = {"pass": "INTEGER NOT NULL DEFAULT 1", "queue_position": "INTEGER",
-          "burn_first_seen": "TEXT", "burn_last_clear_before": "TEXT"}
+          "burn_first_seen": "TEXT", "burn_last_clear_before": "TEXT",
+          "display": "TEXT"}
 
 
 def db_path(cfg: Config) -> Path:
@@ -71,13 +78,16 @@ def save_label(cfg: Config, sample_id: str, field_id: str, label: str, note: str
                before: str | None = None, after: str | None = None,
                code_version: str | None = None, *, pass_no: int = 1,
                queue_position: int | None = None, burn_first_seen: str | None = None,
-               burn_last_clear_before: str | None = None) -> None:
+               burn_last_clear_before: str | None = None, display: str | None = None
+               ) -> None:
     """Append a label row (re-labelling keeps history; the latest row per pass counts)."""
     allowed = [*cfg.labelling.classes, *cfg.labelling.legacy_classes]
     if label not in allowed:
         raise ValueError(f"unknown label {label!r}; allowed: {allowed}")
     if pass_no not in (1, 2):
         raise ValueError("pass_no must be 1 or 2")
+    if display not in (None, *DISPLAYS):
+        raise ValueError(f"display must be one of {DISPLAYS}")
     if label != "burnt":
         burn_first_seen = burn_last_clear_before = None
     con = connect(cfg)
@@ -86,10 +96,10 @@ def save_label(cfg: Config, sample_id: str, field_id: str, label: str, note: str
             con.execute(
                 "INSERT INTO labels (sample_id, field_id, label, note, before_date, after_date, "
                 "created_utc, code_version, pass, queue_position, burn_first_seen, "
-                "burn_last_clear_before) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "burn_last_clear_before, display) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (sample_id, field_id, label, note or None, before, after,
                  datetime.now(UTC).isoformat(timespec="seconds"), code_version, pass_no,
-                 queue_position, burn_first_seen, burn_last_clear_before))
+                 queue_position, burn_first_seen, burn_last_clear_before, display))
     finally:
         con.close()
 
@@ -125,10 +135,31 @@ def agreement_path(cfg: Config) -> Path:
 
 
 def repeat_agreement(cfg: Config) -> dict[str, Any]:
-    from stubble.labelling.blind import agreement
+    """Repeat agreement (pass 1 vs hidden repeat) and the chart-on vs chart-off comparison.
+
+    ``chart_effect`` uses only pairs whose first label was made with the aids and whose repeat
+    was made with imagery only (labels from the earlier tool are left out).
+    """
+    from stubble.labelling.blind import agreement, chart_effect
 
     lc = cfg.labelling
-    res = agreement(latest_labels(cfg, 1), latest_labels(cfg, 2), lc.legacy_classes)
+    f, r = latest_labels(cfg, 1), latest_labels(cfg, 2)
+    res = agreement(f, r, lc.legacy_classes)
+    m = f[["sample_id", "label_3", "display"]].merge(
+        r[["sample_id", "label_3", "display"]], on="sample_id", suffixes=("_1", "_2"))
+    m = m[(m.display_1 == "aids") & (m.display_2 == "imagery")].rename(
+        columns={"label_3_1": "label_1", "label_3_2": "label_2"})
+    smp_p = cfg.path("labels", "m3_sample.geojson")
+    if smp_p.exists() and not m.empty:
+        src = gpd.read_file(smp_p, columns=["sample_id", "source"], ignore_geometry=True)
+        m = m.merge(src, on="sample_id", how="left")
+        m["flagged"] = m.source == "flagged"
+    else:
+        m["flagged"] = pd.Series(dtype=bool)
+    res["chart_effect"] = chart_effect(m)
+    res["chart_effect"]["display"] = {"first": "chart + ΔNBR + imagery",
+                                      "repeat": "imagery only" if not lc.repeat_show_aids
+                                      else "chart + ΔNBR + imagery"}
     return {"queue_seed": lc.queue_seed, "n_label": lc.n_label,
             "n_repeats_in_queue": lc.n_repeats, "classes": lc.classes,
             "repeat_min_gap": lc.repeat_min_gap, **res}
@@ -152,12 +183,14 @@ def export_geojson(cfg: Config) -> tuple[Path, dict[str, Any]]:
     Returns (path, agreement).
     """
     smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson"))
-    cols = ["sample_id", "label", "label_3", "burn_first_seen", "burn_last_clear_before", "note",
+    cols = ["sample_id", "label", "label_3", "display", "burn_first_seen",
+            "burn_last_clear_before", "note",
             "queue_position", "created_utc", "code_version"]
     first = latest_labels(cfg, 1)[cols].rename(columns={"code_version": "label_code_version"})
-    rep = latest_labels(cfg, 2)[["sample_id", "label", "label_3", "burn_first_seen",
+    rep = latest_labels(cfg, 2)[["sample_id", "label", "label_3", "display", "burn_first_seen",
                                  "queue_position"]]
     rep = rep.rename(columns={"label": "repeat_label", "label_3": "repeat_label_3",
+                              "display": "repeat_display",
                               "burn_first_seen": "repeat_burn_first_seen",
                               "queue_position": "repeat_queue_position"})
     subset = {it.sample_id for it in label_queue(cfg, smp.sample_id.tolist())}

@@ -63,7 +63,7 @@ stubble sample-m3          # seeded stratified sample of 400 -> data/labels/m3_s
 stubble label-prerender    # optional: render the 200 queued items' strips into data/cache
 stubble label              # blind Streamlit labelling tool (http://localhost:8501)
 stubble label-export       # data/labels/m3_labels.geojson + m3_repeat_agreement.json
-stubble label-agreement    # print labeller consistency on the hidden repeats
+stubble label-agreement    # repeat agreement + chart-on vs chart-off comparison
 ```
 
 80 % of the sample comes from M2.1 candidates (5 equal-count bins of the rule-based
@@ -76,7 +76,12 @@ stratum or flagged/unflagged source. The 400 items are put in a seeded shuffled 
 (`labelling.queue_seed`) and only the **first 200** of that order are labelled
 (`labelling.n_label`), a seeded random half of the stratified sample (all 49 strata are
 present; 159 flagged / 41 unflagged). 20 of them come back a second time, unmarked, at least
-40 items later: 220 queue entries, which measure the labeller's own consistency. On export,
+40 items later: 220 queue entries. The repeats are shown with **imagery only** (true colour +
+SWIR, no chart, no ΔNBR row), so `stubble label-agreement` reports chart-on vs chart-off
+agreement: how far the chart pulls labels toward the M2.1 rule features (an upper bound,
+since it also contains the labeller's own noise). Each label records what was shown
+(`display`: `aids` or `imagery`). Labels made in the earlier tool, which had no chart, count as
+unlabelled until labelled again. On export,
 `subset_inclusion_weight` (stratum population / items of that stratum in the 200) replaces the
 full-sample weight for estimates.
 

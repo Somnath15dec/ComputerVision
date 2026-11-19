@@ -305,6 +305,21 @@ def _print_agreement(agr: dict) -> None:
                   f"{agr['burn_date']['same_date']} / {agr['burn_date']['n_pairs']}")
     for d in agr["disagreements"]:
         console.print(f"  {d['sample_id']}: {d['first']} -> {d['repeat']}")
+    ce = agr.get("chart_effect", {})
+    if not ce.get("n_pairs"):
+        console.print("chart on vs off: no pair with a chart-on first label and an "
+                      "imagery-only repeat yet")
+        return
+    d, fl = ce["burnt_discordant"], ce["matches_m21_flag"]
+    console.print(
+        f"chart on (first) vs off (repeat), {ce['n_pairs']} pairs: burnt rate "
+        f"{ce['burnt_rate']['chart_on']} vs {ce['burnt_rate']['chart_off']}; unsure rate "
+        f"{ce['unsure_rate']['chart_on']} vs {ce['unsure_rate']['chart_off']}; burnt only with "
+        f"chart {d['burnt_only_with_chart']}, only without {d['burnt_only_without_chart']} "
+        f"(exact McNemar p {d['mcnemar_exact_p']}); label matches M2.1 flag "
+        f"{fl['chart_on']['share']} (n {fl['chart_on']['n']}) vs {fl['chart_off']['share']} "
+        f"(n {fl['chart_off']['n']}). Repeat noise and chart effect are not separable "
+        "(no chart-off control), so treat this as an upper bound.")
 
 
 @app.command("label-export")
@@ -339,9 +354,14 @@ def label_prerender(config: ConfigOpt = None, workers: int = 4, verbose: bool = 
     cfg = _setup(config, verbose)
     smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson")).to_crs(cfg.aoi.crs)
     smp = smp[smp.sample_id.isin({it.sample_id for it in label_queue(cfg, smp.sample_id.tolist())})]
+    q = label_queue(cfg, smp.sample_id.tolist())
+    reps = {it.sample_id for it in q if it.pass_no == 2}
     with ThreadPoolExecutor(workers) as ex:
         n = list(ex.map(lambda r: len(strip(cfg, r.sample_id, r.geometry)[0]),
                         smp.itertuples()))
+        if not cfg.labelling.repeat_show_aids:  # imagery-only variant for the hidden repeats
+            list(ex.map(lambda r: strip(cfg, r.sample_id, r.geometry, aids=False),
+                        smp[smp.sample_id.isin(reps)].itertuples()))
     console.print(f"rendered {len(n)} strips; usable dates per item: min {min(n)}, "
                   f"median {sorted(n)[len(n) // 2]}, max {max(n)}")
 

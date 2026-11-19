@@ -70,6 +70,45 @@ def cohen_kappa(a: list[str], b: list[str]) -> float | None:
     return (po - pe) / (1 - pe)
 
 
+def chart_effect(m: pd.DataFrame) -> dict[str, Any]:
+    """Chart-on (pass 1) vs chart-off (pass 2) comparison on labelled pairs.
+
+    ``m`` has ``label_1``, ``label_2`` (folded classes) and ``flagged`` (item is an M2.1
+    candidate). Reported: burnt / unsure rates with and without the aids, the discordant
+    burnt-vs-not pairs in each direction with an exact two-sided McNemar p, and how often the
+    label matches the M2.1 flag (burnt == flagged, unsure dropped) with and without the aids.
+    Repeat disagreement mixes labeller noise with the effect of the aids; there is no
+    chart-off/chart-off control, so read this as an upper bound on the chart's influence.
+    """
+    from scipy.stats import binomtest
+
+    out: dict[str, Any] = {"n_pairs": len(m)}
+    if m.empty:
+        return out
+
+    def rate(s: pd.Series, v: str) -> float:
+        return round(float((s == v).mean()), 3)
+
+    out["burnt_rate"] = {"chart_on": rate(m.label_1, "burnt"),
+                         "chart_off": rate(m.label_2, "burnt")}
+    out["unsure_rate"] = {"chart_on": rate(m.label_1, "unsure"),
+                          "chart_off": rate(m.label_2, "unsure")}
+    b = m[(m.label_1 != "unsure") & (m.label_2 != "unsure")]
+    on_only = int(((b.label_1 == "burnt") & (b.label_2 != "burnt")).sum())
+    off_only = int(((b.label_1 != "burnt") & (b.label_2 == "burnt")).sum())
+    out["burnt_discordant"] = {
+        "n_pairs": len(b), "burnt_only_with_chart": on_only, "burnt_only_without_chart": off_only,
+        "mcnemar_exact_p": (round(float(binomtest(on_only, on_only + off_only).pvalue), 3)
+                            if on_only + off_only else None)}
+    agree = {}
+    for k, col in (("chart_on", "label_1"), ("chart_off", "label_2")):
+        x = m[m[col] != "unsure"]
+        agree[k] = {"n": len(x), "share": round(float(((x[col] == "burnt") == x.flagged).mean()), 3)
+                    if len(x) else None}
+    out["matches_m21_flag"] = agree
+    return out
+
+
 def agreement(first: pd.DataFrame, repeat: pd.DataFrame, fold: dict[str, str] | None = None
               ) -> dict[str, Any]:
     """Repeat agreement; both frames have ``sample_id``, ``label`` and ``burn_first_seen``.

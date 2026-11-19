@@ -15,13 +15,22 @@
 * Hidden repeats are shown with imagery only (no chart, no ΔNBR row), so their agreement with
   the first showing measures how much the aids move labels (``labelling.repeat_show_aids``).
   Labels from the earlier tool (no ``display``) count as unlabelled until labelled again.
+* Speed bump: the label keys are disabled for ``min_view_seconds`` after an item appears
+  (countdown shown); a save arriving earlier is refused on the server side too. Each row
+  records ``view_seconds``.
+* Review mode (``stubble label --review``): the frozen review queue
+  (:mod:`stubble.labelling.review`), same display per entry, nothing marking the group or the
+  earlier label. Review labels are appended (``review_round``); originals stay as history.
 * Autosave: every label, burn-date or note change is written to SQLite at once.
 """
 
 from __future__ import annotations
 
 import contextlib
+import math
+import sys
 import threading
+import time
 from datetime import date
 
 import geopandas as gpd
@@ -29,6 +38,7 @@ import streamlit as st
 
 from stubble.config import load_config
 from stubble.labelling.chips import strip
+from stubble.labelling.review import review_queue
 from stubble.labelling.store import export_geojson, label_queue, latest_labels, save_label
 from stubble.provenance import code_version
 
@@ -36,6 +46,8 @@ st.set_page_config(page_title="Stubble labelling (M3)", layout="wide")
 cfg = load_config()
 lc = cfg.labelling
 classes = lc.classes
+REVIEW = "--review" in sys.argv
+ROUND = lc.review_round if REVIEW else None
 
 
 @st.cache_resource
@@ -45,7 +57,9 @@ def load_sample() -> gpd.GeoDataFrame:
 
 
 @st.cache_resource
-def queue() -> list:
+def queue(review: bool) -> list:
+    if review:
+        return review_queue(cfg)
     return label_queue(cfg, list(load_sample().index))
 
 
@@ -84,9 +98,17 @@ def prefetch(entries: list[tuple[str, bool]]) -> None:
     threading.Thread(target=run, daemon=True).start()
 
 
-smp, q = load_sample(), queue()
-saved = {(r.sample_id, int(r["pass"])): r for _, r in latest_labels(cfg, None).iterrows()}
+smp, q = load_sample(), queue(REVIEW)
+if not q:
+    st.error("The review queue is empty: run `stubble review-select` first.")
+    st.stop()
+_cur = latest_labels(cfg, None)
+if REVIEW:  # only this round's rows count, so the earlier label is never shown
+    _cur = _cur[_cur.review_round == ROUND]
+saved = {(r.sample_id, int(r["pass"])): r for _, r in _cur.iterrows()}
 n_q = len(q)
+orig_pos = {(it.sample_id, it.pass_no): it.position
+            for it in label_queue(cfg, list(smp.index))}
 
 
 def is_done(sample_id: str, pass_no: int) -> bool:
@@ -114,7 +136,15 @@ def go_to(pos: int) -> None:
     st.session_state.pos = min(max(pos, 0), n_q - 1)
 
 
-def _save(pos: int, label: str, days: list[date], advance: bool) -> None:
+def _elapsed() -> float:
+    return time.time() - st.session_state.get("shown_at", 0.0)
+
+
+def _save(pos: int, label: str, days: list[date], advance: bool, gate: bool = True) -> None:
+    if gate and (pos != st.session_state.get("shown_pos")
+                 or _elapsed() < lc.min_view_seconds):
+        st.toast(f"Look at the item for {lc.min_view_seconds:g} s before labelling.")
+        return
     it = q[pos]
     bd = st.session_state.get(f"bd_{pos}")
     first = prev = None
@@ -123,9 +153,10 @@ def _save(pos: int, label: str, days: list[date], advance: bool) -> None:
         first, prev = bd.isoformat(), (days[k - 1].isoformat() if k > 0 else None)
     save_label(cfg, it.sample_id, smp.field_id[it.sample_id], label,
                st.session_state.get(f"note_{pos}", ""), code_version=code_version(),
-               pass_no=it.pass_no, queue_position=pos, burn_first_seen=first,
-               burn_last_clear_before=prev,
-               display="aids" if shows_aids(it.pass_no) else "imagery")
+               pass_no=it.pass_no, queue_position=orig_pos.get((it.sample_id, it.pass_no), pos),
+               burn_first_seen=first, burn_last_clear_before=prev,
+               display="aids" if shows_aids(it.pass_no) else "imagery", review_round=ROUND,
+               view_seconds=_elapsed() if gate else None)
     st.toast(f"item {pos + 1}: saved {label}")
     if advance:
         go(1)
@@ -135,12 +166,13 @@ def _resave(pos: int, days: list[date]) -> None:
     """Autosave a burn-date / note change on an item that already has a label."""
     cur = saved.get((q[pos].sample_id, q[pos].pass_no))
     if cur is not None:
-        _save(pos, cur.label, days, advance=False)
+        _save(pos, cur.label, days, advance=False, gate=False)
 
 
 # ---------------------------------------------------------------------------- sidebar
 n_done = sum(is_done(it.sample_id, it.pass_no) for it in q)
-st.sidebar.markdown(f"**{n_done} / {n_q} labelled**")
+st.sidebar.markdown((f"**Review round {ROUND}**  \n" if REVIEW else "")
+                    + f"**{n_done} / {n_q} labelled**")
 st.sidebar.progress(n_done / max(n_q, 1))
 st.sidebar.button("Next unlabelled", on_click=lambda: go_to(first_unlabelled()),
                   shortcut="n")
@@ -159,12 +191,14 @@ if st.sidebar.button("Export labels"):
 pos = st.session_state.pos
 it = q[pos]
 cur = saved.get((it.sample_id, it.pass_no))
-if cur is not None and not isinstance(cur.display, str):  # label from the earlier tool
+if cur is not None and not isinstance(cur.display, str) and not REVIEW:  # earlier tool
     st.warning(f"Labelled earlier as **{cur.label}** in the old tool, which had no chart. "
                "Please label again: press a key.")
 st.caption("Decision support only: labels describe what the imagery shows, not an offence. "
            "No personal data is collected.")
 st.subheader(f"Item {pos + 1} / {n_q}")
+if st.session_state.get("shown_pos") != pos:  # the item just appeared: start the speed bump
+    st.session_state.shown_pos, st.session_state.shown_at = pos, time.time()
 
 aids = shows_aids(it.pass_no)
 days, png = get_strip(it.sample_id, aids)
@@ -195,11 +229,24 @@ st.text_input("Note (optional, no personal data; click outside the box before us
               value=(cur.note or "") if cur is not None and isinstance(cur.note, str) else "",
               key=f"note_{pos}", on_change=_resave, args=(pos, days))
 
-cols = st.columns(len(classes))
-for i, c in enumerate(classes):
-    cols[i].button(f"{i + 1} · {c}", key=f"lab_{c}", width="stretch",
-                   type="primary" if cur is not None and cur.label == c else "secondary",
-                   shortcut=str(i + 1), on_click=_save, args=(pos, c, days, True))
+
+
+@st.fragment(run_every=0.5)
+def label_buttons(pos: int, days: list[date]) -> None:
+    """Label keys, disabled (with a countdown) for ``min_view_seconds`` after the item appears."""
+    if st.session_state.pos != pos:  # a key press moved on: redraw the whole page
+        st.rerun(scope="app")
+    left = lc.min_view_seconds - _elapsed()
+    cols = st.columns(len(classes))
+    for i, c in enumerate(classes):
+        cols[i].button(f"{i + 1} · {c}", key=f"lab_{c}", width="stretch",
+                       type="primary" if cur is not None and cur.label == c else "secondary",
+                       shortcut=str(i + 1), on_click=_save, args=(pos, c, days, True),
+                       disabled=left > 0)
+    st.caption(f"Label keys unlock in {math.ceil(left)} s" if left > 0 else "Label keys ready")
+
+
+label_buttons(pos, days)
 n1, n2, _ = st.columns([1, 1, 4])
 n1.button("← previous", on_click=go, args=(-1,), shortcut="left", disabled=pos == 0)
 n2.button("next →", on_click=go, args=(1,), shortcut="right", disabled=pos == n_q - 1)

@@ -18,6 +18,9 @@ Burn date: ``burn_first_seen`` is the first strip date on which the labeller see
 Display: ``display`` records what the labeller saw: ``aids`` (chart + ΔNBR row, every first
 showing) or ``imagery`` (true colour + SWIR only, the hidden repeats). NULL = a label from the
 earlier tool, made without the chart; the app asks for those to be re-labelled.
+
+``review_round`` is set on rows saved in a review round (:mod:`stubble.labelling.review`);
+``view_seconds`` is the time from the item appearing on screen to the save.
 """
 
 from __future__ import annotations
@@ -48,14 +51,16 @@ CREATE TABLE IF NOT EXISTS labels (
     queue_position INTEGER,
     burn_first_seen TEXT,
     burn_last_clear_before TEXT,
-    display TEXT
+    display TEXT,
+    review_round TEXT,
+    view_seconds REAL
 );
 CREATE INDEX IF NOT EXISTS ix_labels_sample ON labels(sample_id);
 """
 DISPLAYS = ("aids", "imagery")
 _ADDED = {"pass": "INTEGER NOT NULL DEFAULT 1", "queue_position": "INTEGER",
           "burn_first_seen": "TEXT", "burn_last_clear_before": "TEXT",
-          "display": "TEXT"}
+          "display": "TEXT", "review_round": "TEXT", "view_seconds": "REAL"}
 
 
 def db_path(cfg: Config) -> Path:
@@ -78,8 +83,8 @@ def save_label(cfg: Config, sample_id: str, field_id: str, label: str, note: str
                before: str | None = None, after: str | None = None,
                code_version: str | None = None, *, pass_no: int = 1,
                queue_position: int | None = None, burn_first_seen: str | None = None,
-               burn_last_clear_before: str | None = None, display: str | None = None
-               ) -> None:
+               burn_last_clear_before: str | None = None, display: str | None = None,
+               review_round: str | None = None, view_seconds: float | None = None) -> None:
     """Append a label row (re-labelling keeps history; the latest row per pass counts)."""
     allowed = [*cfg.labelling.classes, *cfg.labelling.legacy_classes]
     if label not in allowed:
@@ -96,10 +101,12 @@ def save_label(cfg: Config, sample_id: str, field_id: str, label: str, note: str
             con.execute(
                 "INSERT INTO labels (sample_id, field_id, label, note, before_date, after_date, "
                 "created_utc, code_version, pass, queue_position, burn_first_seen, "
-                "burn_last_clear_before, display) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "burn_last_clear_before, display, review_round, view_seconds) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (sample_id, field_id, label, note or None, before, after,
                  datetime.now(UTC).isoformat(timespec="seconds"), code_version, pass_no,
-                 queue_position, burn_first_seen, burn_last_clear_before, display))
+                 queue_position, burn_first_seen, burn_last_clear_before, display,
+                 review_round, None if view_seconds is None else round(view_seconds, 2)))
     finally:
         con.close()
 

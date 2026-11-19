@@ -283,7 +283,8 @@ def sample_m3(config: ConfigOpt = None, force: bool = False, verbose: bool = Fal
 
 
 @app.command()
-def label(config: ConfigOpt = None, port: int = 8501) -> None:
+def label(config: ConfigOpt = None, port: int = 8501,
+          review: bool = typer.Option(False, help="label the frozen review queue")) -> None:
     """M3: open the labelling tool (Streamlit) in the browser."""
     import subprocess
     import sys
@@ -291,7 +292,44 @@ def label(config: ConfigOpt = None, port: int = 8501) -> None:
 
     app_py = Path(__file__).parent / "labelling" / "app.py"
     subprocess.run([sys.executable, "-m", "streamlit", "run", str(app_py),
-                    "--server.port", str(port)], check=False)
+                    "--server.port", str(port), "--", *(["--review"] if review else [])],
+                   check=False)
+
+
+@app.command("review-select")
+def review_select(config: ConfigOpt = None) -> None:
+    """M3 review: freeze the review queue (fast labels + random slower control)."""
+    from stubble.labelling.review import freeze_review
+
+    cfg = _setup(config, False)
+    p, m, new = freeze_review(cfg)
+    console.print(f"{'wrote' if new else 'already frozen, not changed:'} {p}")
+    console.print(f"{len(m['entries'])} entries: {m['n_fast']} fast (gap <= "
+                  f"{m['rule']['fast_gap_s']} s) + {m['n_control']} control drawn from "
+                  f"{m['n_slow_pool']} slower labels, seed {m['rule']['seed']}")
+
+
+@app.command("review-report")
+def review_report_cmd(config: ConfigOpt = None) -> None:
+    """M3 review: changes per group, final label counts, burnt rates, repeat agreement."""
+    import json
+
+    from stubble.labelling.review import review_report
+
+    cfg = _setup(config, False)
+    r = review_report(cfg)
+    out = cfg.path("labels", f"m3_review_{r['round']}_report.json")
+    out.write_text(json.dumps(r, indent=1, default=str), encoding="utf-8")
+    for g, x in r["groups"].items():
+        console.print(f"{g}: reviewed {x['reviewed']} / {x['n']}, changed {x['changed']} "
+                      f"({x['changed_share']}, 95% CI {x['changed_ci95']}) {x['transitions']}")
+    console.print(f"final first-pass labels: {r['final_counts_first_pass']}")
+    for k, v in r["burnt_rate_by_source"].items():
+        console.print(f"  burnt rate {k}: {v['burnt']}/{v['n']} = {v['rate']} {v['ci95']}")
+    console.print("  burnt rate by week: " + ", ".join(
+        f"{k} {v['burnt']}/{v['n']}" for k, v in r["burnt_rate_by_week"].items()))
+    _print_agreement(r["repeat_agreement"])
+    console.print(f"wrote {out}")
 
 
 def _print_agreement(agr: dict) -> None:

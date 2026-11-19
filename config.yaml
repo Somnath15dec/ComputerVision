@@ -166,3 +166,12 @@ labelling:                       # M3: stratified sample + labelling tool
   # repeat pairs measure chart-on vs chart-off agreement (how far the aids pull labels toward
   # the M2.1 rule features). Still unmarked; first showings always have the aids.
   repeat_show_aids: false
+  # Speed bump: label keys are disabled for this many seconds after an item appears.
+  min_view_seconds: 4
+  # Review round (stubble review-select / label --review / review-report): every current label
+  # saved <= review_fast_gap_s after the previous save, plus review_n_control random slower
+  # labels as a control, mixed in one seeded order (review_seed); nothing marks the group.
+  review_round: r1
+  review_fast_gap_s: 2
+  review_n_control: 20
+  review_seed: 20251120

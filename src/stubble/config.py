@@ -155,6 +155,11 @@ class LabellingConfig(BaseModel):
     n_repeats: int = 20
     repeat_min_gap: int = 40
     repeat_show_aids: bool = False  # repeats: imagery only (no chart / ΔNBR)
+    min_view_seconds: float = 4.0   # label keys disabled this long after an item appears
+    review_round: str = "r1"
+    review_fast_gap_s: float = 2.0
+    review_n_control: int = 20
+    review_seed: int = 20251120
 
 
 class S1SupportConfig(BaseModel):

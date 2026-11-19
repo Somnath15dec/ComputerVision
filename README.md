@@ -64,6 +64,9 @@ stubble label-prerender    # optional: render the 200 queued items' strips into 
 stubble label              # blind Streamlit labelling tool (http://localhost:8501)
 stubble label-export       # data/labels/m3_labels.geojson + m3_repeat_agreement.json
 stubble label-agreement    # repeat agreement + chart-on vs chart-off comparison
+stubble review-select      # freeze the review queue: fast labels (<= 2 s) + 20 slower controls
+stubble label --review     # label the review queue (new rows appended; originals kept)
+stubble review-report      # changes per group, final counts, burnt rates, repeat agreement
 ```
 
 80 % of the sample comes from M2.1 candidates (5 equal-count bins of the rule-based
@@ -107,6 +110,18 @@ haze tests as the M2.1 detector, plus at least 50 % of the 100 m box clear. Left
 go back and forward, and `N` jumps to the next unlabelled entry. The burn date is optional:
 click the first date on which the burn is visible, then press `1`. Every change is saved to
 SQLite straight away.
+
+**Speed bump.** The label keys are disabled for 4 s after an item appears, with a countdown
+(`labelling.min_view_seconds`); an earlier save is refused. Every row records `view_seconds`.
+
+**Review round r1.** The first pass had 97 of 220 labels saved 2 s or less after the previous
+save. `stubble review-select` freezes a queue of those 97 plus 20 random slower labels as a
+control (seed 20251120), mixed in one seeded order, in `data/labels/m3_review_r1.json`. The
+review tool shows nothing about the group or the earlier label, and uses each entry's original
+display. Review labels are appended with `review_round = r1` and become the current label; the
+originals stay in the store as history. `stubble review-report` gives the share of labels
+changed in each group (Wilson 95 % CI), final counts, burnt rate by source and by week, and
+the repeat agreement recomputed on the final labels.
 
 ## Data sources (M1)
 | Data | Source | Licence |

@@ -140,6 +140,13 @@ class LabellingConfig(BaseModel):
     classes: list[str] = ["burnt", "tilled_not_burnt", "harvested_not_burnt", "wet", "unsure"]
     chip_pad_m: float = 250
     rgb_max_reflectance: float = 0.3
+    swir_max_reflectance: float = 0.45
+    strip_min_clear_frac: float = 0.5
+    strip_min_coverage: float = 0.5
+    strip_cols: int = 8
+    queue_seed: int = 20251119
+    n_repeats: int = 40
+    repeat_min_gap: int = 40
 
 
 class S1SupportConfig(BaseModel):

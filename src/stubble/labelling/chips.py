@@ -1,37 +1,63 @@
-"""Evidence chips for one labelling item (read on demand from the cached rasters).
+"""Time strip for one labelling item (read on demand from the cached raw S2 views).
 
-Panels: true-colour RGB before / after, false colour (B12, B08, B04) after, dNBR between the
-two views, Sentinel-1 VH change, and the polygon's median NDVI / NBR / albedo time series
-over every S2 view (unusable views drawn hollow). Display stretch is fixed for every date
-(``labelling.rgb_max_reflectance``) so brightness is comparable. Reflectances shown are the
-raw L2A values (no PIF offsets), exactly as delivered.
+For every *usable clear* view of the polygon the strip shows a true-colour tile
+(B04, B03, B02) above a SWIR false-colour tile (B12, B8A, B04), with the polygon outlined.
+A view is usable when its date is not scene-excluded (``radiometry.json`` /
+``haze_mask.exclude_days``), the polygon is at least ``strip_min_coverage`` covered by data and
+at least ``strip_min_clear_frac`` of it is SCL-valid and not haze-masked (the detector's blue,
+cloud-buffer and AOT tests). When a date has several files, the clearest one is shown.
+
+The display stretch is fixed per composite for every date (``rgb_max_reflectance``,
+``swir_max_reflectance``), so brightness is comparable along the strip. Reflectances are the
+raw L2A values (no PIF offsets). Nothing from the detector is drawn.
+
+Rendering uses the object-oriented Matplotlib API (no pyplot), so strips can be prefetched on
+a background thread. Finished strips are cached on disk under ``data/cache/m3_strips``.
 """
 
 from __future__ import annotations
 
+import hashlib
+import io
+import json
+import math
 from dataclasses import dataclass
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
+import rasterio
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 from rasterio.features import geometry_mask
+from rasterio.windows import from_bounds
 from shapely.geometry.base import BaseGeometry
 
 from stubble.config import Config
+from stubble.data.ancillary import aot_path
 from stubble.data.composites import NODATA, scl_valid
-from stubble.detect.polygons import _s1_acqs
+from stubble.detect.radiometry import haze_components, radiometry_path
 from stubble.detect.timeseries import _s2_days
-from stubble.report_m2 import _best_file, _chip, _rgb
+
+STRIP_VERSION = 1
+BANDS = ["B02", "B03", "B04", "B8A", "B12", "SCL"]
 
 
 @dataclass
 class ChipWindow:
     bounds: tuple[float, float, float, float]
     geom: BaseGeometry
+
+
+@dataclass
+class View:
+    day: date
+    file: str
+    clear_frac: float
+    tc: np.ndarray      # (3, h, w) int16: B04, B03, B02
+    swir: np.ndarray    # (3, h, w) int16: B12, B8A, B04
+    transform: object
 
 
 def chip_window(cfg: Config, geom: BaseGeometry) -> ChipWindow:
@@ -46,132 +72,160 @@ def chip_window(cfg: Config, geom: BaseGeometry) -> ChipWindow:
                       geom)
 
 
-def snap_day(days: list[date], d: date, side: str) -> date:
-    """Latest day <= d (``side='before'``) or earliest day >= d (``'after'``)."""
-    if side == "before":
-        c = [x for x in days if x <= d]
-        return c[-1] if c else days[0]
-    c = [x for x in days if x >= d]
-    return c[0] if c else days[-1]
+@lru_cache(maxsize=4)
+def _excluded(radiometry_json: str, manual: tuple[date, ...]) -> frozenset:
+    out = set(manual)
+    p = Path(radiometry_json) if radiometry_json else None
+    if p is not None and p.exists():
+        out |= {date.fromisoformat(d) for d in json.loads(p.read_text("utf-8"))["excluded_days"]}
+    return frozenset(out)
+
+
+def excluded_days(cfg: Config) -> frozenset:
+    """Scene-excluded dates, exactly as the M2.1 detector uses them."""
+    rj = str(radiometry_path(cfg)) if cfg.radiometry is not None else ""
+    return _excluded(rj, tuple(cfg.haze_mask.exclude_days))
+
+
+def _read_halo(path: Path, bounds: tuple, halo_px: int, aot: Path | None
+               ) -> tuple[dict[str, np.ndarray], object]:
+    """Read ``BANDS`` (+AOT) for ``bounds`` plus ``halo_px`` on every side (boundless)."""
+    with rasterio.open(path) as ds:
+        ix = {d: i + 1 for i, d in enumerate(ds.descriptions)}
+        win = from_bounds(*bounds, transform=ds.transform).round_offsets().round_lengths()
+        big = rasterio.windows.Window(win.col_off - halo_px, win.row_off - halo_px,
+                                      win.width + 2 * halo_px, win.height + 2 * halo_px)
+        arr = ds.read([ix[b] for b in BANDS], window=big, boundless=True, fill_value=NODATA)
+        t = ds.window_transform(win)
+    out = dict(zip(BANDS, arr, strict=True))
+    if aot is not None and aot.exists():
+        with rasterio.open(aot) as ds:
+            w2 = from_bounds(*bounds, transform=ds.transform).round_offsets().round_lengths()
+            big2 = rasterio.windows.Window(w2.col_off - halo_px, w2.row_off - halo_px,
+                                           w2.width + 2 * halo_px, w2.height + 2 * halo_px)
+            out["AOT"] = ds.read(1, window=big2, boundless=True, fill_value=NODATA)
+    return out, t
+
+
+def polygon_mask(geom: BaseGeometry, shape: tuple[int, int], t) -> np.ndarray:
+    inside = ~geometry_mask([geom], out_shape=shape, transform=t)
+    if inside.sum() < 3:  # very small polygon: count every touched pixel
+        inside = ~geometry_mask([geom], out_shape=shape, transform=t, all_touched=True)
+    return inside
+
+
+def view_clear_frac(cfg: Config, a: dict[str, np.ndarray], inside: np.ndarray,
+                    halo_px: int) -> tuple[float, float]:
+    """(coverage, clear share) of the polygon in one view; ``a`` includes the halo."""
+    hc = haze_components(a["B02"], a["SCL"], a.get("AOT"), cfg, halo_px)
+    hz = hc["blue"] | hc["buffer"] | hc["aot"]
+    core = (slice(halo_px, a["B02"].shape[0] - halo_px),
+            slice(halo_px, a["B02"].shape[1] - halo_px))
+    has = inside & (a["B04"][core] != NODATA) & (a["B12"][core] != NODATA)
+    n_in = max(int(inside.sum()), 1)
+    clear = has & scl_valid(a["SCL"][core], cfg.sentinel2.scl_invalid) & ~hz[core]
+    return has.sum() / n_in, clear.sum() / n_in
+
+
+def usable_views(cfg: Config, geom: BaseGeometry) -> list[View]:
+    """Clearest usable view per date for ``geom`` (grid CRS), in date order."""
+    lc = cfg.labelling
+    cw = chip_window(cfg, geom)
+    halo = round(cfg.quality.haze_cloud_buffer_m / cfg.aoi.resolution_m)
+    excl = excluded_days(cfg)
+    out: list[View] = []
+    for day, paths in _s2_days(cfg).items():
+        if day in excl:
+            continue
+        best: View | None = None
+        for p in paths:
+            a, t = _read_halo(p, cw.bounds, halo, aot_path(cfg, p))
+            core = (slice(halo, a["B02"].shape[0] - halo), slice(halo, a["B02"].shape[1] - halo))
+            inside = polygon_mask(geom, a["B02"][core].shape, t)
+            cov, clear = view_clear_frac(cfg, a, inside, halo)
+            if cov < lc.strip_min_coverage or clear < lc.strip_min_clear_frac:
+                continue
+            if best is None or clear > best.clear_frac:
+                best = View(day, p.name, float(clear),
+                            np.stack([a["B04"][core], a["B03"][core], a["B02"][core]]),
+                            np.stack([a["B12"][core], a["B8A"][core], a["B04"][core]]), t)
+        if best is not None:
+            out.append(best)
+    return out
+
+
+def _stretch(a: np.ndarray, hi: float) -> np.ndarray:
+    x = np.clip(a.astype(np.float32) / hi, 0, 1)
+    x[:, (a == NODATA).any(axis=0)] = 1
+    return np.moveaxis(x, 0, -1)
 
 
 def _outline(ax, geom: BaseGeometry, t) -> None:
     inv = ~t
-    polys = getattr(geom, "geoms", [geom])
-    for p in polys:
+    for p in getattr(geom, "geoms", [geom]):
         xs, ys = zip(*[inv * xy for xy in p.exterior.coords], strict=True)
-        ax.plot(xs, ys, color="cyan", lw=1.2)
+        ax.plot(xs, ys, color="cyan", lw=0.9)
 
 
-def _nbr(a: np.ndarray, i8: int, i12: int) -> np.ndarray:
-    b8, b12 = a[i8].astype(np.float32), a[i12].astype(np.float32)
-    with np.errstate(invalid="ignore", divide="ignore"):
-        out = (b8 - b12) / (b8 + b12)
-    out[(a[i8] == NODATA) | (a[i12] == NODATA)] = np.nan
-    return out
+def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
+    """PNG of the strip: per date a true-colour tile above a SWIR tile."""
+    lc, scale = cfg.labelling, cfg.sentinel2.reflectance_scale
+    hi_tc, hi_sw = lc.rgb_max_reflectance * scale, lc.swir_max_reflectance * scale
+    cols = max(1, min(lc.strip_cols, len(views) or 1))
+    rows = max(1, math.ceil(len(views) / cols))
+    fig = Figure(figsize=(cols * 1.75, rows * 3.7))
+    FigureCanvasAgg(fig)
+    if not views:
+        ax = fig.add_subplot(1, 1, 1)
+        ax.text(0.5, 0.5, "no usable clear view", ha="center", va="center")
+        ax.set_axis_off()
+    gs = fig.add_gridspec(rows * 2, cols, hspace=0.12, wspace=0.05)
+    for k, v in enumerate(views):
+        r, c = divmod(k, cols)
+        for j, (arr, hi) in enumerate(((v.tc, hi_tc), (v.swir, hi_sw))):
+            ax = fig.add_subplot(gs[2 * r + j, c])
+            ax.imshow(_stretch(arr, hi), interpolation="nearest")
+            _outline(ax, geom, v.transform)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            if j == 0:
+                ax.set_title(f"{v.day:%d %b}", fontsize=8, pad=2)
+            if c == 0:
+                ax.set_ylabel("true colour" if j == 0 else "SWIR", fontsize=7)
+    fig.subplots_adjust(left=0.03, right=0.99, top=0.96, bottom=0.01)
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=100)
+    return buf.getvalue()
 
 
-def time_series(cfg: Config, cw: ChipWindow) -> list[dict]:
-    """Polygon-median NDVI, NBR and albedo per S2 view (clear = SCL-valid share >= 0.5)."""
-    rows = []
-    for day, paths in _s2_days(cfg).items():
-        for p in paths:
-            a, t = _chip(p, cw.bounds, ["B02", "B03", "B04", "B08", "B12", "SCL"])
-            inside = ~geometry_mask([cw.geom], out_shape=a.shape[1:], transform=t)
-            has = inside & (a[0] != NODATA)
-            if has.sum() < 3:
-                continue
-            ok = has & scl_valid(a[5], cfg.sentinel2.scl_invalid)
-            f = a[:5].astype(np.float32) / cfg.sentinel2.reflectance_scale
-            use = ok if ok.sum() >= 3 else has
-            with np.errstate(invalid="ignore", divide="ignore"):
-                ndvi = (f[3] - f[2]) / (f[3] + f[2])
-                nbr = (f[3] - f[4]) / (f[3] + f[4])
-            rows.append({"day": day, "file": p.name, "clear_frac": float(ok.sum() / has.sum()),
-                         "ndvi": float(np.nanmedian(ndvi[use])),
-                         "nbr": float(np.nanmedian(nbr[use])),
-                         "albedo": float(np.nanmedian(f[:4].mean(axis=0)[use]))})
-    return rows
+def _cache_key(cfg: Config, sample_id: str, geom: BaseGeometry) -> str:
+    lc = cfg.labelling
+    files = sorted(p.name for ps in _s2_days(cfg).values() for p in ps)
+    blob = json.dumps({"v": STRIP_VERSION, "id": sample_id, "files": files,
+                       "excl": sorted(d.isoformat() for d in excluded_days(cfg)),
+                       "p": [lc.chip_pad_m, lc.rgb_max_reflectance, lc.swir_max_reflectance,
+                             lc.strip_min_clear_frac, lc.strip_min_coverage, lc.strip_cols,
+                             cfg.quality.model_dump(), cfg.haze_mask.model_dump(mode="json")]},
+                      sort_keys=True, default=str).encode() + geom.wkb
+    return hashlib.sha1(blob).hexdigest()[:16]
 
 
-def _s1_pair(cfg: Config, before: date, after: date, orbit: str | None = None
-             ) -> tuple[Path, Path, date, date] | None:
-    acqs = _s1_acqs(cfg)
-    orbits = [orbit] if orbit else sorted({o for _, o, _ in acqs})
-    best = None
-    for o in orbits:
-        pre = [(d, p) for d, oo, p in acqs if oo == o and d <= before]
-        post = [(d, p) for d, oo, p in acqs if oo == o and d >= after]
-        if pre and post:
-            gap = (post[0][0] - pre[-1][0]).days
-            if best is None or gap < best[0]:
-                best = (gap, pre[-1][1], post[0][1], pre[-1][0], post[0][0])
-    return None if best is None else best[1:]
-
-
-def render(cfg: Config, geom: BaseGeometry, before: date, after: date,
-           s1_orbit: str | None = None, ts: list[dict] | None = None):
-    """Matplotlib figure with all evidence panels for one item."""
-    cw = chip_window(cfg, geom)
-    by_day = _s2_days(cfg)
-    days = list(by_day)
-    b_day, a_day = snap_day(days, before, "before"), snap_day(days, after, "after")
-    hi = cfg.labelling.rgb_max_reflectance * cfg.sentinel2.reflectance_scale
-    bands = ["B04", "B03", "B02", "B08", "B12", "SCL"]
-    pb, pa = _best_file(by_day, b_day, cw.bounds), _best_file(by_day, a_day, cw.bounds)
-    ab, t = _chip(pb, cw.bounds, bands)
-    aa, _ = _chip(pa, cw.bounds, bands)
-
-    fig = plt.figure(figsize=(13, 8.2))
-    gs = fig.add_gridspec(2, 3, height_ratios=[1, 1])
-    ax = [fig.add_subplot(gs[0, i]) for i in range(3)] + [fig.add_subplot(gs[1, i])
-                                                          for i in range(2)]
-    ax_ts = fig.add_subplot(gs[1, 2])
-    ax[0].imshow(_rgb(ab[:3], hi))
-    ax[0].set_title(f"before {b_day:%d %b} (RGB)", fontsize=9)
-    ax[1].imshow(_rgb(aa[:3], hi))
-    ax[1].set_title(f"after {a_day:%d %b} (RGB)", fontsize=9)
-    ax[2].imshow(_rgb(aa[[4, 3, 0]], hi * 1.6))
-    ax[2].set_title(f"after {a_day:%d %b} (B12/B08/B04)", fontsize=9)
-    dn = _nbr(ab, 3, 4) - _nbr(aa, 3, 4)
-    im = ax[3].imshow(dn, cmap="RdYlGn_r", vmin=-0.5, vmax=0.5)
-    fig.colorbar(im, ax=ax[3], fraction=0.046)
-    ax[3].set_title("dNBR before - after", fontsize=9)
-
-    pair = _s1_pair(cfg, b_day, a_day, s1_orbit)
-    if pair:
-        p0, p1, d0, d1 = pair
-        v0, _ = _chip(p0, cw.bounds, ["VH_db"])
-        v1, _ = _chip(p1, cw.bounds, ["VH_db"])
-        sc = cfg.sentinel1.db_scale
-        ch = np.where((v0[0] == NODATA) | (v1[0] == NODATA), np.nan,
-                      (v1[0].astype(np.float32) - v0[0]) / sc)
-        im = ax[4].imshow(ch, cmap="PuOr", vmin=-6, vmax=6)
-        fig.colorbar(im, ax=ax[4], fraction=0.046)
-        ax[4].set_title(f"S1 VH change dB {d0:%d %b} -> {d1:%d %b} ({p0.stem.split('_')[-1]})",
-                        fontsize=9)
-    else:
-        ax[4].text(0.5, 0.5, "no S1 pair", ha="center", va="center")
-    for a in ax:
-        _outline(a, geom, t)
-        a.set_xticks([])
-        a.set_yticks([])
-
-    ts = ts if ts is not None else time_series(cfg, cw)
-    if ts:
-        x = [r["day"] for r in ts]
-        for key, col in (("ndvi", "tab:green"), ("nbr", "tab:red"), ("albedo", "tab:blue")):
-            y = np.array([r[key] for r in ts])
-            clear = np.array([r["clear_frac"] >= 0.5 for r in ts])
-            ax_ts.plot(x, y, color=col, lw=0.8, alpha=0.6)
-            ax_ts.scatter(np.array(x)[clear], y[clear], color=col, s=14, label=key)
-            ax_ts.scatter(np.array(x)[~clear], y[~clear], facecolors="none", edgecolors=col,
-                          s=14)
-        for d in (b_day, a_day):
-            ax_ts.axvline(d, color="k", lw=0.7, ls="--")
-        ax_ts.legend(fontsize=7, loc="upper right")
-        ax_ts.tick_params(labelsize=7)
-        ax_ts.set_title("polygon median (hollow = mostly not clear)", fontsize=9)
-        fig.autofmt_xdate()
-    fig.tight_layout()
-    return fig
+def strip(cfg: Config, sample_id: str, geom: BaseGeometry) -> tuple[list[date], bytes]:
+    """(usable dates, PNG) for one item, from the disk cache when possible."""
+    d = cfg.path("cache", "m3_strips")
+    key = _cache_key(cfg, sample_id, geom)
+    png, meta = d / f"{sample_id}_{key}.png", d / f"{sample_id}_{key}.json"
+    if png.exists() and meta.exists():
+        days = [date.fromisoformat(x) for x in json.loads(meta.read_text("utf-8"))["days"]]
+        return days, png.read_bytes()
+    views = usable_views(cfg, geom)
+    data = render_strip(cfg, geom, views)
+    d.mkdir(parents=True, exist_ok=True)
+    tmp = png.with_suffix(".tmp")
+    tmp.write_bytes(data)
+    tmp.replace(png)
+    meta.write_text(json.dumps({"days": [v.day.isoformat() for v in views],
+                                "files": [v.file for v in views],
+                                "clear_frac": [round(v.clear_frac, 3) for v in views]}),
+                    encoding="utf-8")
+    return [v.day for v in views], data

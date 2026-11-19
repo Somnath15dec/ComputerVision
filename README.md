@@ -60,8 +60,10 @@ stubble report-m21         # old vs new comparison -> reports/m21/REPORT.md
 
 ```bash
 stubble sample-m3          # seeded stratified sample of 400 -> data/labels/m3_sample*.json|geojson
-stubble label              # Streamlit labelling tool (http://localhost:8501)
-stubble export-labels      # data/labels/labels.geojson from data/labels/labels.sqlite
+stubble label-prerender    # optional: render every item's time strip into data/cache (~10 min)
+stubble label              # blind Streamlit labelling tool (http://localhost:8501)
+stubble label-export       # data/labels/m3_labels.geojson + m3_repeat_agreement.json
+stubble label-agreement    # print labeller consistency on the hidden repeats
 ```
 
 80 % of the sample comes from M2.1 candidates (5 equal-count bins of the rule-based
@@ -69,6 +71,18 @@ stubble export-labels      # data/labels/labels.geojson from data/labels/labels.
 weeks, with w04 weighted double. The manifest records the seed, the stratum populations and
 the inclusion weights. Labels: `burnt`, `tilled_not_burnt`, `harvested_not_burnt`, `wet`,
 `unsure`. No personal data is stored.
+
+The labelling tool is blind. It does not show the sample id, detection score, score bin,
+stratum or flagged/unflagged source. The 400 items come in a seeded shuffled order
+(`labelling.queue_seed`), and 40 of them come back a second time, unmarked, at least 40
+items later. That gives 440 queue entries and measures the labeller's own consistency.
+Each item shows a time strip of every usable clear date: true colour (B4, B3, B2) above SWIR
+false colour (B12, B8A, B4). The stretch is the same on every date and the unit is outlined.
+"Usable" means the same scene exclusions and haze tests as the M2.1 detector, plus at least
+50 % of the unit clear. Keys `1`-`5` save a label and move on. Left/right arrows go back and
+forward, and `N` jumps to the next unlabelled entry. The burn date is optional: click the
+first date on which the burn is visible, then press `1`. Every change is saved to SQLite
+straight away.
 
 ## Data sources (M1)
 | Data | Source | Licence |

@@ -138,4 +138,16 @@ labelling:                       # M3: stratified sample + labelling tool
   seed: 20251118
   classes: [burnt, tilled_not_burnt, harvested_not_burnt, wet, unsure]
   chip_pad_m: 250                # context around the polygon in chips
-  rgb_max_reflectance: 0.3       # fixed display stretch (same for every date)
+  rgb_max_reflectance: 0.3       # fixed true-colour stretch (B04/B03/B02), same for every date
+  swir_max_reflectance: 0.45     # fixed SWIR false-colour stretch (B12/B8A/B04), same for every date
+  # Time strip: a view is shown when the date is not scene-excluded, the polygon is at least
+  # strip_min_coverage covered by data and at least strip_min_clear_frac of it is SCL-clear and
+  # not haze-masked (same blue / cloud-buffer / AOT tests as the M2.1 detector).
+  strip_min_clear_frac: 0.5
+  strip_min_coverage: 0.5
+  strip_cols: 8                  # dates per strip row
+  # Blind queue: order shuffled with queue_seed; n_repeats items are shown a second time,
+  # unmarked, at least repeat_min_gap items after their first showing (labeller consistency).
+  queue_seed: 20251119
+  n_repeats: 40
+  repeat_min_gap: 40

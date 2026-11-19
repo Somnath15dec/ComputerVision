@@ -294,13 +294,54 @@ def label(config: ConfigOpt = None, port: int = 8501) -> None:
                     "--server.port", str(port)], check=False)
 
 
-@app.command("export-labels")
-def export_labels(config: ConfigOpt = None) -> None:
-    """M3: write data/labels/labels.geojson from the SQLite store."""
+def _print_agreement(agr: dict) -> None:
+    if not agr.get("n_pairs"):
+        console.print("repeat agreement: no item labelled in both passes yet")
+        return
+    b = agr["burnt_vs_not"]
+    console.print(f"repeat agreement: {agr['agreement']:.1%} of {agr['n_pairs']} pairs, "
+                  f"kappa {agr['kappa']}; burnt vs not: {b['agreement']} of {b['n_pairs']} "
+                  f"pairs (kappa {b['kappa']}); burn date same in "
+                  f"{agr['burn_date']['same_date']} / {agr['burn_date']['n_pairs']}")
+    for d in agr["disagreements"]:
+        console.print(f"  {d['sample_id']}: {d['first']} -> {d['repeat']}")
+
+
+@app.command("label-export")
+def label_export(config: ConfigOpt = None) -> None:
+    """M3: write data/labels/m3_labels.geojson (+ m3_repeat_agreement.json) from SQLite."""
     from stubble.labelling.store import export_geojson
 
     cfg = _setup(config, False)
-    console.print(f"wrote {export_geojson(cfg)}")
+    p, agr = export_geojson(cfg)
+    console.print(f"wrote {p}")
+    _print_agreement(agr)
+
+
+@app.command("label-agreement")
+def label_agreement(config: ConfigOpt = None) -> None:
+    """M3: labeller consistency on the hidden repeat items (prints, writes nothing)."""
+    from stubble.labelling.store import repeat_agreement
+
+    _print_agreement(repeat_agreement(_setup(config, False)))
+
+
+@app.command("label-prerender")
+def label_prerender(config: ConfigOpt = None, workers: int = 4, verbose: bool = False) -> None:
+    """M3: render every item's time strip into data/cache/m3_strips (optional speed-up)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    import geopandas as gpd
+
+    from stubble.labelling.chips import strip
+
+    cfg = _setup(config, verbose)
+    smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson")).to_crs(cfg.aoi.crs)
+    with ThreadPoolExecutor(workers) as ex:
+        n = list(ex.map(lambda r: len(strip(cfg, r.sample_id, r.geometry)[0]),
+                        smp.itertuples()))
+    console.print(f"rendered {len(n)} strips; usable dates per item: min {min(n)}, "
+                  f"median {sorted(n)[len(n) // 2]}, max {max(n)}")
 
 
 @app.command()

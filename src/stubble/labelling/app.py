@@ -4,7 +4,10 @@
   shown. Items come in a seeded shuffled order (``labelling.queue_seed``) with
   ``n_repeats`` hidden repeats (:mod:`stubble.labelling.blind`).
 * Evidence: a time strip of every usable clear date (true colour above SWIR false colour,
-  fixed stretch, polygon outlined; :mod:`stubble.labelling.chips`).
+  fixed stretch). Every item has the same 310 m window centred on the pixel holding its
+  representative point, with a crosshair and a neutral 100 m box; no geometry outline, so
+  flagged polygons and unflagged cells look alike. The label = the field under the crosshair
+  (:mod:`stubble.labelling.chips`).
 * Keys: 1 burnt, 2 tilled_not_burnt, 3 harvested_not_burnt, 4 wet, 5 unsure (saves and moves
   on); left / right arrows = previous / next item. The burn date (first date the burn is
   visible) is optional and is picked before pressing 1.
@@ -149,8 +152,9 @@ st.subheader(f"Item {pos + 1} / {n_q}")
 days, png = get_strip(it.sample_id)
 prefetch([q[k].sample_id for k in range(pos + 1, min(pos + 4, n_q))])
 st.image(png, width="stretch")
-st.caption("Top: true colour (B4, B3, B2). Bottom: SWIR false colour (B12, B8A, B4). Same "
-           "stretch on every date; cyan = unit outline. Only usable clear dates are shown.")
+st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). "
+           "Top: true colour (B4, B3, B2). Bottom: SWIR false colour (B12, B8A, B4). Same "
+           "stretch on every date. Only usable clear dates are shown.")
 
 cur_bd = (date.fromisoformat(cur.burn_first_seen)
           if cur is not None and isinstance(cur.burn_first_seen, str) else None)

@@ -137,7 +137,11 @@ labelling:                       # M3: stratified sample + labelling tool
   unflagged_min_frac: 0.9        # ... with at least this share unflagged-cropland pixels
   seed: 20251118
   classes: [burnt, tilled_not_burnt, harvested_not_burnt, wet, unsure]
-  chip_pad_m: 250                # context around the polygon in chips
+  # Blind display (same for every item): window of chip_window_px x chip_window_px pixels
+  # (odd; 31 px = 310 m) centred on the pixel containing representative_point(), crosshair at
+  # its centre, neutral crosshair_box_m square around it, no geometry outline.
+  chip_window_px: 31
+  crosshair_box_m: 100
   rgb_max_reflectance: 0.3       # fixed true-colour stretch (B04/B03/B02), same for every date
   swir_max_reflectance: 0.45     # fixed SWIR false-colour stretch (B12/B8A/B04), same for every date
   # Time strip: a view is shown when the date is not scene-excluded, the polygon is at least

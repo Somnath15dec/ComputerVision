@@ -138,7 +138,8 @@ class LabellingConfig(BaseModel):
     unflagged_min_frac: float = 0.9
     seed: int = 20251118
     classes: list[str] = ["burnt", "tilled_not_burnt", "harvested_not_burnt", "wet", "unsure"]
-    chip_pad_m: float = 250
+    chip_window_px: int = 31
+    crosshair_box_m: float = 100
     rgb_max_reflectance: float = 0.3
     swir_max_reflectance: float = 0.45
     strip_min_clear_frac: float = 0.5

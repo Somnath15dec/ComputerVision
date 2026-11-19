@@ -92,3 +92,29 @@ def test_store_migrates_old_schema(tmp_path, monkeypatch):
     con.close()
     monkeypatch.setattr(store, "db_path", lambda c: db)
     assert store.latest_labels(cfg, 1).label.tolist() == ["wet"]
+
+
+def test_blind_window_identical_and_anchor_inside():
+    from shapely.geometry import Polygon, box
+
+    from stubble.labelling.chips import anchor_point, chip_window
+
+    cfg = load_config()
+    r, n = cfg.aoi.resolution_m, cfg.labelling.chip_window_px
+    # concave L-shaped field (centroid outside) and a grid-aligned 100 m cell
+    ell = Polygon([(500000, 3400000), (500300, 3400000), (500300, 3400030), (500030, 3400030),
+                   (500030, 3400300), (500000, 3400300)])
+    cell = box(510000, 3410000, 510100, 3410100)
+    assert not ell.contains(ell.centroid)
+    for g in (ell, cell):
+        a = anchor_point(cfg, g)
+        px = box(a.x - r / 2, a.y - r / 2, a.x + r / 2, a.y + r / 2)
+        assert px.covers(g.representative_point())  # anchor pixel holds the rep. point
+        assert (a.x / r) % 1 == 0.5 and (a.y / r) % 1 == 0.5  # pixel centre
+        cw = chip_window(cfg, g)
+        x0, y0, x1, y1 = cw.bounds
+        assert (x1 - x0, y1 - y0) == (n * r, n * r)  # same extent for every item
+        assert ((x0 + x1) / 2, (y0 + y1) / 2) == (a.x, a.y)  # anchor exactly centred
+        assert cw.box.area == pytest.approx(cfg.labelling.crosshair_box_m ** 2)
+        assert all(v % r == 0 for v in cw.bounds)  # window edges on pixel edges
+    assert ell.covers(anchor_point(cfg, ell))

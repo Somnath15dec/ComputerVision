@@ -77,9 +77,12 @@ stratum or flagged/unflagged source. The 400 items come in a seeded shuffled ord
 (`labelling.queue_seed`), and 40 of them come back a second time, unmarked, at least 40
 items later. That gives 440 queue entries and measures the labeller's own consistency.
 Each item shows a time strip of every usable clear date: true colour (B4, B3, B2) above SWIR
-false colour (B12, B8A, B4). The stretch is the same on every date and the unit is outlined.
-"Usable" means the same scene exclusions and haze tests as the M2.1 detector, plus at least
-50 % of the unit clear. Keys `1`-`5` save a label and move on. Left/right arrows go back and
+false colour (B12, B8A, B4), with the same stretch on every date. Every item, flagged or
+unflagged, is shown the same way: a 310 m window centred on the pixel that holds the
+geometry's `representative_point()`, a crosshair there and a neutral 100 m box. No outline is
+drawn. The label means "the field under the crosshair". It is stored against the sample item,
+so M4 still uses the original polygon or cell. "Usable" means the same scene exclusions and
+haze tests as the M2.1 detector, plus at least 50 % of the 100 m box clear. Keys `1`-`5` save a label and move on. Left/right arrows go back and
 forward, and `N` jumps to the next unlabelled entry. The burn date is optional: click the
 first date on which the burn is visible, then press `1`. Every change is saved to SQLite
 straight away.

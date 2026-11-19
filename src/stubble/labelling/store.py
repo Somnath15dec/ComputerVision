@@ -121,9 +121,13 @@ def repeat_agreement(cfg: Config) -> dict[str, Any]:
 def export_geojson(cfg: Config) -> tuple[Path, dict[str, Any]]:
     """Write ``data/labels/m3_labels.geojson`` and ``m3_repeat_agreement.json``.
 
-    One feature per labelled sample item: sample geometry and design fields (stratum,
-    inclusion weight, ...) + the first-pass label; items that were repeated also carry the
-    repeat label (``repeat_label``, ``repeat_burn_first_seen``). Returns (path, agreement).
+    One feature per labelled sample item: the original sample geometry (polygon or 100 m
+    cell) and design fields (stratum, inclusion weight, ...) + the first-pass label; items that
+    were repeated also carry the repeat label (``repeat_label``, ``repeat_burn_first_seen``).
+    The label describes the field under the crosshair (``crosshair_lon`` / ``crosshair_lat``,
+    the centre of the pixel holding the geometry's representative point;
+    ``crosshair_in_geometry`` says whether that pixel centre lies in the geometry).
+    Returns (path, agreement).
     """
     smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson"))
     cols = ["sample_id", "label", "burn_first_seen", "burn_last_clear_before", "note",
@@ -133,6 +137,14 @@ def export_geojson(cfg: Config) -> tuple[Path, dict[str, Any]]:
     rep = rep.rename(columns={"label": "repeat_label", "burn_first_seen": "repeat_burn_first_seen",
                               "queue_position": "repeat_queue_position"})
     out = smp.merge(first, on="sample_id", how="inner").merge(rep, on="sample_id", how="left")
+    if not out.empty:  # what the labeller saw: the crosshair (anchor pixel centre)
+        from stubble.labelling.chips import anchor_point
+
+        g = out.geometry.to_crs(cfg.aoi.crs)
+        anc = gpd.GeoSeries([anchor_point(cfg, x) for x in g], crs=cfg.aoi.crs)
+        ll = anc.to_crs(4326)
+        out["crosshair_lon"], out["crosshair_lat"] = ll.x.round(7), ll.y.round(7)
+        out["crosshair_in_geometry"] = [bool(x.covers(a)) for x, a in zip(g, anc, strict=True)]
     p = labels_path(cfg)
     if out.empty:
         p.write_text(json.dumps({"type": "FeatureCollection", "features": []}),

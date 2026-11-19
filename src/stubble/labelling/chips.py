@@ -1,11 +1,20 @@
 """Time strip for one labelling item (read on demand from the cached raw S2 views).
 
-For every *usable clear* view of the polygon the strip shows a true-colour tile
-(B04, B03, B02) above a SWIR false-colour tile (B12, B8A, B04), with the polygon outlined.
-A view is usable when its date is not scene-excluded (``radiometry.json`` /
-``haze_mask.exclude_days``), the polygon is at least ``strip_min_coverage`` covered by data and
-at least ``strip_min_clear_frac`` of it is SCL-valid and not haze-masked (the detector's blue,
-cloud-buffer and AOT tests). When a date has several files, the clearest one is shown.
+Blind display: every item, flagged polygon or unflagged 100 m cell, is drawn the same way,
+and the geometry's shape never appears. The *anchor* is the 10 m grid pixel that contains
+``geometry.representative_point()`` (always inside the geometry). Each tile is a
+``chip_window_px`` x ``chip_window_px`` window (odd, so the anchor pixel is exactly in the
+centre), with a small crosshair at the anchor pixel centre and a neutral
+``crosshair_box_m`` square around it. The label means "the field under the crosshair"; it is
+stored against the sample item, whose original geometry is used later (M4).
+
+For every *usable clear* date the strip shows a true-colour tile (B04, B03, B02) above a SWIR
+false-colour tile (B12, B8A, B04). A date is usable when it is not scene-excluded
+(``radiometry.json`` / ``haze_mask.exclude_days``), the neutral box is at least
+``strip_min_coverage`` covered by data and at least ``strip_min_clear_frac`` of it is SCL-valid
+and not haze-masked (the detector's blue, cloud-buffer and AOT tests). The test uses the box,
+not the geometry, so the choice of dates does not depend on the item's shape either. When a
+date has several files, the clearest one is shown.
 
 The display stretch is fixed per composite for every date (``rgb_max_reflectance``,
 ``swir_max_reflectance``), so brightness is comparable along the strip. Reflectances are the
@@ -32,6 +41,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from rasterio.features import geometry_mask
 from rasterio.windows import from_bounds
+from shapely.geometry import Point, box
 from shapely.geometry.base import BaseGeometry
 
 from stubble.config import Config
@@ -40,14 +50,15 @@ from stubble.data.composites import NODATA, scl_valid
 from stubble.detect.radiometry import haze_components, radiometry_path
 from stubble.detect.timeseries import _s2_days
 
-STRIP_VERSION = 1
+STRIP_VERSION = 2
 BANDS = ["B02", "B03", "B04", "B8A", "B12", "SCL"]
 
 
 @dataclass
 class ChipWindow:
     bounds: tuple[float, float, float, float]
-    geom: BaseGeometry
+    anchor: Point        # centre of the anchor pixel (grid CRS)
+    box: BaseGeometry    # neutral crosshair_box_m square around the anchor
 
 
 @dataclass
@@ -60,16 +71,24 @@ class View:
     transform: object
 
 
-def chip_window(cfg: Config, geom: BaseGeometry) -> ChipWindow:
-    """Square window around ``geom`` (grid CRS) with ``chip_pad_m`` context."""
-    x0, y0, x1, y1 = geom.bounds
-    pad = cfg.labelling.chip_pad_m
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    half = max(x1 - x0, y1 - y0) / 2 + pad
+def anchor_point(cfg: Config, geom: BaseGeometry) -> Point:
+    """Centre of the grid pixel containing ``geom.representative_point()`` (grid CRS).
+
+    Assumes the grid origin is a multiple of the resolution (true for the analysis grid).
+    """
     r = cfg.aoi.resolution_m
-    snap = lambda v: round(v / r) * r  # noqa: E731
-    return ChipWindow((snap(cx - half), snap(cy - half), snap(cx + half), snap(cy + half)),
-                      geom)
+    p = geom.representative_point()
+    return Point((math.floor(p.x / r) + 0.5) * r, (math.floor(p.y / r) + 0.5) * r)
+
+
+def chip_window(cfg: Config, geom: BaseGeometry) -> ChipWindow:
+    """Fixed-size window centred on the anchor pixel; identical layout for every item."""
+    lc, r = cfg.labelling, cfg.aoi.resolution_m
+    a = anchor_point(cfg, geom)
+    half = lc.chip_window_px / 2 * r
+    hb = lc.crosshair_box_m / 2
+    return ChipWindow((a.x - half, a.y - half, a.x + half, a.y + half), a,
+                      box(a.x - hb, a.y - hb, a.x + hb, a.y + hb))
 
 
 @lru_cache(maxsize=4)
@@ -128,7 +147,7 @@ def view_clear_frac(cfg: Config, a: dict[str, np.ndarray], inside: np.ndarray,
 
 
 def usable_views(cfg: Config, geom: BaseGeometry) -> list[View]:
-    """Clearest usable view per date for ``geom`` (grid CRS), in date order."""
+    """Clearest usable view per date for the item's neutral box, in date order."""
     lc = cfg.labelling
     cw = chip_window(cfg, geom)
     halo = round(cfg.quality.haze_cloud_buffer_m / cfg.aoi.resolution_m)
@@ -141,7 +160,7 @@ def usable_views(cfg: Config, geom: BaseGeometry) -> list[View]:
         for p in paths:
             a, t = _read_halo(p, cw.bounds, halo, aot_path(cfg, p))
             core = (slice(halo, a["B02"].shape[0] - halo), slice(halo, a["B02"].shape[1] - halo))
-            inside = polygon_mask(geom, a["B02"][core].shape, t)
+            inside = polygon_mask(cw.box, a["B02"][core].shape, t)
             cov, clear = view_clear_frac(cfg, a, inside, halo)
             if cov < lc.strip_min_coverage or clear < lc.strip_min_clear_frac:
                 continue
@@ -160,16 +179,22 @@ def _stretch(a: np.ndarray, hi: float) -> np.ndarray:
     return np.moveaxis(x, 0, -1)
 
 
-def _outline(ax, geom: BaseGeometry, t) -> None:
+def _marker(ax, cw: ChipWindow, t) -> None:
+    """Neutral box + small crosshair at the anchor pixel centre (pixel coordinates)."""
     inv = ~t
-    for p in getattr(geom, "geoms", [geom]):
-        xs, ys = zip(*[inv * xy for xy in p.exterior.coords], strict=True)
-        ax.plot(xs, ys, color="cyan", lw=0.9)
+    xs, ys = zip(*[inv * xy for xy in cw.box.exterior.coords], strict=True)
+    ax.plot(xs, ys, color="cyan", lw=0.8)
+    cx, cy = inv * (cw.anchor.x, cw.anchor.y)
+    arm, gap = 2.2, 0.8  # pixels; open centre so the pixel itself stays visible
+    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        ax.plot([cx + dx * gap, cx + dx * arm], [cy + dy * gap, cy + dy * arm],
+                color="yellow", lw=1.0)
 
 
 def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
     """PNG of the strip: per date a true-colour tile above a SWIR tile."""
     lc, scale = cfg.labelling, cfg.sentinel2.reflectance_scale
+    cw = chip_window(cfg, geom)
     hi_tc, hi_sw = lc.rgb_max_reflectance * scale, lc.swir_max_reflectance * scale
     cols = max(1, min(lc.strip_cols, len(views) or 1))
     rows = max(1, math.ceil(len(views) / cols))
@@ -185,7 +210,7 @@ def render_strip(cfg: Config, geom: BaseGeometry, views: list[View]) -> bytes:
         for j, (arr, hi) in enumerate(((v.tc, hi_tc), (v.swir, hi_sw))):
             ax = fig.add_subplot(gs[2 * r + j, c])
             ax.imshow(_stretch(arr, hi), interpolation="nearest")
-            _outline(ax, geom, v.transform)
+            _marker(ax, cw, v.transform)
             ax.set_xticks([])
             ax.set_yticks([])
             if j == 0:
@@ -203,10 +228,11 @@ def _cache_key(cfg: Config, sample_id: str, geom: BaseGeometry) -> str:
     files = sorted(p.name for ps in _s2_days(cfg).values() for p in ps)
     blob = json.dumps({"v": STRIP_VERSION, "id": sample_id, "files": files,
                        "excl": sorted(d.isoformat() for d in excluded_days(cfg)),
-                       "p": [lc.chip_pad_m, lc.rgb_max_reflectance, lc.swir_max_reflectance,
+                       "p": [lc.chip_window_px, lc.crosshair_box_m, lc.rgb_max_reflectance,
+                             lc.swir_max_reflectance,
                              lc.strip_min_clear_frac, lc.strip_min_coverage, lc.strip_cols,
                              cfg.quality.model_dump(), cfg.haze_mask.model_dump(mode="json")]},
-                      sort_keys=True, default=str).encode() + geom.wkb
+                      sort_keys=True, default=str).encode() + anchor_point(cfg, geom).wkb
     return hashlib.sha1(blob).hexdigest()[:16]
 
 

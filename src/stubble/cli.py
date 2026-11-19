@@ -328,15 +328,17 @@ def label_agreement(config: ConfigOpt = None) -> None:
 
 @app.command("label-prerender")
 def label_prerender(config: ConfigOpt = None, workers: int = 4, verbose: bool = False) -> None:
-    """M3: render every item's time strip into data/cache/m3_strips (optional speed-up)."""
+    """M3: render the time strip of every queued item into data/cache/m3_strips (speed-up)."""
     from concurrent.futures import ThreadPoolExecutor
 
     import geopandas as gpd
 
     from stubble.labelling.chips import strip
+    from stubble.labelling.store import label_queue
 
     cfg = _setup(config, verbose)
     smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson")).to_crs(cfg.aoi.crs)
+    smp = smp[smp.sample_id.isin({it.sample_id for it in label_queue(cfg, smp.sample_id.tolist())})]
     with ThreadPoolExecutor(workers) as ex:
         n = list(ex.map(lambda r: len(strip(cfg, r.sample_id, r.geometry)[0]),
                         smp.itertuples()))

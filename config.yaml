@@ -136,14 +136,18 @@ labelling:                       # M3: stratified sample + labelling tool
   unflagged_unit_px: 10          # unflagged cropland units = 100 m x 100 m grid cells ...
   unflagged_min_frac: 0.9        # ... with at least this share unflagged-cropland pixels
   seed: 20251118
-  classes: [burnt, tilled_not_burnt, harvested_not_burnt, wet, unsure]
+  classes: [burnt, not_burnt, unsure]   # keys 1 / 2 / 3
+  # Earlier 5-class labels stay valid in the store and are folded into the 3 classes.
+  legacy_classes: {tilled_not_burnt: not_burnt, harvested_not_burnt: not_burnt, wet: not_burnt}
   # Blind display (same for every item): window of chip_window_px x chip_window_px pixels
   # (odd; 31 px = 310 m) centred on the pixel containing representative_point(), crosshair at
   # its centre, neutral crosshair_box_m square around it, no geometry outline.
   chip_window_px: 31
   crosshair_box_m: 100
-  rgb_max_reflectance: 0.3       # fixed true-colour stretch (B04/B03/B02), same for every date
-  swir_max_reflectance: 0.45     # fixed SWIR false-colour stretch (B12/B8A/B04), same for every date
+  tile_upscale: 4                # tiles drawn x4, nearest neighbour (31 px -> 124 px)
+  stretch_percentiles: [2, 98]   # one per-band stretch per item, from all its clear pixels/dates
+  dnbr_display_max: 0.4          # ΔNBR row colour scale, -max..+max, same for every item
+  series_window_px: 3            # chart = mean of the clear pixels in this square at the crosshair
   # Time strip: a view is shown when the date is not scene-excluded, the polygon is at least
   # strip_min_coverage covered by data and at least strip_min_clear_frac of it is SCL-clear and
   # not haze-masked (same blue / cloud-buffer / AOT tests as the M2.1 detector).
@@ -152,6 +156,9 @@ labelling:                       # M3: stratified sample + labelling tool
   strip_cols: 8                  # dates per strip row
   # Blind queue: order shuffled with queue_seed; n_repeats items are shown a second time,
   # unmarked, at least repeat_min_gap items after their first showing (labeller consistency).
+  # Only the first n_label items of that shuffled order are labelled (a seeded simple random
+  # half of the stratified sample; strata are re-weighted on export).
   queue_seed: 20251119
-  n_repeats: 40
+  n_label: 200
+  n_repeats: 20
   repeat_min_gap: 40

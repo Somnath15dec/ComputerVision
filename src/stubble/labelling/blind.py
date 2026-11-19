@@ -6,9 +6,14 @@ The queue shows every sample item once in an order shuffled with ``labelling.que
 ``(sample_id, pass)``: pass 1 is the first showing, pass 2 the hidden repeat. The app never
 shows the sample id, stratum, score or source, so a repeat looks like any other item.
 
+With ``n_items`` set, only the first ``n_items`` of the same shuffled order are queued (the
+permutation is drawn first, so it is identical to the full queue's order) and the repeats are
+drawn among them.
+
 Agreement is measured on items whose two passes are both labelled: raw agreement, Cohen's
-kappa over the five classes, the same for the binary burnt / not-burnt view (``unsure``
-pairs dropped), and the burn-date match where both passes are ``burnt`` with a date.
+kappa over the classes (earlier 5-class labels folded into 3 with ``fold``),
+the same for the binary burnt / not-burnt view (``unsure`` pairs dropped), and the
+burn-date match where both passes are ``burnt`` with a date.
 """
 
 from __future__ import annotations
@@ -27,12 +32,14 @@ class QueueItem:
     pass_no: int      # 1 = first showing, 2 = hidden repeat
 
 
-def build_queue(sample_ids: list[str], seed: int, n_repeats: int, min_gap: int
-                ) -> list[QueueItem]:
+def build_queue(sample_ids: list[str], seed: int, n_repeats: int, min_gap: int,
+                n_items: int | None = None) -> list[QueueItem]:
     """Seeded shuffled queue with ``n_repeats`` hidden repeats (see module docstring)."""
     rng = np.random.default_rng(seed)
-    n = len(sample_ids)
-    base = [sample_ids[i] for i in rng.permutation(n)]
+    base = [sample_ids[i] for i in rng.permutation(len(sample_ids))]
+    if n_items is not None:
+        base = base[:n_items]
+    n = len(base)
     eligible = [p for p in range(n) if p + min_gap + 1 <= n]
     k = min(n_repeats, len(eligible))
     rep_pos = sorted(int(x) for x in rng.choice(eligible, k, replace=False)) if k else []
@@ -63,9 +70,16 @@ def cohen_kappa(a: list[str], b: list[str]) -> float | None:
     return (po - pe) / (1 - pe)
 
 
-def agreement(first: pd.DataFrame, repeat: pd.DataFrame) -> dict[str, Any]:
-    """Repeat agreement; both frames have ``sample_id``, ``label`` and ``burn_first_seen``."""
+def agreement(first: pd.DataFrame, repeat: pd.DataFrame, fold: dict[str, str] | None = None
+              ) -> dict[str, Any]:
+    """Repeat agreement; both frames have ``sample_id``, ``label`` and ``burn_first_seen``.
+
+    ``fold`` maps legacy labels onto the current classes before comparing.
+    """
     m = first.merge(repeat, on="sample_id", suffixes=("_1", "_2"))
+    if fold:
+        m["label_1"] = m.label_1.replace(fold)
+        m["label_2"] = m.label_2.replace(fold)
     out: dict[str, Any] = {"n_pairs": len(m)}
     if m.empty:
         return out

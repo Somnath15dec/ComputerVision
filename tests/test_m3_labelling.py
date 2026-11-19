@@ -3,6 +3,7 @@
 import json
 import sqlite3
 from collections import Counter
+from datetime import date
 
 import pytest
 
@@ -118,3 +119,94 @@ def test_blind_window_identical_and_anchor_inside():
         assert cw.box.area == pytest.approx(cfg.labelling.crosshair_box_m ** 2)
         assert all(v % r == 0 for v in cw.bounds)  # window edges on pixel edges
     assert ell.covers(anchor_point(cfg, ell))
+
+
+def test_queue_subset_is_prefix_of_full_order():
+    full = build_queue(IDS, 20251119, 40, 40)
+    sub = build_queue(IDS, 20251119, 20, 40, n_items=200)
+    full_first = [it.sample_id for it in full if it.pass_no == 1]
+    sub_first = [it.sample_id for it in sub if it.pass_no == 1]
+    assert sub_first == full_first[:200]  # same seeded order, first 200
+    assert len(sub) == 220 and [it.position for it in sub] == list(range(220))
+    pos = {(it.sample_id, it.pass_no): it.position for it in sub}
+    reps = [s for (s, ps) in pos if ps == 2]
+    assert len(reps) == 20 and set(reps) <= set(sub_first)
+    for s in reps:
+        between = [it for it in sub[pos[(s, 1)] + 1:pos[(s, 2)]] if it.pass_no == 1]
+        assert len(between) >= 40
+
+
+def test_three_classes_and_legacy_fold(tmp_path, monkeypatch):
+    import pandas as pd
+
+    cfg = load_config()
+    assert cfg.labelling.classes == ["burnt", "not_burnt", "unsure"]
+    monkeypatch.setattr(store, "db_path", lambda c: tmp_path / "l.sqlite")
+    store.save_label(cfg, "M3-0001", "F1", "not_burnt")
+    store.save_label(cfg, "M3-0002", "F2", "wet")  # legacy label still accepted
+    with pytest.raises(ValueError):
+        store.save_label(cfg, "M3-0003", "F3", "smoke")
+    df = store.latest_labels(cfg, 1)
+    assert df.label.tolist() == ["not_burnt", "wet"]
+    assert df.label_3.tolist() == ["not_burnt", "not_burnt"]
+    f = pd.DataFrame({"sample_id": ["x", "y"], "label": ["wet", "burnt"],
+                      "burn_first_seen": [None, None]})
+    r = pd.DataFrame({"sample_id": ["x", "y"], "label": ["tilled_not_burnt", "burnt"],
+                      "burn_first_seen": [None, None]})
+    assert agreement(f, r)["agreement"] == 0.5
+    assert agreement(f, r, cfg.labelling.legacy_classes)["agreement"] == 1.0
+
+
+def _views(n_dates=3):
+    import numpy as np
+    from affine import Affine
+
+    from stubble.labelling.chips import View
+
+    t = Affine(10, 0, 500000, 0, -10, 3400310)  # 31 x 31 window, anchor pixel (15, 15)
+    out = []
+    for k in range(n_dates):
+        b12 = 1000 if k < 2 else 2500  # date 2: SWIR up -> NBR drop at every pixel
+        bands = {b: np.full((31, 31), v, np.int16) for b, v in
+                 {"B02": 500, "B03": 700, "B04": 800, "B08": 3000, "B8A": 3000,
+                  "B12": b12}.items()}
+        clear = np.ones((31, 31), bool)
+        clear[0, 0] = False
+        out.append(View(date(2025, 11, 1 + 5 * k), f"f{k}", 1.0, bands, clear, t))
+    return out, t
+
+
+def test_series_delta_upscale_and_render():
+    import io
+
+    import numpy as np
+    from PIL import Image
+    from shapely.geometry import box
+
+    from stubble.labelling.chips import (
+        delta_nbr,
+        item_stretch,
+        render_strip,
+        series_at_anchor,
+        upscale,
+    )
+
+    cfg = load_config()
+    views, _t = _views()
+    g = box(500150, 3400150, 500160, 3400160)  # one pixel at row 15, col 15
+    s = series_at_anchor(cfg, g, views)
+    nbr0, nbr2 = (3000 - 1000) / 4000, (3000 - 2500) / 5500
+    assert s["nbr"] == pytest.approx([nbr0, nbr0, nbr2], abs=1e-6)
+    assert s["albedo"][0] == pytest.approx((500 + 700 + 800 + 3000) / 4 / 10000)
+    assert s["ndvi"][0] == pytest.approx(2200 / 3800)
+    dn = delta_nbr(views)
+    assert dn[0] is None and np.nanmax(np.abs(dn[1])) == 0
+    assert np.nanmean(dn[2]) == pytest.approx(nbr0 - nbr2, abs=1e-6)  # positive = drop
+    assert np.isnan(dn[2][0, 0])  # not clear -> no value
+    u = upscale(np.arange(4).reshape(2, 2), 4)
+    assert u.shape == (8, 8) and (u[:4, :4] == 0).all() and (u[4:, 4:] == 3).all()
+    st = item_stretch(views, (2, 98))
+    assert st["swir"]["B12"][0] < st["swir"]["B12"][1]  # one stretch over all dates
+    assert len(set(st["tc"].values())) == 1  # true colour: shared range, natural colours
+    img = Image.open(io.BytesIO(render_strip(cfg, g, views)))
+    assert img.width >= 3 * 31 * cfg.labelling.tile_upscale  # tiles drawn at least x4

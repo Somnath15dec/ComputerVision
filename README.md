@@ -60,7 +60,7 @@ stubble report-m21         # old vs new comparison -> reports/m21/REPORT.md
 
 ```bash
 stubble sample-m3          # seeded stratified sample of 400 -> data/labels/m3_sample*.json|geojson
-stubble label-prerender    # optional: render every item's time strip into data/cache (~10 min)
+stubble label-prerender    # optional: render the 200 queued items' strips into data/cache
 stubble label              # blind Streamlit labelling tool (http://localhost:8501)
 stubble label-export       # data/labels/m3_labels.geojson + m3_repeat_agreement.json
 stubble label-agreement    # print labeller consistency on the hidden repeats
@@ -69,23 +69,39 @@ stubble label-agreement    # print labeller consistency on the hidden repeats
 80 % of the sample comes from M2.1 candidates (5 equal-count bins of the rule-based
 `detection_score`) and 20 % from unflagged cropland (100 m cells). Both are spread across
 weeks, with w04 weighted double. The manifest records the seed, the stratum populations and
-the inclusion weights. Labels: `burnt`, `tilled_not_burnt`, `harvested_not_burnt`, `wet`,
-`unsure`. No personal data is stored.
+the inclusion weights. No personal data is stored.
 
 The labelling tool is blind. It does not show the sample id, detection score, score bin,
-stratum or flagged/unflagged source. The 400 items come in a seeded shuffled order
-(`labelling.queue_seed`), and 40 of them come back a second time, unmarked, at least 40
-items later. That gives 440 queue entries and measures the labeller's own consistency.
-Each item shows a time strip of every usable clear date: true colour (B4, B3, B2) above SWIR
-false colour (B12, B8A, B4), with the same stretch on every date. Every item, flagged or
-unflagged, is shown the same way: a 310 m window centred on the pixel that holds the
+stratum or flagged/unflagged source. The 400 items are put in a seeded shuffled order
+(`labelling.queue_seed`) and only the **first 200** of that order are labelled
+(`labelling.n_label`), a seeded random half of the stratified sample (all 49 strata are
+present; 159 flagged / 41 unflagged). 20 of them come back a second time, unmarked, at least
+40 items later: 220 queue entries, which measure the labeller's own consistency. On export,
+`subset_inclusion_weight` (stratum population / items of that stratum in the 200) replaces the
+full-sample weight for estimates.
+
+Labels (keys `1`-`3`): `burnt`, `not_burnt`, `unsure`. Labels from the earlier 5-class tool
+(`tilled_not_burnt`, `harvested_not_burnt`, `wet`) are still accepted and readable; exports keep
+the raw `label` and add `label_3`, which folds them into `not_burnt`.
+
+Each item shows every usable clear date in rows of 8. Per row, top to bottom:
+- a chart at the crosshair (mean of the clear pixels in a 3x3 square): NBR, visible+NIR albedo
+  (mean of B02, B03, B04, B08, drawn x4) and NDVI, with each date's marker directly above its
+  tiles. A burn after harvest shows as a sudden NBR + albedo drop;
+- true colour (B4, B3, B2) and SWIR false colour (B12, B8A, B4), upscaled x4 with nearest
+  neighbour, with one fixed contrast stretch per item computed from all its dates (2-98 %;
+  one range for the three true-colour bands, per band for SWIR);
+- ΔNBR = NBR(previous date) - NBR(this date) on a fixed ±0.4 scale for every item (red = drop),
+  so a burn is a hot spot on one date. Pixels cloudy or hazy in either view are grey.
+
+Every item is shown the same way: a 310 m window centred on the pixel that holds the
 geometry's `representative_point()`, a crosshair there and a neutral 100 m box. No outline is
 drawn. The label means "the field under the crosshair". It is stored against the sample item,
 so M4 still uses the original polygon or cell. "Usable" means the same scene exclusions and
-haze tests as the M2.1 detector, plus at least 50 % of the 100 m box clear. Keys `1`-`5` save a label and move on. Left/right arrows go back and
-forward, and `N` jumps to the next unlabelled entry. The burn date is optional: click the
-first date on which the burn is visible, then press `1`. Every change is saved to SQLite
-straight away.
+haze tests as the M2.1 detector, plus at least 50 % of the 100 m box clear. Left/right arrows
+go back and forward, and `N` jumps to the next unlabelled entry. The burn date is optional:
+click the first date on which the burn is visible, then press `1`. Every change is saved to
+SQLite straight away.
 
 ## Data sources (M1)
 | Data | Source | Licence |

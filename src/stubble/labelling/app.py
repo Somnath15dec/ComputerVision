@@ -1,16 +1,17 @@
 """M3 labelling tool (Streamlit), blind. Run with ``stubble label``.
 
 * Blind: no sample id, detection score, stratum / score bin or flagged / unflagged source is
-  shown. Items come in a seeded shuffled order (``labelling.queue_seed``) with
-  ``n_repeats`` hidden repeats (:mod:`stubble.labelling.blind`).
-* Evidence: a time strip of every usable clear date (true colour above SWIR false colour,
-  fixed stretch). Every item has the same 310 m window centred on the pixel holding its
-  representative point, with a crosshair and a neutral 100 m box; no geometry outline, so
+  shown. Items come in a seeded shuffled order (``labelling.queue_seed``); the first
+  ``n_label`` of it are queued with ``n_repeats`` hidden repeats (:mod:`stubble.labelling.blind`).
+* Evidence: a time strip of every usable clear date. Per row: a chart of NBR, albedo and NDVI
+  at the crosshair, then true colour, SWIR false colour and ΔNBR to the previous date (tiles
+  x4, one stretch per item). Every item has the same 310 m window centred on the pixel holding
+  its representative point, with a crosshair and a neutral 100 m box; no geometry outline, so
   flagged polygons and unflagged cells look alike. The label = the field under the crosshair
   (:mod:`stubble.labelling.chips`).
-* Keys: 1 burnt, 2 tilled_not_burnt, 3 harvested_not_burnt, 4 wet, 5 unsure (saves and moves
-  on); left / right arrows = previous / next item. The burn date (first date the burn is
-  visible) is optional and is picked before pressing 1.
+* Keys: 1 burnt, 2 not_burnt, 3 unsure (saves and moves on); left / right arrows = previous /
+  next item. The burn date (first date the burn is visible) is optional and is picked before
+  pressing 1.
 * Autosave: every label, burn-date or note change is written to SQLite at once.
 """
 
@@ -24,9 +25,8 @@ import geopandas as gpd
 import streamlit as st
 
 from stubble.config import load_config
-from stubble.labelling.blind import build_queue
 from stubble.labelling.chips import strip
-from stubble.labelling.store import export_geojson, latest_labels, save_label
+from stubble.labelling.store import export_geojson, label_queue, latest_labels, save_label
 from stubble.provenance import code_version
 
 st.set_page_config(page_title="Stubble labelling (M3)", layout="wide")
@@ -43,8 +43,7 @@ def load_sample() -> gpd.GeoDataFrame:
 
 @st.cache_resource
 def queue() -> list:
-    return build_queue(sorted(load_sample().index), lc.queue_seed, lc.n_repeats,
-                       lc.repeat_min_gap)
+    return label_queue(cfg, list(load_sample().index))
 
 
 @st.cache_resource
@@ -145,6 +144,9 @@ if st.sidebar.button("Export labels"):
 pos = st.session_state.pos
 it = q[pos]
 cur = saved.get((it.sample_id, it.pass_no))
+if cur is not None and cur.label in lc.legacy_classes:  # 5-class label from an earlier tool
+    st.warning(f"Earlier label **{cur.label}** (counts as {lc.legacy_classes[cur.label]}). "
+               "Press a key to replace it.")
 st.caption("Decision support only: labels describe what the imagery shows, not an offence. "
            "No personal data is collected.")
 st.subheader(f"Item {pos + 1} / {n_q}")
@@ -152,9 +154,13 @@ st.subheader(f"Item {pos + 1} / {n_q}")
 days, png = get_strip(it.sample_id)
 prefetch([q[k].sample_id for k in range(pos + 1, min(pos + 4, n_q))])
 st.image(png, width="stretch")
-st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). "
-           "Top: true colour (B4, B3, B2). Bottom: SWIR false colour (B12, B8A, B4). Same "
-           "stretch on every date. Only usable clear dates are shown.")
+st.caption("Label the field under the yellow crosshair (cyan box = 100 m, for scale). Per row: "
+           "chart at the crosshair (NBR red, albedo x4 dark, NDVI green; each marker sits above "
+           "its date), true colour (B4, B3, B2), SWIR false colour (B12, B8A, B4), and ΔNBR = "
+           "NBR(previous date) - NBR(this date), red = drop, fixed scale ±"
+           f"{lc.dnbr_display_max}, grey = cloud. A burn after harvest: NBR and albedo fall "
+           "suddenly, one red ΔNBR date. One contrast stretch per item. Only usable clear dates "
+           "are shown.")
 
 cur_bd = (date.fromisoformat(cur.burn_first_seen)
           if cur is not None and isinstance(cur.burn_first_seen, str) else None)

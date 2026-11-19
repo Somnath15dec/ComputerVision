@@ -137,16 +137,22 @@ class LabellingConfig(BaseModel):
     unflagged_unit_px: int = 10
     unflagged_min_frac: float = 0.9
     seed: int = 20251118
-    classes: list[str] = ["burnt", "tilled_not_burnt", "harvested_not_burnt", "wet", "unsure"]
+    classes: list[str] = ["burnt", "not_burnt", "unsure"]
+    # earlier 5-class labels: still accepted and read, folded into ``classes`` for analysis
+    legacy_classes: dict[str, str] = {"tilled_not_burnt": "not_burnt",
+                                      "harvested_not_burnt": "not_burnt", "wet": "not_burnt"}
     chip_window_px: int = 31
     crosshair_box_m: float = 100
-    rgb_max_reflectance: float = 0.3
-    swir_max_reflectance: float = 0.45
+    tile_upscale: int = 4
+    stretch_percentiles: tuple[float, float] = (2.0, 98.0)
+    dnbr_display_max: float = 0.4
+    series_window_px: int = 3
     strip_min_clear_frac: float = 0.5
     strip_min_coverage: float = 0.5
     strip_cols: int = 8
     queue_seed: int = 20251119
-    n_repeats: int = 40
+    n_label: int | None = 200      # label only the first n_label items of the shuffled order
+    n_repeats: int = 20
     repeat_min_gap: int = 40
 
 

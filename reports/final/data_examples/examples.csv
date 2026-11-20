@@ -1,0 +1,7 @@
+sample_id,source,sample_week,label,burn_first_seen,detected_window,area_ha
+M3-0323,flagged,w02,burnt,2025-11-02,2025-10-15/2025-10-17,0.55
+M3-0162,flagged,w01,burnt,2025-10-10,2025-10-05/2025-10-10,1.09
+M3-0055,flagged,w02,not_burnt,,2025-10-13/2025-10-15,0.12
+M3-0350,unflagged_cropland,w08,burnt,2025-11-27,,1.0
+M3-0038,unflagged_cropland,w04,not_burnt,,,1.0
+M3-0033,unflagged_cropland,w03,unsure,,,1.0

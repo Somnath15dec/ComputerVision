@@ -426,3 +426,27 @@ def m21(config: ConfigOpt = None, verbose: bool = False) -> None:
 
 if __name__ == "__main__":
     app()
+
+
+@app.command("firms-fetch")
+def firms_fetch(config: ConfigOpt = None) -> None:
+    """M5-lite: fetch VIIRS S-NPP + NOAA-20 hotspots for the AOI and season (FIRMS API)."""
+    from stubble.firms import fetch_hotspots
+
+    cfg = _setup(config, False)
+    console.print(f"wrote {fetch_hotspots(cfg)}")
+
+
+@app.command("m5lite")
+def m5lite_cmd(config: ConfigOpt = None) -> None:
+    """M5-lite: M2.1 burnt ha vs VIIRS hotspots per 5 km cell and week (CSV, figures)."""
+    from stubble import m5lite
+
+    cfg = _setup(config, False)
+    s = m5lite.run(cfg)
+    console.print(f"season burnt (M2.1 estimate) {s['season_burnt_ha']} ha; VIIRS hotspots "
+                  f"{s['season_hotspots']} {s['hotspots_by_sensor']}; cell Spearman "
+                  f"{s['cell_spearman_burnt_vs_hotspots']}")
+    for w in s["weekly"]:
+        console.print(f"  {w['week']} {w['start']}..{w['end']}: {w['burnt_ha']} ha, "
+                      f"{w['hotspots']} hotspots")

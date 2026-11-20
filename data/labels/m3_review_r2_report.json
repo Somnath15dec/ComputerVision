@@ -1,0 +1,812 @@
+{
+ "round": "r2",
+ "groups": {
+  "remaining": {
+   "n": 103,
+   "reviewed": 103,
+   "changed": 71,
+   "changed_share": 0.689,
+   "changed_ci95": [
+    0.594,
+    0.771
+   ],
+   "transitions": {
+    "not_burnt->burnt": 54,
+    "unsure->burnt": 10,
+    "burnt->not_burnt": 5,
+    "burnt->unsure": 1,
+    "not_burnt->unsure": 1
+   },
+   "burnt_with_date": 75
+  },
+  "carryover": {
+   "n": 1,
+   "reviewed": 1,
+   "changed": 0,
+   "changed_share": 0.0,
+   "changed_ci95": [
+    0.0,
+    0.793
+   ],
+   "transitions": {},
+   "burnt_with_date": 1
+  },
+  "dates": {
+   "n": 35,
+   "reviewed": 35,
+   "changed": 5,
+   "changed_share": 0.143,
+   "changed_ci95": [
+    0.063,
+    0.294
+   ],
+   "transitions": {
+    "burnt->not_burnt": 3,
+    "burnt->unsure": 2
+   },
+   "burnt_with_date": 30
+  }
+ },
+ "changes": [
+  {
+   "group": "remaining",
+   "sample_id": "M3-0042",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0075",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0172",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0115",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0384",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0033",
+   "pass": 1,
+   "before": "burnt",
+   "after": "unsure"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0392",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0048",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0285",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0009",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0256",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0037",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0045",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0380",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "unsure"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0348",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0135",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0318",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0261",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0076",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0383",
+   "pass": 2,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0107",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0282",
+   "pass": 2,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0099",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0086",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0095",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0233",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0068",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0313",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0306",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0144",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0167",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0149",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0289",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0282",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0371",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0117",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0354",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0024",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0114",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0332",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0357",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0023",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0004",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0281",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0051",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0136",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0162",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0350",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0262",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0070",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0295",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0142",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0002",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0358",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0219",
+   "pass": 2,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0400",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0121",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0165",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0338",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0242",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0271",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0360",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0388",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0134",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0328",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0276",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0199",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0293",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0058",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0040",
+   "pass": 1,
+   "before": "not_burnt",
+   "after": "burnt"
+  },
+  {
+   "group": "remaining",
+   "sample_id": "M3-0173",
+   "pass": 1,
+   "before": "unsure",
+   "after": "burnt"
+  },
+  {
+   "group": "dates",
+   "sample_id": "M3-0061",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "dates",
+   "sample_id": "M3-0102",
+   "pass": 1,
+   "before": "burnt",
+   "after": "unsure"
+  },
+  {
+   "group": "dates",
+   "sample_id": "M3-0315",
+   "pass": 1,
+   "before": "burnt",
+   "after": "unsure"
+  },
+  {
+   "group": "dates",
+   "sample_id": "M3-0158",
+   "pass": 1,
+   "before": "burnt",
+   "after": "not_burnt"
+  },
+  {
+   "group": "dates",
+   "sample_id": "M3-0076",
+   "pass": 2,
+   "before": "burnt",
+   "after": "not_burnt"
+  }
+ ],
+ "final_counts_first_pass": {
+  "burnt": 134,
+  "not_burnt": 57,
+  "unsure": 9
+ },
+ "burnt_with_date": {
+  "burnt": 143,
+  "with_date": 143
+ },
+ "burnt_rate_by_source": {
+  "flagged": {
+   "burnt": 112,
+   "n": 159,
+   "rate": 0.704,
+   "ci95": [
+    0.629,
+    0.77
+   ]
+  },
+  "unflagged_cropland": {
+   "burnt": 22,
+   "n": 41,
+   "rate": 0.537,
+   "ci95": [
+    0.387,
+    0.679
+   ]
+  }
+ },
+ "burnt_rate_by_week": {
+  "none": {
+   "burnt": 0,
+   "n": 2,
+   "rate": 0.0,
+   "ci95": [
+    0.0,
+    0.658
+   ]
+  },
+  "w01": {
+   "burnt": 19,
+   "n": 25,
+   "rate": 0.76,
+   "ci95": [
+    0.566,
+    0.885
+   ]
+  },
+  "w02": {
+   "burnt": 15,
+   "n": 25,
+   "rate": 0.6,
+   "ci95": [
+    0.407,
+    0.766
+   ]
+  },
+  "w03": {
+   "burnt": 10,
+   "n": 18,
+   "rate": 0.556,
+   "ci95": [
+    0.337,
+    0.754
+   ]
+  },
+  "w04": {
+   "burnt": 23,
+   "n": 35,
+   "rate": 0.657,
+   "ci95": [
+    0.492,
+    0.792
+   ]
+  },
+  "w05": {
+   "burnt": 19,
+   "n": 22,
+   "rate": 0.864,
+   "ci95": [
+    0.667,
+    0.953
+   ]
+  },
+  "w06": {
+   "burnt": 18,
+   "n": 27,
+   "rate": 0.667,
+   "ci95": [
+    0.478,
+    0.814
+   ]
+  },
+  "w07": {
+   "burnt": 15,
+   "n": 25,
+   "rate": 0.6,
+   "ci95": [
+    0.407,
+    0.766
+   ]
+  },
+  "w08": {
+   "burnt": 15,
+   "n": 21,
+   "rate": 0.714,
+   "ci95": [
+    0.5,
+    0.862
+   ]
+  }
+ },
+ "repeat_agreement": {
+  "queue_seed": 20251119,
+  "n_label": 200,
+  "n_repeats_in_queue": 20,
+  "classes": [
+   "burnt",
+   "not_burnt",
+   "unsure"
+  ],
+  "repeat_min_gap": 40,
+  "n_pairs": 20,
+  "agreement": 0.55,
+  "kappa": 0.171,
+  "burnt_vs_not": {
+   "n_pairs": 19,
+   "agreement": 0.579,
+   "kappa": 0.174
+  },
+  "n_with_unsure": 1,
+  "burn_date": {
+   "n_pairs": 7,
+   "same_date": 4
+  },
+  "confusion": {
+   "burnt": {
+    "burnt": 7,
+    "not_burnt": 6
+   },
+   "not_burnt": {
+    "burnt": 2,
+    "not_burnt": 4
+   },
+   "unsure": {
+    "burnt": 0,
+    "not_burnt": 1
+   }
+  },
+  "disagreements": [
+   {
+    "sample_id": "M3-0076",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0149",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0165",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0174",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0217",
+    "first": "unsure",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0219",
+    "first": "not_burnt",
+    "repeat": "burnt"
+   },
+   {
+    "sample_id": "M3-0283",
+    "first": "not_burnt",
+    "repeat": "burnt"
+   },
+   {
+    "sample_id": "M3-0337",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   },
+   {
+    "sample_id": "M3-0374",
+    "first": "burnt",
+    "repeat": "not_burnt"
+   }
+  ],
+  "chart_effect": {
+   "n_pairs": 20,
+   "burnt_rate": {
+    "chart_on": 0.65,
+    "chart_off": 0.45
+   },
+   "unsure_rate": {
+    "chart_on": 0.05,
+    "chart_off": 0.0
+   },
+   "burnt_discordant": {
+    "n_pairs": 19,
+    "burnt_only_with_chart": 6,
+    "burnt_only_without_chart": 2,
+    "mcnemar_exact_p": 0.289
+   },
+   "matches_m21_flag": {
+    "chart_on": {
+     "n": 19,
+     "share": 0.684
+    },
+    "chart_off": {
+     "n": 20,
+     "share": 0.6
+    }
+   },
+   "display": {
+    "first": "chart + \u0394NBR + imagery",
+    "repeat": "imagery only"
+   }
+  }
+ }
+}

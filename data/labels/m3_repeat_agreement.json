@@ -9,41 +9,46 @@
  ],
  "repeat_min_gap": 40,
  "n_pairs": 20,
- "agreement": 0.6,
- "kappa": 0.273,
+ "agreement": 0.55,
+ "kappa": 0.171,
  "burnt_vs_not": {
-  "n_pairs": 18,
-  "agreement": 0.667,
-  "kappa": 0.333
+  "n_pairs": 19,
+  "agreement": 0.579,
+  "kappa": 0.174
  },
- "n_with_unsure": 2,
+ "n_with_unsure": 1,
  "burn_date": {
-  "n_pairs": 0,
-  "same_date": 0
+  "n_pairs": 7,
+  "same_date": 4
  },
  "confusion": {
   "burnt": {
-   "burnt": 5,
-   "not_burnt": 4
+   "burnt": 7,
+   "not_burnt": 6
   },
   "not_burnt": {
    "burnt": 2,
-   "not_burnt": 7
+   "not_burnt": 4
   },
   "unsure": {
    "burnt": 0,
-   "not_burnt": 2
+   "not_burnt": 1
   }
  },
  "disagreements": [
   {
    "sample_id": "M3-0076",
-   "first": "not_burnt",
-   "repeat": "burnt"
+   "first": "burnt",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0149",
+   "first": "burnt",
+   "repeat": "not_burnt"
   },
   {
    "sample_id": "M3-0165",
-   "first": "unsure",
+   "first": "burnt",
    "repeat": "not_burnt"
   },
   {
@@ -55,6 +60,11 @@
    "sample_id": "M3-0217",
    "first": "unsure",
    "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0219",
+   "first": "not_burnt",
+   "repeat": "burnt"
   },
   {
    "sample_id": "M3-0283",
@@ -70,37 +80,32 @@
    "sample_id": "M3-0374",
    "first": "burnt",
    "repeat": "not_burnt"
-  },
-  {
-   "sample_id": "M3-0383",
-   "first": "burnt",
-   "repeat": "not_burnt"
   }
  ],
  "chart_effect": {
   "n_pairs": 20,
   "burnt_rate": {
-   "chart_on": 0.45,
-   "chart_off": 0.35
+   "chart_on": 0.65,
+   "chart_off": 0.45
   },
   "unsure_rate": {
-   "chart_on": 0.1,
+   "chart_on": 0.05,
    "chart_off": 0.0
   },
   "burnt_discordant": {
-   "n_pairs": 18,
-   "burnt_only_with_chart": 4,
+   "n_pairs": 19,
+   "burnt_only_with_chart": 6,
    "burnt_only_without_chart": 2,
-   "mcnemar_exact_p": 0.688
+   "mcnemar_exact_p": 0.289
   },
   "matches_m21_flag": {
    "chart_on": {
-    "n": 18,
-    "share": 0.611
+    "n": 19,
+    "share": 0.684
    },
    "chart_off": {
     "n": 20,
-    "share": 0.5
+    "share": 0.6
    }
   },
   "display": {

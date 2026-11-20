@@ -2,7 +2,8 @@
 
 Needs ``python-pptx`` (not a pipeline dependency): ``pip install python-pptx==1.0.2``.
 Every number on the slides comes from the generated reports (M2, M2.1, M3 review r2, M5-lite).
-Run from the repository root: ``python scripts/make_slides.py [LIVE_URL]``.
+Run from the repository root: ``python scripts/make_slides.py [LIVE_URL]``
+(the live URL defaults to the deployed app).
 """
 
 from __future__ import annotations
@@ -20,7 +21,9 @@ from pptx.util import Inches, Pt
 ROOT = Path(__file__).resolve().parents[1]
 FIG = ROOT / "reports" / "final" / "figures"
 OUT = ROOT / "reports" / "final" / "Stubble_Burn_Audit_PPT.pptx"
-LIVE = sys.argv[1] if len(sys.argv) > 1 else "LIVE-URL-PLACEHOLDER"
+LIVE = sys.argv[1] if len(sys.argv) > 1 else "https://sangrur-burn-audit.streamlit.app"
+NOTE = ("Free hosting sleeps when idle. If you see a wake-up screen, click the button and "
+        "wait about 1 minute.")
 REPO = "https://github.com/Somnath15dec/ComputerVision"
 AREA = "M2.1 candidate burnt area (unvalidated estimate)"
 
@@ -119,8 +122,11 @@ text(s, Inches(0.7), Inches(1.6), Inches(8), Inches(2.2),
 text(s, Inches(0.7), Inches(3.55), Inches(7.8), Inches(1),
      "A harvest-aware audit of Sangrur district, Punjab, 1 Oct – 30 Nov 2025, compared with "
      "NASA FIRMS VIIRS hotspots", 20, RGBColor(0xD1, 0xD5, 0xDB))
-text(s, Inches(0.7), Inches(5.3), Inches(7.8), Inches(1.2),
+text(s, Inches(0.7), Inches(4.75), Inches(7.2), Inches(1.0),
      ["NAME · REG NO", "Lovely Professional University"], 18, WHITE)
+text(s, Inches(0.7), Inches(5.85), Inches(7.2), Inches(1.4),
+     [(f"Live: {LIVE}", 14), (f"Code: {REPO}", 14), (NOTE, 11)], 14,
+     RGBColor(0xD1, 0xD5, 0xDB))
 
 # 2 problem ---------------------------------------------------------------------------------
 s = new("Hotspot counts miss fires that burn between satellite passes", "Problem")
@@ -408,8 +414,7 @@ bullets(s, Inches(0.6), Inches(1.6), Inches(6.6), Inches(5), [
 stat(s, Inches(7.6), Inches(1.7), "Live dashboard", LIVE, BLUE, Inches(5.3))
 stat(s, Inches(7.6), Inches(3.4), "Code", REPO, INK, Inches(5.3))
 text(s, Inches(7.6), Inches(5.1), Inches(5.3), Inches(1.4),
-     "The free Streamlit app sleeps after inactivity; if it shows a wake-up button, click it "
-     "and wait for it to restart.", 13, MUTED)
+     NOTE, 13, MUTED)
 
 prs.save(OUT)
 print(OUT, f"{OUT.stat().st_size / 1e6:.2f} MB, {n_slide} slides", file=sys.stderr)

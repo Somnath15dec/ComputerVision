@@ -4,10 +4,11 @@
 > estimates. Every polygon has status `pending_field_verification`. No contact with anyone, no
 > fines, no automated enforcement, no personal data.
 
-**Live dashboard:** LIVE-URL-PLACEHOLDER (Streamlit Community Cloud; the free app sleeps after
-inactivity: click the wake-up button and wait for it to restart) ·
-**Code:** https://github.com/Somnath15dec/ComputerVision ·
+**Live dashboard:** https://sangrur-burn-audit.streamlit.app  
+**Code:** https://github.com/Somnath15dec/ComputerVision  
 **Report and slides:** `reports/final/`
+
+*Free hosting sleeps when idle. If you see a wake-up screen, click the button and wait about 1 minute.*
 
 ## Overview
 Official stubble-burning counts come from active-fire hotspots (MODIS / VIIRS) seen at fixed

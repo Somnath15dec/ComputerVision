@@ -1,0 +1,439 @@
+{
+ "m5lite": {
+  "m21": {
+   "n_polygons": 97137,
+   "ha_total": 135979.3,
+   "outside_season": {
+    "n": 331,
+    "ha": 133.0,
+    "detect_dates": [
+     "2025-09-25",
+     "2025-09-27",
+     "2025-09-28",
+     "2025-09-30"
+    ]
+   }
+  },
+  "season_burnt_ha": 135835.3,
+  "season_hotspots": 857,
+  "hotspots_by_sensor": {
+   "NOAA-20": 437,
+   "S-NPP": 420
+  },
+  "hotspots_outside_grid": 0,
+  "ha_per_hotspot_district": 158.5,
+  "hotspot_ist_hour_counts": {
+   "1": 3,
+   "2": 2,
+   "12": 94,
+   "13": 528,
+   "14": 230
+  },
+  "cell_spearman_burnt_vs_hotspots": 0.551,
+  "weekly": [
+   {
+    "week": "w00",
+    "start": "2025-10-01",
+    "end": "2025-10-05",
+    "burnt_ha": 287.1,
+    "hotspots": 5
+   },
+   {
+    "week": "w01",
+    "start": "2025-10-06",
+    "end": "2025-10-12",
+    "burnt_ha": 321.0,
+    "hotspots": 2
+   },
+   {
+    "week": "w02",
+    "start": "2025-10-13",
+    "end": "2025-10-19",
+    "burnt_ha": 2131.7,
+    "hotspots": 9
+   },
+   {
+    "week": "w03",
+    "start": "2025-10-20",
+    "end": "2025-10-26",
+    "burnt_ha": 4645.6,
+    "hotspots": 80
+   },
+   {
+    "week": "w04",
+    "start": "2025-10-27",
+    "end": "2025-11-02",
+    "burnt_ha": 39829.1,
+    "hotspots": 416
+   },
+   {
+    "week": "w05",
+    "start": "2025-11-03",
+    "end": "2025-11-09",
+    "burnt_ha": 69472.7,
+    "hotspots": 280
+   },
+   {
+    "week": "w06",
+    "start": "2025-11-10",
+    "end": "2025-11-16",
+    "burnt_ha": 15075.9,
+    "hotspots": 61
+   },
+   {
+    "week": "w07",
+    "start": "2025-11-17",
+    "end": "2025-11-23",
+    "burnt_ha": 3537.4,
+    "hotspots": 4
+   },
+   {
+    "week": "w08",
+    "start": "2025-11-24",
+    "end": "2025-11-30",
+    "burnt_ha": 534.9,
+    "hotspots": 0
+   }
+  ],
+  "region": [
+   {
+    "region": "east",
+    "burnt_ha": 66514.4,
+    "hotspots": 443,
+    "n_cells": 77,
+    "mean_clear_views": 30.11
+   },
+   {
+    "region": "west",
+    "burnt_ha": 69320.7,
+    "hotspots": 414,
+    "n_cells": 85,
+    "mean_clear_views": 21.24
+   }
+  ],
+  "top_gap_cells_fewer_hotspots_than_area_share": [
+   {
+    "grid_cell": "SGR-G-127",
+    "region": "east",
+    "burnt_ha": 1457.1,
+    "hotspots": 1,
+    "area_share": 0.0107,
+    "hotspot_share": 0.0012,
+    "share_gap": -0.0095,
+    "mean_clear_views": 29.46558265582656
+   },
+   {
+    "grid_cell": "SGR-G-124",
+    "region": "west",
+    "burnt_ha": 1369.7,
+    "hotspots": 1,
+    "area_share": 0.0101,
+    "hotspot_share": 0.0012,
+    "share_gap": -0.0089,
+    "mean_clear_views": 27.09486910994764
+   },
+   {
+    "grid_cell": "SGR-G-117",
+    "region": "west",
+    "burnt_ha": 1485.5,
+    "hotspots": 2,
+    "area_share": 0.0109,
+    "hotspot_share": 0.0023,
+    "share_gap": -0.0086,
+    "mean_clear_views": 30.459457013574657
+   },
+   {
+    "grid_cell": "SGR-G-043",
+    "region": "east",
+    "burnt_ha": 1444.9,
+    "hotspots": 2,
+    "area_share": 0.0106,
+    "hotspot_share": 0.0023,
+    "share_gap": -0.0083,
+    "mean_clear_views": 30.36851168511685
+   },
+   {
+    "grid_cell": "SGR-G-107",
+    "region": "west",
+    "burnt_ha": 1284.2,
+    "hotspots": 1,
+    "area_share": 0.0095,
+    "hotspot_share": 0.0012,
+    "share_gap": -0.0083,
+    "mean_clear_views": 20.50739599383667
+   },
+   {
+    "grid_cell": "SGR-G-098",
+    "region": "west",
+    "burnt_ha": 1376.1,
+    "hotspots": 2,
+    "area_share": 0.0101,
+    "hotspot_share": 0.0023,
+    "share_gap": -0.0078,
+    "mean_clear_views": 30.105373525557013
+   },
+   {
+    "grid_cell": "SGR-G-106",
+    "region": "west",
+    "burnt_ha": 1029.8,
+    "hotspots": 0,
+    "area_share": 0.0076,
+    "hotspot_share": 0.0,
+    "share_gap": -0.0076,
+    "mean_clear_views": 16.648225806451613
+   },
+   {
+    "grid_cell": "SGR-G-128",
+    "region": "east",
+    "burnt_ha": 1183.5,
+    "hotspots": 1,
+    "area_share": 0.0087,
+    "hotspot_share": 0.0012,
+    "share_gap": -0.0075,
+    "mean_clear_views": 28.98480243161094
+   },
+   {
+    "grid_cell": "SGR-G-134",
+    "region": "west",
+    "burnt_ha": 1441.2,
+    "hotspots": 3,
+    "area_share": 0.0106,
+    "hotspot_share": 0.0035,
+    "share_gap": -0.0071,
+    "mean_clear_views": 29.831231231231232
+   },
+   {
+    "grid_cell": "SGR-G-126",
+    "region": "west",
+    "burnt_ha": 1428.2,
+    "hotspots": 3,
+    "area_share": 0.0105,
+    "hotspot_share": 0.0035,
+    "share_gap": -0.007,
+    "mean_clear_views": 29.730535055350554
+   }
+  ],
+  "top_gap_cells_more_hotspots_than_area_share": [
+   {
+    "grid_cell": "SGR-G-053",
+    "region": "east",
+    "burnt_ha": 1083.6,
+    "hotspots": 29,
+    "area_share": 0.008,
+    "hotspot_share": 0.0338,
+    "share_gap": 0.0258,
+    "mean_clear_views": 31.220980926430517
+   },
+   {
+    "grid_cell": "SGR-G-080",
+    "region": "east",
+    "burnt_ha": 1251.5,
+    "hotspots": 23,
+    "area_share": 0.0092,
+    "hotspot_share": 0.0268,
+    "share_gap": 0.0176,
+    "mean_clear_views": 30.078397212543553
+   },
+   {
+    "grid_cell": "SGR-G-038",
+    "region": "west",
+    "burnt_ha": 798.0,
+    "hotspots": 19,
+    "area_share": 0.0059,
+    "hotspot_share": 0.0222,
+    "share_gap": 0.0163,
+    "mean_clear_views": 16.31867572156197
+   },
+   {
+    "grid_cell": "SGR-G-111",
+    "region": "east",
+    "burnt_ha": 987.2,
+    "hotspots": 18,
+    "area_share": 0.0073,
+    "hotspot_share": 0.021,
+    "share_gap": 0.0137,
+    "mean_clear_views": 29.337775330396475
+   },
+   {
+    "grid_cell": "SGR-G-149",
+    "region": "west",
+    "burnt_ha": 1216.3,
+    "hotspots": 18,
+    "area_share": 0.009,
+    "hotspot_share": 0.021,
+    "share_gap": 0.012,
+    "mean_clear_views": 30.251892890120036
+   },
+   {
+    "grid_cell": "SGR-G-079",
+    "region": "east",
+    "burnt_ha": 1072.0,
+    "hotspots": 16,
+    "area_share": 0.0079,
+    "hotspot_share": 0.0187,
+    "share_gap": 0.0108,
+    "mean_clear_views": 30.090068493150685
+   },
+   {
+    "grid_cell": "SGR-G-064",
+    "region": "west",
+    "burnt_ha": 972.5,
+    "hotspots": 15,
+    "area_share": 0.0072,
+    "hotspot_share": 0.0175,
+    "share_gap": 0.0103,
+    "mean_clear_views": 16.368267223382045
+   },
+   {
+    "grid_cell": "SGR-G-103",
+    "region": "east",
+    "burnt_ha": 775.6,
+    "hotspots": 13,
+    "area_share": 0.0057,
+    "hotspot_share": 0.0152,
+    "share_gap": 0.0095,
+    "mean_clear_views": 30.077511244377813
+   },
+   {
+    "grid_cell": "SGR-G-030",
+    "region": "west",
+    "burnt_ha": 793.3,
+    "hotspots": 13,
+    "area_share": 0.0058,
+    "hotspot_share": 0.0152,
+    "share_gap": 0.0094,
+    "mean_clear_views": 27.854714064914994
+   },
+   {
+    "grid_cell": "SGR-G-097",
+    "region": "west",
+    "burnt_ha": 1105.3,
+    "hotspots": 15,
+    "area_share": 0.0081,
+    "hotspot_share": 0.0175,
+    "share_gap": 0.0094,
+    "mean_clear_views": 17.694307400379508
+   }
+  ]
+ },
+ "polygons": {
+  "n_shown": 4427,
+  "n_total_in_season": 96806,
+  "ha_shown": 52181.1,
+  "ha_total_in_season": 135846.3,
+  "min_area_ha_shown": 5.3,
+  "simplify_m": 10
+ },
+ "labels": {
+  "final_counts_first_pass": {
+   "burnt": 134,
+   "not_burnt": 57,
+   "unsure": 9
+  },
+  "burnt_rate_by_source": {
+   "flagged": {
+    "burnt": 112,
+    "n": 159,
+    "rate": 0.704,
+    "ci95": [
+     0.629,
+     0.77
+    ]
+   },
+   "unflagged_cropland": {
+    "burnt": 22,
+    "n": 41,
+    "rate": 0.537,
+    "ci95": [
+     0.387,
+     0.679
+    ]
+   }
+  },
+  "repeat_agreement": {
+   "n_pairs": 20,
+   "agreement": 0.55,
+   "kappa": 0.171,
+   "chart_effect": {
+    "n_pairs": 20,
+    "burnt_rate": {
+     "chart_on": 0.65,
+     "chart_off": 0.45
+    },
+    "unsure_rate": {
+     "chart_on": 0.05,
+     "chart_off": 0.0
+    },
+    "burnt_discordant": {
+     "n_pairs": 19,
+     "burnt_only_with_chart": 6,
+     "burnt_only_without_chart": 2,
+     "mcnemar_exact_p": 0.289
+    },
+    "matches_m21_flag": {
+     "chart_on": {
+      "n": 19,
+      "share": 0.684
+     },
+     "chart_off": {
+      "n": 20,
+      "share": 0.6
+     }
+    },
+    "display": {
+     "first": "chart + \u0394NBR + imagery",
+     "repeat": "imagery only"
+    }
+   }
+  },
+  "review_groups": {
+   "r2": {
+    "remaining": {
+     "n": 103,
+     "reviewed": 103,
+     "changed": 71,
+     "changed_share": 0.689,
+     "changed_ci95": [
+      0.594,
+      0.771
+     ],
+     "transitions": {
+      "not_burnt->burnt": 54,
+      "unsure->burnt": 10,
+      "burnt->not_burnt": 5,
+      "burnt->unsure": 1,
+      "not_burnt->unsure": 1
+     },
+     "burnt_with_date": 75
+    },
+    "carryover": {
+     "n": 1,
+     "reviewed": 1,
+     "changed": 0,
+     "changed_share": 0.0,
+     "changed_ci95": [
+      0.0,
+      0.793
+     ],
+     "transitions": {},
+     "burnt_with_date": 1
+    },
+    "dates": {
+     "n": 35,
+     "reviewed": 35,
+     "changed": 5,
+     "changed_share": 0.143,
+     "changed_ci95": [
+      0.063,
+      0.294
+     ],
+     "transitions": {
+      "burnt->not_burnt": 3,
+      "burnt->unsure": 2
+     },
+     "burnt_with_date": 30
+    }
+   }
+  }
+ }
+}

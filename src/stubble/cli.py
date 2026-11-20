@@ -450,3 +450,15 @@ def m5lite_cmd(config: ConfigOpt = None) -> None:
     for w in s["weekly"]:
         console.print(f"  {w['week']} {w['start']}..{w['end']}: {w['burnt_ha']} ha, "
                       f"{w['hotspots']} hotspots")
+
+
+@app.command("deploy-data")
+def deploy_data_cmd(config: ConfigOpt = None) -> None:
+    """Write the small precomputed files the dashboard reads (deploy/data/, <= 50 MB)."""
+    from stubble.deploy_data import build
+
+    cfg = _setup(config, False)
+    r = build(cfg, cfg.root / "deploy" / "data")
+    console.print(f"deploy/data: {r['total_mb']} MB {r['sizes_mb']}")
+    if r["total_mb"] > 50:
+        raise typer.Exit(1)

@@ -143,3 +143,16 @@ later round does not change them.
 
 Every file under `data/raw` and `data/processed` has a `*.provenance.json` sidecar listing scene
 IDs, dates, parameters and code version.
+
+## Dashboard (deployment)
+`app/dashboard.py` is a Streamlit app that reads only `deploy/data/` (about 13 MB, rebuilt with
+`stubble deploy-data` after `stubble m5lite`). It shows the M2.1 candidate burnt area
+(unvalidated estimate) coloured by the week of its first clear burnt view, VIIRS hotspots, the
+labelled sample, weekly and per-cell comparisons, and a Method & limitations page, under a
+research-prototype disclaimer. Dependencies are pinned in `requirements-app.txt` (copied to
+`app/requirements.txt`, which Streamlit Community Cloud picks up next to the entry point).
+
+```bash
+pip install -r requirements-app.txt
+streamlit run app/dashboard.py
+```

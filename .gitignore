@@ -5,3 +5,6 @@
 .env
 __pycache__/
 *.tif
+
+# deploy package (small precomputed files for the dashboard)
+!/deploy/data/

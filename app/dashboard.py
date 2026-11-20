@@ -72,9 +72,12 @@ def map_page() -> None:
     k1, k2, k3 = st.columns(3)
     k1.metric(AREA, f"{ha:,.0f} ha")
     k2.metric("VIIRS hotspot detections (S-NPP + NOAA-20)", f"{hs:,}")
-    k3.metric("Estimated ha per hotspot", f"{ha / hs:,.0f}" if hs else "n/a",
-              help="Not an undercount factor: a hotspot is a 375 m pixel seen at overpass "
-                   "time, not an area.")
+    views = pd.Series([f["properties"]["mean_clear_views"] for f in
+                       load_json("grid_week_summary.geojson")["features"]]).dropna()
+    k3.metric("Clear Sentinel-2 views (median per cell)", f"{views.median():.1f}",
+              help="Season-wide, not per week: per 5 km cell, the mean number of clear "
+                   "Sentinel-2 views of its M2.1 candidate polygons; median over cells. Fewer "
+                   "views mean wider burn-date windows and less certain estimates.")
 
     layers = [pdk.Layer("GeoJsonLayer", load_json("aoi.geojson"), stroked=True, filled=False,
                         get_line_color=[60, 60, 60], line_width_min_pixels=1.5)]

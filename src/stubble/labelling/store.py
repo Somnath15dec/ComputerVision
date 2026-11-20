@@ -124,6 +124,17 @@ def latest_labels(cfg: Config, pass_no: int | None = 1) -> pd.DataFrame:
     return df if pass_no is None else df[df["pass"] == pass_no].reset_index(drop=True)
 
 
+def all_labels(cfg: Config) -> pd.DataFrame:
+    """Every stored row (the full history), oldest first, with ``label_3``."""
+    con = connect(cfg)
+    try:
+        df = pd.read_sql_query("SELECT * FROM labels ORDER BY id", con)
+    finally:
+        con.close()
+    df["label_3"] = df.label.replace(cfg.labelling.legacy_classes)
+    return df
+
+
 def label_queue(cfg: Config, sample_ids: list[str]) -> list:
     """The blind labelling queue for the current config (see :mod:`.blind`)."""
     from stubble.labelling.blind import build_queue

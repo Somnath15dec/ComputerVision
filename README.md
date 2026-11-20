@@ -64,7 +64,7 @@ stubble label-prerender    # optional: render the 200 queued items' strips into 
 stubble label              # blind Streamlit labelling tool (http://localhost:8501)
 stubble label-export       # data/labels/m3_labels.geojson + m3_repeat_agreement.json
 stubble label-agreement    # repeat agreement + chart-on vs chart-off comparison
-stubble review-select      # freeze the review queue: fast labels (<= 2 s) + 20 slower controls
+stubble review-select      # freeze the current round's review queue (labelling.review_round)
 stubble label --review     # label the review queue (new rows appended; originals kept)
 stubble review-report      # changes per group, final counts, burnt rates, repeat agreement
 ```
@@ -107,9 +107,10 @@ geometry's `representative_point()`, a crosshair there and a neutral 100 m box. 
 drawn. The label means "the field under the crosshair". It is stored against the sample item,
 so M4 still uses the original polygon or cell. "Usable" means the same scene exclusions and
 haze tests as the M2.1 detector, plus at least 50 % of the 100 m box clear. Left/right arrows
-go back and forward, and `N` jumps to the next unlabelled entry. The burn date is optional:
-click the first date on which the burn is visible, then press `1`. Every change is saved to
-SQLite straight away.
+go back and forward, and `N` jumps to the next unlabelled entry. A burnt label needs a burn
+date (`labelling.require_burn_date`): click the first date the field turns dark, then press
+`1`; the burnt key stays disabled until a date is picked. Every change is saved to SQLite
+straight away.
 
 **Speed bump.** The label keys are disabled for 4 s after an item appears, with a countdown
 (`labelling.min_view_seconds`); an earlier save is refused. Every row records `view_seconds`.
@@ -121,7 +122,15 @@ review tool shows nothing about the group or the earlier label, and uses each en
 display. Review labels are appended with `review_round = r1` and become the current label; the
 originals stay in the store as history. `stubble review-report` gives the share of labels
 changed in each group (Wilson 95 % CI), final counts, burnt rate by source and by week, and
-the repeat agreement recomputed on the final labels.
+the repeat agreement recomputed on the final labels. Result: fast 57 / 96 changed, control
+10 / 20 (mostly not_burnt -> burnt), so the slower labels were not reliable either.
+
+**Review round r2** (rule `remaining`, seed 20251121, `data/labels/m3_review_r2.json`): the
+103 current labels not in r1, plus the one r1 entry that was never reviewed (carryover), blind
+and mixed; then a burn-date pass over the 35 r1 burnt labels that have no date, shown with a
+note that the item was labelled burnt, so the date can be added (or the label changed). The
+r2 report counts each group separately; earlier rounds are read from their own rows, so a
+later round does not change them.
 
 ## Data sources (M1)
 | Data | Source | Licence |

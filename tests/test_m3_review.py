@@ -23,14 +23,14 @@ def _labels(gaps):
 def test_select_fast_plus_control_seeded():
     cfg = load_config()
     gaps = [1, 2, 3, 10, 1, 5, 2.5, 0, 7, 9] * 5  # 51 saves
-    m = review.select_review(cfg, _labels(gaps))
+    m = review.select_fast_control(cfg, _labels(gaps))
     n_fast = sum(g <= cfg.labelling.review_fast_gap_s for g in gaps)
     assert m["n_fast"] == n_fast
     assert m["n_control"] == min(cfg.labelling.review_n_control, 51 - n_fast)
     grp = Counter(e["group"] for e in m["entries"])
     assert grp == {"fast": n_fast, "control": m["n_control"]}
     assert len({(e["sample_id"], e["pass"]) for e in m["entries"]}) == len(m["entries"])
-    assert m["entries"] == review.select_review(cfg, _labels(gaps))["entries"]  # seeded
+    assert m["entries"] == review.select_fast_control(cfg, _labels(gaps))["entries"]  # seeded
     assert [e["group"] for e in m["entries"]] != sorted(e["group"] for e in m["entries"])
     lab = _labels(gaps).set_index("sample_id")
     for e in m["entries"]:  # fast really fast, control really slower (or the first save)
@@ -69,7 +69,8 @@ def test_review_rows_appended_and_report(tmp_path, monkeypatch):
     r = review.review_report(cfg)
     assert r["groups"]["fast"] | {"transitions": None} == {
         "n": 2, "reviewed": 1, "changed": 1, "changed_share": 1.0,
-        "changed_ci95": r["groups"]["fast"]["changed_ci95"], "transitions": None}
+        "changed_ci95": r["groups"]["fast"]["changed_ci95"], "transitions": None,
+        "burnt_with_date": 0}
     assert r["groups"]["fast"]["transitions"] == {"not_burnt->burnt": 1}
     assert r["groups"]["control"]["changed"] == 0
     assert r["final_counts_first_pass"] == {"not_burnt": 2, "burnt": 1}
@@ -79,3 +80,40 @@ def test_wilson_ci():
     lo, hi = review._ci(5, 10)
     assert lo < 0.5 < hi and lo >= 0 and hi <= 1
     assert review._ci(0, 0) is None
+
+
+def test_select_remaining_carryover_and_dates():
+    cfg = load_config()
+    cur = pd.DataFrame([
+        # sample, pass, label, display, review_round, burn date
+        ("M3-0001", 1, "burnt", "aids", "r1", None),          # r1 burnt, no date -> dates
+        ("M3-0002", 1, "burnt", "aids", "r1", "2025-11-01"),  # r1 burnt with date -> skip
+        ("M3-0003", 1, "not_burnt", "aids", "r1", None),      # r1 reviewed -> skip
+        ("M3-0004", 1, "burnt", "aids", None, None),          # in r1, never reviewed -> carry
+        ("M3-0005", 1, "not_burnt", "aids", None, None),      # not in r1 -> remaining
+        ("M3-0006", 2, "burnt", "imagery", None, None),       # not in r1 -> remaining
+        ("M3-0007", 1, "burnt", None, None, None),            # old tool -> ignored
+    ], columns=["sample_id", "pass", "label", "display", "review_round", "burn_first_seen"])
+    cur["label_3"] = cur.label
+    rows = cur.copy()
+    prior = [{"round": "r1", "entries": [{"sample_id": f"M3-000{i}", "pass": 1}
+                                         for i in (1, 2, 3, 4)]}]
+    m = review.select_remaining(cfg, cur, rows, prior)
+    grp = {(e["sample_id"], e["pass"]): e["group"] for e in m["entries"]}
+    assert grp == {("M3-0001", 1): "dates", ("M3-0004", 1): "carryover",
+                   ("M3-0005", 1): "remaining", ("M3-0006", 2): "remaining"}
+    assert m["entries"][-1]["group"] == "dates"                       # dates pass last
+    assert [e["position"] for e in m["entries"]] == list(range(4))
+    assert m["entries"] == review.select_remaining(cfg, cur, rows, prior)["entries"]
+
+
+def test_round_rows_stable_after_later_round(tmp_path, monkeypatch):
+    cfg = load_config()
+    monkeypatch.setattr(store, "db_path", lambda c: tmp_path / "l.sqlite")
+    store.save_label(cfg, "M3-0001", "F", "not_burnt", display="aids")
+    store.save_label(cfg, "M3-0001", "F", "burnt", display="aids", review_round="r1")
+    store.save_label(cfg, "M3-0001", "F", "burnt", display="aids", review_round="r2",
+                     burn_first_seen="2025-11-02")
+    r1 = review.round_rows(cfg, "r1")
+    assert pd.isna(r1.loc[[("M3-0001", 1)]].iloc[0].burn_first_seen)
+    assert store.latest_labels(cfg, 1).review_round.iloc[0] == "r2"

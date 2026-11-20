@@ -168,10 +168,16 @@ labelling:                       # M3: stratified sample + labelling tool
   repeat_show_aids: false
   # Speed bump: label keys are disabled for this many seconds after an item appears.
   min_view_seconds: 4
-  # Review round (stubble review-select / label --review / review-report): every current label
-  # saved <= review_fast_gap_s after the previous save, plus review_n_control random slower
-  # labels as a control, mixed in one seeded order (review_seed); nothing marks the group.
-  review_round: r1
+  require_burn_date: true       # a burnt label needs a burn-date click (first date it turns dark)
+  # Review rounds (stubble review-select / label --review / review-report); each manifest is
+  # frozen in data/labels/m3_review_<round>.json the first time it is built.
+  #   r1, rule fast_control: every current label saved <= review_fast_gap_s after the previous
+  #     save, plus review_n_control random slower labels (seed 20251120), mixed, unmarked.
+  #   r2, rule remaining: every current label not in an earlier round (+ earlier-round items
+  #     never reviewed), mixed in one seeded order; then a dates pass over earlier-round burnt
+  #     labels that have no burn date.
+  review_round: r2
+  review_rule: remaining
   review_fast_gap_s: 2
   review_n_control: 20
-  review_seed: 20251120
+  review_seed: 20251121

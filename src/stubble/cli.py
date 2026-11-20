@@ -298,15 +298,21 @@ def label(config: ConfigOpt = None, port: int = 8501,
 
 @app.command("review-select")
 def review_select(config: ConfigOpt = None) -> None:
-    """M3 review: freeze the review queue (fast labels + random slower control)."""
+    """M3 review: freeze the current round's review queue (``labelling.review_rule``)."""
     from stubble.labelling.review import freeze_review
 
     cfg = _setup(config, False)
     p, m, new = freeze_review(cfg)
     console.print(f"{'wrote' if new else 'already frozen, not changed:'} {p}")
-    console.print(f"{len(m['entries'])} entries: {m['n_fast']} fast (gap <= "
-                  f"{m['rule']['fast_gap_s']} s) + {m['n_control']} control drawn from "
-                  f"{m['n_slow_pool']} slower labels, seed {m['rule']['seed']}")
+    if m.get("rule_name", "fast_control") == "fast_control":
+        console.print(f"{len(m['entries'])} entries: {m['n_fast']} fast (gap <= "
+                      f"{m['rule']['fast_gap_s']} s) + {m['n_control']} control drawn from "
+                      f"{m['n_slow_pool']} slower labels, seed {m['rule']['seed']}")
+    else:
+        console.print(f"{len(m['entries'])} entries: {m['n_remaining']} remaining + "
+                      f"{m['n_carryover']} carryover (blind, mixed), then {m['n_dates']} "
+                      f"burn-date entries; earlier rounds {m['rule']['prior_rounds']}, "
+                      f"seed {m['rule']['seed']}")
 
 
 @app.command("review-report")
@@ -322,8 +328,11 @@ def review_report_cmd(config: ConfigOpt = None) -> None:
     out.write_text(json.dumps(r, indent=1, default=str), encoding="utf-8")
     for g, x in r["groups"].items():
         console.print(f"{g}: reviewed {x['reviewed']} / {x['n']}, changed {x['changed']} "
-                      f"({x['changed_share']}, 95% CI {x['changed_ci95']}) {x['transitions']}")
-    console.print(f"final first-pass labels: {r['final_counts_first_pass']}")
+                      f"({x['changed_share']}, 95% CI {x['changed_ci95']}) {x['transitions']}; "
+                      f"burnt with a date {x['burnt_with_date']}")
+    bd = r["burnt_with_date"]
+    console.print(f"final first-pass labels: {r['final_counts_first_pass']}; burnt labels with a "
+                  f"burn date {bd['with_date']} / {bd['burnt']}")
     for k, v in r["burnt_rate_by_source"].items():
         console.print(f"  burnt rate {k}: {v['burnt']}/{v['n']} = {v['rate']} {v['ci95']}")
     console.print("  burnt rate by week: " + ", ".join(

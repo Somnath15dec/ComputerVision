@@ -63,11 +63,15 @@ Official stubble-burning counts in Punjab/Haryana come mostly from polar-orbitin
     41 / 9 / 30). West/long has only 3 unflagged items: show its CIs, do not over-read it.
   - Use `subset_inclusion_weight` from the label export (stratum population / items of that
     stratum in the 200) for every estimate.
-- **Label-aid bias check, next to the baseline metrics** (added 2026-11-19). The labelling
+- **Primary labels: chart-on** (added 2026-11-20). All metrics use the first-showing labels
+  (made with the chart + ΔNBR row) after the review rounds. The chart-on vs chart-off
+  comparison below goes in the report's limitations section, with the exact McNemar result.
+- **Label-aid bias check, reported as a limitation** (added 2026-11-19). The labelling
   tool shows the crosshair NBR/albedo/NDVI chart and the ΔNBR row on first showings, but the
   20 hidden repeats get imagery only (true colour + SWIR). The chart shows the same features
   the M2.1 rule uses, so it may pull labels toward the rule and flatter the baseline. Report
-  from `stubble label-agreement`, beside the baseline metrics table: chart-on vs chart-off
+  from `stubble label-agreement`, as a limitation (cross-referenced from the baseline metrics
+  table): chart-on vs chart-off
   agreement (raw, kappa), burnt and unsure rates with and without the chart, the discordant
   burnt pairs in each direction (exact McNemar p), and how often the label matches the M2.1
   flag with and without the chart. With no chart-off/chart-off control, repeat noise and

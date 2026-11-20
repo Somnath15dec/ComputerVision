@@ -1,15 +1,22 @@
-"""Review round: re-show fast labels (plus a slower control) and report what changed.
+"""Review rounds: re-show labels blind and report what changed.
 
-Selection (frozen in ``data/labels/m3_review_<round>.json`` the first time it runs, so later
-saves cannot change it):
+Each round's queue is frozen in ``data/labels/m3_review_<round>.json`` the first time it is
+built, so later saves cannot change it. Two selection rules (``labelling.review_rule``):
 
-* the *current* label of every queue entry made in this tool (``display`` set) is put in save
-  order (``created_utc``, whole seconds);
-* **fast** = saved ``<= review_fast_gap_s`` seconds after the previous save;
-* **control** = ``review_n_control`` entries drawn at random (``review_seed``) from the rest
-  (the slower labels, including the very first save, which has no previous one);
-* both groups are mixed in one seeded random order. The app shows nothing about the group,
-  the earlier label, the detection score or the source.
+``fast_control`` (r1)
+    The *current* label of every queue entry made in this tool (``display`` set) is put in
+    save order (``created_utc``, whole seconds). **fast** = saved ``<= review_fast_gap_s``
+    seconds after the previous save; **control** = ``review_n_control`` entries drawn at random
+    (``review_seed``) from the rest (the slower labels, including the very first save).
+
+``remaining`` (r2 onwards)
+    **remaining** = every current label not in an earlier round's manifest; **carryover** =
+    earlier-round entries that never got a review row. Then a **dates** pass: entries whose
+    current label is ``burnt``, saved in an earlier round, with no burn date. Shown with the
+    label visible, so the burn date can be added (or the label changed).
+
+The blind groups are mixed in one seeded random order; the app shows nothing about the
+group, the earlier label, the detection score or the source. The dates pass comes after them.
 
 A review label is appended as a new row for the same ``(sample_id, pass)`` with
 ``review_round`` set, so it becomes the current label and the original stays as history.
@@ -30,7 +37,7 @@ import numpy as np
 import pandas as pd
 
 from stubble.config import Config
-from stubble.labelling.store import latest_labels, repeat_agreement
+from stubble.labelling.store import all_labels, latest_labels, repeat_agreement
 
 
 @dataclass(frozen=True)
@@ -38,11 +45,23 @@ class ReviewItem:
     position: int     # 0-based position in the review queue
     sample_id: str
     pass_no: int
-    group: str        # "fast" | "control" (never shown in the app)
+    group: str        # fast | control | remaining | carryover (never shown) | dates (shown)
 
 
-def manifest_path(cfg: Config) -> Path:
-    return cfg.path("labels", f"m3_review_{cfg.labelling.review_round}.json")
+BLIND_GROUPS = ("fast", "control", "remaining", "carryover")
+
+
+def manifest_path(cfg: Config, rnd: str | None = None) -> Path:
+    return cfg.path("labels", f"m3_review_{rnd or cfg.labelling.review_round}.json")
+
+
+def _entry(i: int, sid: str, pass_no: int, group: str, label: str, gap: Any = None,
+           burn_first_seen: Any = None) -> dict[str, Any]:
+    e = {"position": i, "sample_id": sid, "pass": int(pass_no), "group": group,
+         "label_before": label, "gap_s": None if gap is None or pd.isna(gap) else float(gap)}
+    if isinstance(burn_first_seen, str):
+        e["burn_first_seen_before"] = burn_first_seen
+    return e
 
 
 def save_gaps(labels: pd.DataFrame) -> pd.DataFrame:
@@ -54,8 +73,8 @@ def save_gaps(labels: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def select_review(cfg: Config, labels: pd.DataFrame) -> dict[str, Any]:
-    """Build the review manifest from the current labels (pure; nothing is written)."""
+def select_fast_control(cfg: Config, labels: pd.DataFrame) -> dict[str, Any]:
+    """The ``fast_control`` manifest from the current labels (pure; nothing is written)."""
     lc = cfg.labelling
     df = save_gaps(labels)
     fast = df[df.gap_s <= lc.review_fast_gap_s]
@@ -68,12 +87,9 @@ def select_review(cfg: Config, labels: pd.DataFrame) -> dict[str, Any]:
              + [(r.sample_id, int(r["pass"]), "control", r.label,
                  None if pd.isna(r.gap_s) else r.gap_s) for _, r in ctrl.iterrows()])
     order = rng.permutation(len(items))
-    entries = [{"position": i, "sample_id": items[j][0], "pass": items[j][1],
-                "group": items[j][2], "label_before": items[j][3],
-                "gap_s": None if items[j][4] is None else float(items[j][4])}
-               for i, j in enumerate(order)]
-    return {"round": lc.review_round, "created_utc": datetime.now(UTC).isoformat(
-                timespec="seconds"),
+    entries = [_entry(i, *items[j]) for i, j in enumerate(order)]
+    return {"round": lc.review_round, "rule_name": "fast_control",
+            "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
             "rule": {"fast_gap_s": lc.review_fast_gap_s, "n_control": lc.review_n_control,
                      "seed": lc.review_seed,
                      "gap": "seconds between consecutive saves of the current labels "
@@ -82,12 +98,68 @@ def select_review(cfg: Config, labels: pd.DataFrame) -> dict[str, Any]:
             "n_control": k, "entries": entries}
 
 
+def prior_rounds(cfg: Config) -> list[dict[str, Any]]:
+    """Manifests of the rounds before the current one (by file name order)."""
+    cur = manifest_path(cfg).name
+    return [json.loads(p.read_text("utf-8"))
+            for p in sorted(cfg.path("labels").glob("m3_review_*.json"))
+            if not p.name.endswith("_report.json") and p.name < cur]
+
+
+def select_remaining(cfg: Config, labels: pd.DataFrame, rows: pd.DataFrame,
+                     prior: list[dict[str, Any]]) -> dict[str, Any]:
+    """The ``remaining`` manifest (pure): ``labels`` = current labels, ``rows`` = full
+    history, ``prior`` = earlier manifests."""
+    lc = cfg.labelling
+    cur = labels[labels.display.notna()].sort_values(["sample_id", "pass"])
+    in_prior = {(e["sample_id"], int(e["pass"])) for m in prior for e in m["entries"]}
+    prior_names = {m["round"] for m in prior}
+    rr = rows[rows.review_round.isin(prior_names)]
+    reviewed = set(zip(rr.sample_id, rr["pass"].astype(int), strict=True))
+    blind, dates = [], []
+    for _, r in cur.iterrows():
+        k = (r.sample_id, int(r["pass"]))
+        item = (r.sample_id, k[1], r.label, r.burn_first_seen)
+        if k not in in_prior:
+            blind.append(("remaining", item))
+        elif k not in reviewed:
+            blind.append(("carryover", item))
+        elif (r.label_3 == "burnt" and r.review_round in prior_names
+              and not isinstance(r.burn_first_seen, str)):
+            dates.append(("dates", item))
+    rng = np.random.default_rng(lc.review_seed)
+    ob, od = rng.permutation(len(blind)), rng.permutation(len(dates))
+    seq = [blind[j] for j in ob] + [dates[j] for j in od]
+    entries = [_entry(i, sid, p, g, lab, None, bfs)
+               for i, (g, (sid, p, lab, bfs)) in enumerate(seq)]
+    n = {g: sum(e["group"] == g for e in entries) for g in ("remaining", "carryover", "dates")}
+    return {"round": lc.review_round, "rule_name": "remaining",
+            "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+            "rule": {"seed": lc.review_seed, "prior_rounds": sorted(prior_names),
+                     "remaining": "current labels not in an earlier round's manifest",
+                     "carryover": "earlier-round entries with no review row",
+                     "dates": "current label burnt, saved in an earlier round, no burn date; "
+                              "shown after the blind items, label visible"},
+            "n_labels_considered": len(cur), "n_remaining": n["remaining"],
+            "n_carryover": n["carryover"], "n_dates": n["dates"], "entries": entries}
+
+
+def select_review(cfg: Config) -> dict[str, Any]:
+    """The manifest for the current round under ``labelling.review_rule``."""
+    cur = latest_labels(cfg, None)
+    if cfg.labelling.review_rule == "fast_control":
+        return select_fast_control(cfg, cur)
+    if cfg.labelling.review_rule == "remaining":
+        return select_remaining(cfg, cur, all_labels(cfg), prior_rounds(cfg))
+    raise ValueError(f"unknown review_rule {cfg.labelling.review_rule!r}")
+
+
 def freeze_review(cfg: Config) -> tuple[Path, dict[str, Any], bool]:
     """Write the manifest once; later calls return the frozen one. Returns (path, m, new)."""
     p = manifest_path(cfg)
     if p.exists():
         return p, json.loads(p.read_text("utf-8")), False
-    m = select_review(cfg, latest_labels(cfg, None))
+    m = select_review(cfg)
     p.write_text(json.dumps(m, indent=1), encoding="utf-8")
     return p, m, True
 
@@ -113,6 +185,15 @@ def _ci(k: int, n: int) -> list[float] | None:
     return [round(float(c - h), 3), round(float(c + h), 3)]
 
 
+def round_rows(cfg: Config, rnd: str) -> pd.DataFrame:
+    """Latest row of round ``rnd`` per ``(sample_id, pass)``, indexed by that key (stable
+    even after a later round supersedes it)."""
+    rows = all_labels(cfg)
+    rows = rows[rows.review_round == rnd].drop_duplicates(["sample_id", "pass"], keep="last")
+    rows.index = pd.Index(list(zip(rows.sample_id, rows["pass"].astype(int), strict=True)))
+    return rows
+
+
 def review_report(cfg: Config) -> dict[str, Any]:
     """Changes per group and the final-label summaries (see module docstring).
 
@@ -125,18 +206,18 @@ def review_report(cfg: Config) -> dict[str, Any]:
         raise FileNotFoundError(f"{p} not found; run `stubble review-select` first")
     m = json.loads(p.read_text("utf-8"))
     fold = lc.legacy_classes
-    cur = latest_labels(cfg, None)
-    cur["key"] = list(zip(cur.sample_id, cur["pass"].astype(int), strict=True))
-    rev = cur[cur.review_round == lc.review_round].set_index("key")
-    out: dict[str, Any] = {"round": lc.review_round, "groups": {}}
+    rev = round_rows(cfg, m["round"])
+    out: dict[str, Any] = {"round": m["round"], "groups": {}}
     trans: list[dict[str, Any]] = []
-    for g in ("fast", "control"):
+    for g in dict.fromkeys(e["group"] for e in m["entries"]):
         es = [e for e in m["entries"] if e["group"] == g]
         done = [e for e in es if (e["sample_id"], e["pass"]) in rev.index]
-        changed = []
+        changed, dated = [], 0
         for e in done:
             before = fold.get(e["label_before"], e["label_before"])
-            after = rev.loc[[(e["sample_id"], e["pass"])], "label_3"].iloc[0]
+            r = rev.loc[[(e["sample_id"], e["pass"])]].iloc[0]
+            after = r.label_3
+            dated += after == "burnt" and isinstance(r.burn_first_seen, str)
             if before != after:
                 changed.append((before, after))
                 trans.append({"group": g, "sample_id": e["sample_id"], "pass": e["pass"],
@@ -146,15 +227,20 @@ def review_report(cfg: Config) -> dict[str, Any]:
                             "changed_share": round(len(changed) / len(done), 3)
                             if done else None,
                             "changed_ci95": _ci(len(changed), len(done)),
-                            "transitions": {k: int(v) for k, v in cnt.items()}}
+                            "transitions": {k: int(v) for k, v in cnt.items()},
+                            "burnt_with_date": int(dated)}
     out["changes"] = trans
 
+    cur = latest_labels(cfg, None)
     smp = gpd.read_file(cfg.path("labels", "m3_sample.geojson"), ignore_geometry=True)
     first = cur[(cur["pass"] == 1) & cur.display.notna()].merge(
         smp[["sample_id", "source", "sample_week"]], on="sample_id")
     out["final_counts_first_pass"] = {k: int(v) for k, v in
                                       first.label_3.value_counts().items()}
     first["burnt"] = first.label_3 == "burnt"
+    bt = cur[(cur.label_3 == "burnt") & cur.display.notna()]
+    out["burnt_with_date"] = {"burnt": len(bt),
+                              "with_date": int(bt.burn_first_seen.notna().sum())}
 
     def rates(by: str) -> dict[str, Any]:
         res = {}

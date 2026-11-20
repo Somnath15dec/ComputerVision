@@ -156,7 +156,9 @@ class LabellingConfig(BaseModel):
     repeat_min_gap: int = 40
     repeat_show_aids: bool = False  # repeats: imagery only (no chart / ΔNBR)
     min_view_seconds: float = 4.0   # label keys disabled this long after an item appears
+    require_burn_date: bool = True  # a burnt label needs a burn date (first date it turns dark)
     review_round: str = "r1"
+    review_rule: str = "fast_control"  # "fast_control" (r1) | "remaining" (r2 onwards)
     review_fast_gap_s: float = 2.0
     review_n_control: int = 20
     review_seed: int = 20251120

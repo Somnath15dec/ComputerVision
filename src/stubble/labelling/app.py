@@ -10,8 +10,8 @@
   flagged polygons and unflagged cells look alike. The label = the field under the crosshair
   (:mod:`stubble.labelling.chips`).
 * Keys: 1 burnt, 2 not_burnt, 3 unsure (saves and moves on); left / right arrows = previous /
-  next item. The burn date (first date the burn is visible) is optional and is picked before
-  pressing 1.
+  next item. The burn date (first date the field turns dark) is picked before pressing 1; with
+  ``labelling.require_burn_date`` the burnt key stays disabled until a date is picked.
 * Hidden repeats are shown with imagery only (no chart, no ΔNBR row), so their agreement with
   the first showing measures how much the aids move labels (``labelling.repeat_show_aids``).
   Labels from the earlier tool (no ``display``) count as unlabelled until labelled again.
@@ -21,6 +21,8 @@
 * Review mode (``stubble label --review``): the frozen review queue
   (:mod:`stubble.labelling.review`), same display per entry, nothing marking the group or the
   earlier label. Review labels are appended (``review_round``); originals stay as history.
+  Entries of the ``dates`` group (burnt in an earlier round, no burn date) come after the blind
+  ones and say so, so the date can be added.
 * Autosave: every label, burn-date or note change is written to SQLite at once.
 """
 
@@ -147,6 +149,9 @@ def _save(pos: int, label: str, days: list[date], advance: bool, gate: bool = Tr
         return
     it = q[pos]
     bd = st.session_state.get(f"bd_{pos}")
+    if label == "burnt" and lc.require_burn_date and bd is None:
+        st.toast("Burnt needs a burn date: click the first date the field turns dark.")
+        return
     first = prev = None
     if label == "burnt" and bd is not None:
         k = days.index(bd)
@@ -200,6 +205,10 @@ st.subheader(f"Item {pos + 1} / {n_q}")
 if st.session_state.get("shown_pos") != pos:  # the item just appeared: start the speed bump
     st.session_state.shown_pos, st.session_state.shown_at = pos, time.time()
 
+if getattr(it, "group", None) == "dates":
+    st.info("**Burn-date pass.** You labelled this item **burnt** in an earlier review round, "
+            "without a burn date. Click the first date the field turns dark, then press `1`. "
+            "If it does not look burnt after all, press `2` or `3`.")
 aids = shows_aids(it.pass_no)
 days, png = get_strip(it.sample_id, aids)
 prefetch([(q[k].sample_id, shows_aids(q[k].pass_no)) for k in range(pos + 1, min(pos + 4, n_q))])
@@ -221,7 +230,9 @@ else:
 cur_bd = (date.fromisoformat(cur.burn_first_seen)
           if cur is not None and isinstance(cur.burn_first_seen, str) else None)
 # pills (buttons), not a selectbox: a focused text input would swallow the 1-5 keys
-st.pills("Burn first visible on (optional, for burnt; click again to clear)", days,
+st.pills("Burn first visible on: the first date the field turns dark ("
+         + ("required for burnt" if lc.require_burn_date else "optional, for burnt")
+         + "; click again to clear)", days,
          default=cur_bd if cur_bd in days else None,
          format_func=lambda d: d.strftime("%d %b"), key=f"bd_{pos}",
          on_change=_resave, args=(pos, days))
@@ -237,13 +248,17 @@ def label_buttons(pos: int, days: list[date]) -> None:
     if st.session_state.pos != pos:  # a key press moved on: redraw the whole page
         st.rerun(scope="app")
     left = lc.min_view_seconds - _elapsed()
+    no_date = lc.require_burn_date and st.session_state.get(f"bd_{pos}") is None
     cols = st.columns(len(classes))
     for i, c in enumerate(classes):
         cols[i].button(f"{i + 1} · {c}", key=f"lab_{c}", width="stretch",
                        type="primary" if cur is not None and cur.label == c else "secondary",
                        shortcut=str(i + 1), on_click=_save, args=(pos, c, days, True),
-                       disabled=left > 0)
-    st.caption(f"Label keys unlock in {math.ceil(left)} s" if left > 0 else "Label keys ready")
+                       disabled=left > 0 or (c == "burnt" and no_date))
+    msg = f"Label keys unlock in {math.ceil(left)} s" if left > 0 else "Label keys ready"
+    if no_date and "burnt" in classes:
+        msg += " · burnt needs a burn date first"
+    st.caption(msg)
 
 
 label_buttons(pos, days)

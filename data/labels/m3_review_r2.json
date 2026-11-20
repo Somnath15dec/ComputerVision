@@ -1,0 +1,1132 @@
+{
+ "round": "r2",
+ "rule_name": "remaining",
+ "created_utc": "2026-11-20T03:26:00+00:00",
+ "rule": {
+  "seed": 20251121,
+  "prior_rounds": [
+   "r1"
+  ],
+  "remaining": "current labels not in an earlier round's manifest",
+  "carryover": "earlier-round entries with no review row",
+  "dates": "current label burnt, saved in an earlier round, no burn date; shown after the blind items, label visible"
+ },
+ "n_labels_considered": 220,
+ "n_remaining": 103,
+ "n_carryover": 1,
+ "n_dates": 35,
+ "entries": [
+  {
+   "position": 0,
+   "sample_id": "M3-0223",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 1,
+   "sample_id": "M3-0309",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 2,
+   "sample_id": "M3-0042",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 3,
+   "sample_id": "M3-0075",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 4,
+   "sample_id": "M3-0172",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 5,
+   "sample_id": "M3-0115",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 6,
+   "sample_id": "M3-0197",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 7,
+   "sample_id": "M3-0312",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 8,
+   "sample_id": "M3-0320",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 9,
+   "sample_id": "M3-0219",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 10,
+   "sample_id": "M3-0384",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 11,
+   "sample_id": "M3-0033",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 12,
+   "sample_id": "M3-0148",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 13,
+   "sample_id": "M3-0392",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 14,
+   "sample_id": "M3-0048",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 15,
+   "sample_id": "M3-0285",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 16,
+   "sample_id": "M3-0156",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 17,
+   "sample_id": "M3-0009",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 18,
+   "sample_id": "M3-0256",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 19,
+   "sample_id": "M3-0230",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 20,
+   "sample_id": "M3-0037",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 21,
+   "sample_id": "M3-0045",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 22,
+   "sample_id": "M3-0226",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 23,
+   "sample_id": "M3-0111",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 24,
+   "sample_id": "M3-0380",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 25,
+   "sample_id": "M3-0348",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 26,
+   "sample_id": "M3-0135",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 27,
+   "sample_id": "M3-0318",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 28,
+   "sample_id": "M3-0261",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 29,
+   "sample_id": "M3-0076",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 30,
+   "sample_id": "M3-0309",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 31,
+   "sample_id": "M3-0383",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 32,
+   "sample_id": "M3-0107",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 33,
+   "sample_id": "M3-0282",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 34,
+   "sample_id": "M3-0099",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 35,
+   "sample_id": "M3-0086",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 36,
+   "sample_id": "M3-0095",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 37,
+   "sample_id": "M3-0233",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 38,
+   "sample_id": "M3-0068",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 39,
+   "sample_id": "M3-0313",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 40,
+   "sample_id": "M3-0306",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 41,
+   "sample_id": "M3-0144",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 42,
+   "sample_id": "M3-0167",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 43,
+   "sample_id": "M3-0008",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 44,
+   "sample_id": "M3-0149",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 45,
+   "sample_id": "M3-0289",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 46,
+   "sample_id": "M3-0282",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 47,
+   "sample_id": "M3-0386",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 48,
+   "sample_id": "M3-0371",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 49,
+   "sample_id": "M3-0117",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 50,
+   "sample_id": "M3-0354",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 51,
+   "sample_id": "M3-0203",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 52,
+   "sample_id": "M3-0283",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 53,
+   "sample_id": "M3-0024",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 54,
+   "sample_id": "M3-0299",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 55,
+   "sample_id": "M3-0114",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 56,
+   "sample_id": "M3-0332",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 57,
+   "sample_id": "M3-0357",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 58,
+   "sample_id": "M3-0023",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 59,
+   "sample_id": "M3-0004",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 60,
+   "sample_id": "M3-0339",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 61,
+   "sample_id": "M3-0204",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 62,
+   "sample_id": "M3-0281",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 63,
+   "sample_id": "M3-0051",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 64,
+   "sample_id": "M3-0136",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 65,
+   "sample_id": "M3-0162",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 66,
+   "sample_id": "M3-0350",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 67,
+   "sample_id": "M3-0262",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 68,
+   "sample_id": "M3-0070",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 69,
+   "sample_id": "M3-0295",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 70,
+   "sample_id": "M3-0291",
+   "pass": 1,
+   "group": "carryover",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 71,
+   "sample_id": "M3-0142",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 72,
+   "sample_id": "M3-0278",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 73,
+   "sample_id": "M3-0002",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 74,
+   "sample_id": "M3-0358",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 75,
+   "sample_id": "M3-0308",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 76,
+   "sample_id": "M3-0219",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 77,
+   "sample_id": "M3-0400",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 78,
+   "sample_id": "M3-0094",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 79,
+   "sample_id": "M3-0011",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 80,
+   "sample_id": "M3-0121",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 81,
+   "sample_id": "M3-0165",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 82,
+   "sample_id": "M3-0338",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 83,
+   "sample_id": "M3-0242",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 84,
+   "sample_id": "M3-0291",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 85,
+   "sample_id": "M3-0271",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 86,
+   "sample_id": "M3-0236",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 87,
+   "sample_id": "M3-0360",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 88,
+   "sample_id": "M3-0397",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 89,
+   "sample_id": "M3-0217",
+   "pass": 2,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 90,
+   "sample_id": "M3-0388",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 91,
+   "sample_id": "M3-0134",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 92,
+   "sample_id": "M3-0328",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 93,
+   "sample_id": "M3-0276",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 94,
+   "sample_id": "M3-0199",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 95,
+   "sample_id": "M3-0267",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 96,
+   "sample_id": "M3-0030",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 97,
+   "sample_id": "M3-0293",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 98,
+   "sample_id": "M3-0058",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 99,
+   "sample_id": "M3-0040",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 100,
+   "sample_id": "M3-0093",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 101,
+   "sample_id": "M3-0173",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "unsure",
+   "gap_s": null
+  },
+  {
+   "position": 102,
+   "sample_id": "M3-0041",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 103,
+   "sample_id": "M3-0147",
+   "pass": 1,
+   "group": "remaining",
+   "label_before": "not_burnt",
+   "gap_s": null
+  },
+  {
+   "position": 104,
+   "sample_id": "M3-0235",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 105,
+   "sample_id": "M3-0191",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 106,
+   "sample_id": "M3-0386",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 107,
+   "sample_id": "M3-0090",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 108,
+   "sample_id": "M3-0355",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 109,
+   "sample_id": "M3-0061",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 110,
+   "sample_id": "M3-0088",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 111,
+   "sample_id": "M3-0102",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 112,
+   "sample_id": "M3-0387",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 113,
+   "sample_id": "M3-0206",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 114,
+   "sample_id": "M3-0260",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 115,
+   "sample_id": "M3-0315",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 116,
+   "sample_id": "M3-0290",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 117,
+   "sample_id": "M3-0395",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 118,
+   "sample_id": "M3-0138",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 119,
+   "sample_id": "M3-0304",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 120,
+   "sample_id": "M3-0283",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 121,
+   "sample_id": "M3-0274",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 122,
+   "sample_id": "M3-0395",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 123,
+   "sample_id": "M3-0207",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 124,
+   "sample_id": "M3-0016",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 125,
+   "sample_id": "M3-0158",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 126,
+   "sample_id": "M3-0026",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 127,
+   "sample_id": "M3-0307",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 128,
+   "sample_id": "M3-0163",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 129,
+   "sample_id": "M3-0079",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 130,
+   "sample_id": "M3-0292",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 131,
+   "sample_id": "M3-0076",
+   "pass": 2,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 132,
+   "sample_id": "M3-0050",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 133,
+   "sample_id": "M3-0323",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 134,
+   "sample_id": "M3-0195",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 135,
+   "sample_id": "M3-0186",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 136,
+   "sample_id": "M3-0341",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 137,
+   "sample_id": "M3-0185",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  },
+  {
+   "position": 138,
+   "sample_id": "M3-0383",
+   "pass": 1,
+   "group": "dates",
+   "label_before": "burnt",
+   "gap_s": null
+  }
+ ]
+}

@@ -1,0 +1,111 @@
+{
+ "queue_seed": 20251119,
+ "n_label": 200,
+ "n_repeats_in_queue": 20,
+ "classes": [
+  "burnt",
+  "not_burnt",
+  "unsure"
+ ],
+ "repeat_min_gap": 40,
+ "n_pairs": 20,
+ "agreement": 0.6,
+ "kappa": 0.273,
+ "burnt_vs_not": {
+  "n_pairs": 18,
+  "agreement": 0.667,
+  "kappa": 0.333
+ },
+ "n_with_unsure": 2,
+ "burn_date": {
+  "n_pairs": 0,
+  "same_date": 0
+ },
+ "confusion": {
+  "burnt": {
+   "burnt": 5,
+   "not_burnt": 4
+  },
+  "not_burnt": {
+   "burnt": 2,
+   "not_burnt": 7
+  },
+  "unsure": {
+   "burnt": 0,
+   "not_burnt": 2
+  }
+ },
+ "disagreements": [
+  {
+   "sample_id": "M3-0076",
+   "first": "not_burnt",
+   "repeat": "burnt"
+  },
+  {
+   "sample_id": "M3-0165",
+   "first": "unsure",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0174",
+   "first": "burnt",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0217",
+   "first": "unsure",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0283",
+   "first": "not_burnt",
+   "repeat": "burnt"
+  },
+  {
+   "sample_id": "M3-0337",
+   "first": "burnt",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0374",
+   "first": "burnt",
+   "repeat": "not_burnt"
+  },
+  {
+   "sample_id": "M3-0383",
+   "first": "burnt",
+   "repeat": "not_burnt"
+  }
+ ],
+ "chart_effect": {
+  "n_pairs": 20,
+  "burnt_rate": {
+   "chart_on": 0.45,
+   "chart_off": 0.35
+  },
+  "unsure_rate": {
+   "chart_on": 0.1,
+   "chart_off": 0.0
+  },
+  "burnt_discordant": {
+   "n_pairs": 18,
+   "burnt_only_with_chart": 4,
+   "burnt_only_without_chart": 2,
+   "mcnemar_exact_p": 0.688
+  },
+  "matches_m21_flag": {
+   "chart_on": {
+    "n": 18,
+    "share": 0.611
+   },
+   "chart_off": {
+    "n": 20,
+    "share": 0.5
+   }
+  },
+  "display": {
+   "first": "chart + \u0394NBR + imagery",
+   "repeat": "imagery only"
+  }
+ }
+}

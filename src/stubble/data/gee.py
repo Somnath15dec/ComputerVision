@@ -21,7 +21,9 @@ class EarthEngineProvider:
 
     def search(self, sensor: Sensor, start: date, end: date,
                bbox_wgs84: tuple[float, float, float, float]) -> list[SceneRef]:
+        """Not implemented: the Earth Engine provider is a placeholder."""
         raise NotImplementedError("GEE provider is not implemented yet; use provider: planetary")
 
     def load(self, acq: Acquisition, grid: GridSpec, bands: list[str]) -> dict[str, np.ndarray]:
+        """Not implemented: the Earth Engine provider is a placeholder."""
         raise NotImplementedError("GEE provider is not implemented yet; use provider: planetary")

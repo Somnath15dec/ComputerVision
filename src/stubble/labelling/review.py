@@ -42,6 +42,7 @@ from stubble.labelling.store import all_labels, latest_labels, repeat_agreement
 
 @dataclass(frozen=True)
 class ReviewItem:
+    """One item in a review round's queue, with its review group."""
     position: int     # 0-based position in the review queue
     sample_id: str
     pass_no: int
@@ -52,6 +53,7 @@ BLIND_GROUPS = ("fast", "control", "remaining", "carryover")
 
 
 def manifest_path(cfg: Config, rnd: str | None = None) -> Path:
+    """Path of the frozen review manifest for round ``rnd`` (default: current round)."""
     return cfg.path("labels", f"m3_review_{rnd or cfg.labelling.review_round}.json")
 
 

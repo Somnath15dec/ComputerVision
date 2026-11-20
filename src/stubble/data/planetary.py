@@ -93,6 +93,9 @@ class PlanetaryComputerProvider:
         return arr, [it.id for it in items]
 
     def load(self, acq: Acquisition, grid: GridSpec, bands: list[str]) -> dict[str, np.ndarray]:
+        """Load and mosaic the acquisition's bands onto the AOI grid (signed Planetary Computer
+        URLs).
+        """
         items = [pc.sign(s.handle) for s in acq.scenes]
         geobox = GeoBox((grid.height, grid.width), grid.transform, grid.crs)
         chunk = self.cfg.io.download_chunk

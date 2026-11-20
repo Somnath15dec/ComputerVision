@@ -47,6 +47,7 @@ def _doy(d: date) -> int:
 # ---------------------------------------------------------------------------- figures
 
 def fig_labels_harvest(cfg: Config, aoi: gpd.GeoDataFrame, out: Path, factor: int = 6) -> Path:
+    """Per-pixel M2.1 label map and harvest-date map (labels_and_harvest_dates.png)."""
     src = cfg.path("processed", "m21", "s2_harvest_burn.tif")
     lab, t = _read(src, "label", factor)
     hd, _ = _read(src, "harvest_doy", factor)
@@ -283,6 +284,7 @@ def pair_table(cfg: Config, aoi_m: np.ndarray, top: int = 15, factor: int = 10
 
 
 def weekly(cfg: Config, cands: gpd.GeoDataFrame, aoi_m: np.ndarray) -> pd.DataFrame:
+    """M2.1 weekly summary: harvested, first-detected, window-inside and allocated ha."""
     src = cfg.path("processed", "m21", "s2_harvest_burn.tif")
     bu, _ = _read(cfg.path("outputs", "m21", "burnt_area.tif"), "burnt")
     lab, _ = _read(src, "label")

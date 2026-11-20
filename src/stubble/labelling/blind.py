@@ -27,6 +27,7 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class QueueItem:
+    """One showing of a sample item in the blind labelling queue."""
     position: int     # 0-based position in the queue
     sample_id: str
     pass_no: int      # 1 = first showing, 2 = hidden repeat
@@ -58,6 +59,7 @@ def build_queue(sample_ids: list[str], seed: int, n_repeats: int, min_gap: int,
 
 
 def cohen_kappa(a: list[str], b: list[str]) -> float | None:
+    """Cohen's kappa between two label lists; None if empty."""
     if not a:
         return None
     cats = sorted(set(a) | set(b))

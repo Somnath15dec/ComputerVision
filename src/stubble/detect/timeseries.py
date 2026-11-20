@@ -53,12 +53,14 @@ INDEX_SCALE = 10000
 
 
 def quality_bands(cfg: Config) -> list[str]:
+    """Names of the per-pixel quality bands written by the M2 scan."""
     weeks = [w.id for w in cfg.compositing_windows() if w.id != "pre"]
     return ["n_clear", "n_clear_pre", "n_clear_post", "n_hazy", "days_since_last_clear",
             "max_gap_days", *[f"n_clear_{w}" for w in weeks]]
 
 
 def doy_to_date(doy: int) -> date:
+    """Convert the stored day number back to a date."""
     return date.fromordinal(DOY_BASE + int(doy))
 
 
@@ -163,6 +165,7 @@ def _s2_days(cfg: Config) -> dict[date, list[Path]]:
 
 
 def series_spec(cfg: Config, days: list[date]) -> SeriesSpec:
+    """Masks of acquisition days falling in the pre-season, post and weekly windows."""
     w = cfg.windows
     wins = [x for x in cfg.compositing_windows() if x.id != "pre"]
     o = np.array([d.toordinal() for d in days], dtype=np.int64)

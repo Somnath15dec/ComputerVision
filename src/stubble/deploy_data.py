@@ -38,6 +38,7 @@ def _write_geojson(g: gpd.GeoDataFrame, p: Path, precision: int = 5) -> float:
 
 
 def build(cfg: Config, out: Path) -> dict[str, Any]:
+    """Write the dashboard package to ``out`` and return file sizes and polygon-layer metadata."""
     out.mkdir(parents=True, exist_ok=True)
     (out / "figures").mkdir(exist_ok=True)
     m5 = cfg.path("outputs", "m5lite")

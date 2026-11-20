@@ -47,6 +47,7 @@ AOT_BINS = np.arange(0, 3.01, 0.01)
 
 
 def radiometry_path(cfg: Config) -> Path:
+    """Path of the M2.1 radiometry summary (haze loss, offsets, exclusions)."""
     return cfg.path("processed", "m21", "radiometry.json")
 
 

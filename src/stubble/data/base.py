@@ -25,6 +25,7 @@ class SceneRef:
     handle: Any = None  # provider-specific object (e.g. pystac.Item); never serialised
 
     def to_record(self) -> dict[str, Any]:
+        """JSON-serialisable summary of the scene for provenance files."""
         keep = ("eo:cloud_cover", "s2:mgrs_tile", "s2:processing_baseline",
                 "sat:relative_orbit", "sat:orbit_state")
         return {

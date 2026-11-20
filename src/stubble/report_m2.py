@@ -63,6 +63,7 @@ def _week_ids(cfg: Config) -> list[Any]:
 # ---------------------------------------------------------------------------- figures
 
 def fig_overview(cfg: Config, aoi: gpd.GeoDataFrame, out: Path, factor: int = 6) -> Path:
+    """Map of M2 baseline candidates by week of first detection (candidates_by_week.png)."""
     wk, t = _read(cfg.path("outputs", "m2", "burnt_area.tif"), "week_detected", factor)
     weeks = _week_ids(cfg)
     cmap = ListedColormap(plt.get_cmap("plasma")(np.linspace(0.05, 0.95, len(weeks))))
@@ -210,6 +211,7 @@ def fig_w04(cfg: Config, aoi: gpd.GeoDataFrame, cands: gpd.GeoDataFrame, out: Pa
 
 
 def fig_quality(cfg: Config, aoi: gpd.GeoDataFrame, out: Path, factor: int = 6) -> Path:
+    """Quality-band maps: clear days, longest gap, hazy days (quality_bands.png)."""
     q = cfg.path("processed", "m2", "s2_quality.tif")
     panels = [("n_clear", "Clear S2 days, 20 Sep - 30 Nov", "viridis", (0, 33)),
               ("max_gap_days", "Longest gap between clear days (1 Oct - 30 Nov)", "magma_r",
@@ -274,6 +276,7 @@ def weekly_summary(cfg: Config, cands: gpd.GeoDataFrame, aoi_m: np.ndarray) -> p
 
 
 def fig_weekly(df: pd.DataFrame, out: Path) -> Path:
+    """Weekly bar chart of first-detected, allocated and single-observation area."""
     fig, ax = plt.subplots(figsize=(10, 4.8))
     x = np.arange(len(df))
     ax.bar(x - 0.27, df.ha_first_detected / 1000, 0.27, label="first detected in week",
@@ -343,6 +346,7 @@ def sample_fp(cfg: Config, cands: gpd.GeoDataFrame, n_sample: int = 400, seed: i
 
 def fig_fp(cfg: Config, cands: gpd.GeoDataFrame, groups: dict[str, list[str]], out: Path
            ) -> Path:
+    """Chip sheet of suspected false-positive polygons per hypothesis group."""
     by_day = _s2_days(cfg)
     det_p = cfg.path("processed", "m2", "s2_pixel_detect.tif")
     nrows = sum(len(v) for v in groups.values())

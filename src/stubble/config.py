@@ -13,12 +13,14 @@ from pydantic import BaseModel
 
 
 class FallbackBBox(BaseModel):
+    """Bounding box (centre and buffer) used if the AOI boundary cannot be downloaded."""
     lat: float
     lon: float
     buffer_km: float
 
 
 class AOIConfig(BaseModel):
+    """Area of interest: boundary source, CRS, pixel size, context buffer and grid size."""
     source: str = "osm"
     osm_relation_id: int | None = None
     fallback_bbox: FallbackBBox
@@ -30,20 +32,24 @@ class AOIConfig(BaseModel):
 
 
 class DateRange(BaseModel):
+    """Inclusive date range."""
     start: date
     end: date
 
 
 class PostWindows(DateRange):
+    """Post-harvest period split into windows of ``step_days``."""
     step_days: int = 7
 
 
 class WindowsConfig(BaseModel):
+    """Pre-season reference window and post-harvest windows."""
     pre: DateRange
     post: PostWindows
 
 
 class S2Config(BaseModel):
+    """Sentinel-2 L2A collection, bands, SCL classes treated as invalid and scaling."""
     collection: str
     bands: list[str]
     scl_band: str = "SCL"
@@ -54,6 +60,7 @@ class S2Config(BaseModel):
 
 
 class S1Config(BaseModel):
+    """Sentinel-1 RTC collection, polarisations, orbit filter and dB scaling."""
     collection: str
     bands: list[str]
     orbit_state: str = "any"
@@ -61,6 +68,7 @@ class S1Config(BaseModel):
 
 
 class PathsConfig(BaseModel):
+    """Data, label, output and report directories (relative to config.yaml)."""
     raw: Path
     cache: Path
     processed: Path
@@ -70,12 +78,14 @@ class PathsConfig(BaseModel):
 
 
 class IOConfig(BaseModel):
+    """Block size, download chunk size and retry count for raster I/O."""
     block_rows: int = 512
     download_chunk: int = 2048
     max_retries: int = 3
 
 
 class DetectionConfig(BaseModel):
+    """M2 baseline parameters: dNBR threshold, cleaning and confirmation window."""
     dnbr_threshold: float = 0.27
     opening_radius_px: int = 1
     min_patch_ha: float = 0.1
@@ -85,6 +95,7 @@ class DetectionConfig(BaseModel):
 
 
 class QualityConfig(BaseModel):
+    """Haze heuristics (blue threshold, cloud buffer) and wide-window flag for M2."""
     haze_blue_threshold: float = 0.15
     haze_cloud_classes: list[int] = [8, 9, 10]
     haze_cloud_buffer_m: float = 300
@@ -92,6 +103,7 @@ class QualityConfig(BaseModel):
 
 
 class HazeMaskConfig(BaseModel):
+    """M2.1 haze mask (AOT threshold) and the pre-set scene exclusion rule."""
     haze_aot_threshold: float | None = None
     scene_min_usable_frac: float = 0.2
     scene_max_pif_spread_factor: float = 3.0
@@ -99,12 +111,14 @@ class HazeMaskConfig(BaseModel):
 
 
 class HarvestConfig(BaseModel):
+    """M2.1 harvest test: NDVI green and harvest thresholds."""
     ndvi_green: float = 0.6
     min_green_views: int = 1
     ndvi_harvest: float = 0.3
 
 
 class BurnConfig(BaseModel):
+    """M2.1 burn test thresholds between consecutive views, early-burn rule and cleaning."""
     dnbr_short_min: float = 0.10
     albedo_rel_drop_min: float = 0.15
     dnbr2_min: float = 0.02
@@ -118,6 +132,7 @@ class BurnConfig(BaseModel):
 
 
 class RadiometryConfig(BaseModel):
+    """Pseudo-invariant pixel selection for per-acquisition radiometric offsets."""
     worldcover_classes: list[int] = [50, 60]
     erode_px: int = 1
     pif_ndvi_max: float = 0.3
@@ -130,6 +145,7 @@ class RadiometryConfig(BaseModel):
 
 
 class LabellingConfig(BaseModel):
+    """M3 sample design, labelling queue and review-round settings."""
     n_total: int = 400
     flagged_frac: float = 0.8
     n_score_bins: int = 5
@@ -165,10 +181,12 @@ class LabellingConfig(BaseModel):
 
 
 class S1SupportConfig(BaseModel):
+    """Minimum valid fraction for Sentinel-1 supporting evidence per polygon."""
     min_valid_frac: float = 0.5
 
 
 class ProjectConfig(BaseModel):
+    """Project name and district code used for synthetic IDs."""
     name: str
     district_code: str
 
@@ -182,10 +200,12 @@ class Window(BaseModel):
 
     @property
     def label(self) -> str:
+        """Window as an ISO interval string, ``start/end``."""
         return f"{self.start.isoformat()}/{self.end.isoformat()}"
 
 
 class Config(BaseModel):
+    """Validated contents of config.yaml; ``path()`` resolves project directories."""
     project: ProjectConfig
     aoi: AOIConfig
     season: DateRange

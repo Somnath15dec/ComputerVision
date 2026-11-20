@@ -1,21 +1,90 @@
 # Stubble Burn-Area Audit: Sangrur, Punjab (2025 season)
 
-> **Decision support only.** Outputs are model estimates with confidence scores, not proof of
-> any offence. Every flag starts as `pending_field_verification`. No personal data is used.
+> **Research prototype, decision support only.** Burnt areas are unvalidated satellite
+> estimates. Every polygon has status `pending_field_verification`. No contact with anyone, no
+> fines, no automated enforcement, no personal data.
 
-*Work in progress. The full README (method, metrics, limitations, ethics) arrives in M8.*
+**Live dashboard:** LIVE-URL-PLACEHOLDER (Streamlit Community Cloud; the free app sleeps after
+inactivity: click the wake-up button and wait for it to restart) ·
+**Code:** https://github.com/Somnath15dec/ComputerVision ·
+**Report and slides:** `reports/final/`
 
-## Quick start (M1 data pipeline)
+## Overview
+Official stubble-burning counts come from active-fire hotspots (MODIS / VIIRS) seen at fixed
+overpass times, and burning has reportedly shifted to the late afternoon. A burn scar stays
+visible for days. This project maps **candidate burnt area** for Sangrur district, 1 Oct - 30
+Nov 2025, from Sentinel-2 (Sentinel-1 as supporting evidence), compares it with NASA FIRMS VIIRS
+hotspots per 5 km cell and week, checks it against a blind labelled sample, and publishes the
+result in a dashboard.
 
+Pipeline: **M1** data and composites -> **M2** dNBR baseline (kept as a reference; it measured
+harvest) -> **M2.1** harvest-aware detection with burn-date windows and quality bands -> **M3**
+blind labelling and review rounds -> **M5-lite** FIRMS comparison -> dashboard. M4 (U-Net) is
+future work.
+
+## Results summary (all estimates)
+| | value | source |
+|---|---|---|
+| M2 baseline flagged | 236,566 ha, 80.6 % of the district (tracks harvest) | `reports/m2/REPORT.md` |
+| M2.1 candidate burnt area | 135,979 ha, 46.3 % of the district, 97,137 polygons | `reports/m21/REPORT.md` |
+| In season (1 Oct - 30 Nov) | 135,835 ha | `reports/m5lite/FINDINGS.md` |
+| VIIRS detections (S-NPP + NOAA-20) | 857; 852 between 12:00 and 14:59 IST | same |
+| Agreement per 5 km cell | Spearman 0.55 (162 cells); hotspots peak w04, area w05 | same |
+| West vs east | 69,321 / 66,514 ha; 21.2 / 30.1 clear S2 views per polygon | same |
+| Labels (200, blind, one labeller) | burnt 134 / not burnt 57 / unsure 9 | `data/labels/m3_review_r2_report.json` |
+| Design-weighted burnt share | M2.1 polygons 76 % (count), 90 % (area); unflagged cropland 38 % | `reports/m5lite/FINDINGS.md` |
+| Labeller self-agreement | 55 %, kappa 0.17 (20 pairs); chart on/off McNemar p = 0.289 | r2 report |
+
+The labels are not reliable enough to correct the area, so no precision or recall is claimed.
+
+## Folder structure
+```
+app/                    Streamlit dashboard (reads only deploy/data/) + its requirements.txt
+config.yaml             single source of configuration (paths, windows, thresholds, labelling)
+deploy/data/            small precomputed files for the dashboard (~13 MB, committed)
+reports/                m1/ m2/ m21/ m3/ m5lite/: generated reports and figures
+reports/final/          IEEE report (report.tex, report.pdf, figures/) and slide deck
+scripts/regen_all.sh    rebuild every pipeline output in order
+scripts/make_slides.py  build the slide deck from reports/final/figures (needs python-pptx)
+src/stubble/            package: cli.py (typer CLI `stubble`), aoi, config, provenance,
+                        data/ (providers, downloads, composites), detect/ (indices, M2 time
+                        series, M2.1 harvest scan, radiometry, polygons), labelling/ (sample,
+                        blind queue, strips, SQLite store, review), firms.py, m5lite.py,
+                        deploy_data.py, report_m2.py, report_m21.py
+tests/                  pytest suite (synthetic data, no downloads)
+data/                   raw/ cache/ processed/ outputs/ labels/ (not committed, several GB)
+```
+
+## Setup (Python 3.11)
 ```bash
-uv venv --python 3.11 .venv
+uv venv --python 3.11 .venv                  # or: python3.11 -m venv .venv
 uv pip install --python .venv -e ".[dev]"    # or: pip install -r requirements.txt && pip install -e .
-cp .env.example .env                          # FIRMS key needed from M5 onward
+cp .env.example .env                         # add FIRMS_MAP_KEY (free) for firms-fetch; never commit .env
+pytest && ruff check src app scripts tests
+```
+The pipeline needs internet access (Planetary Computer, OpenStreetMap, FIRMS) and several GB of
+disk for `data/`. Downloads are cached and never repeated; each step skips outputs whose
+provenance sidecar matches.
+
+## Rebuild everything: `scripts/regen_all.sh`
+```bash
+bash scripts/regen_all.sh                                   # Linux / macOS
+STUBBLE=.venv/Scripts/stubble bash scripts/regen_all.sh     # Windows (Git Bash)
+CONFIG=other.yaml bash scripts/regen_all.sh                 # another config file
+```
+It runs, in order: `aoi`, `download`, `composite`, `quicklook` (M1); `detect`, `polygons`,
+`report-m2` (M2); `download-ancillary`, `radiometry`, `detect-harvest`, `polygons-harvest`,
+`report-m21` (M2.1); `firms-fetch`, `m5lite` (M5-lite); and `deploy-data` if the M3 label
+exports exist. `download`, `download-ancillary` and `radiometry` are prerequisites of the steps
+after them. The M3 labelling steps need a person and are not in the script.
+
+## M1 data pipeline
+```bash
 stubble aoi          # district boundary + 5 km analysis grid
 stubble download     # cache every S2 / S1 acquisition on the AOI grid (data/raw, never re-fetched)
 stubble composite    # pre-season + weekly median composites -> data/processed/{s2,s1}/*.tif (COG)
 stubble quicklook    # QA figures -> reports/m1/
-pytest && ruff check src tests
+# or: stubble m1
 ```
 
 ## M2 baseline burn detection
@@ -132,7 +201,17 @@ note that the item was labelled burnt, so the date can be added (or the label ch
 r2 report counts each group separately; earlier rounds are read from their own rows, so a
 later round does not change them.
 
-## Data sources (M1)
+## M5-lite: FIRMS comparison
+```bash
+stubble firms-fetch  # VIIRS S-NPP + NOAA-20 (standard archive) for the AOI, 5-day API requests
+stubble m5lite       # burnt ha vs hotspots per 5 km cell and week -> data/outputs/m5lite/,
+                     # figures + FINDINGS.md in reports/m5lite/
+stubble deploy-data  # dashboard package -> deploy/data/ (fails if over 50 MB)
+```
+Weeks always come from each polygon's `detect_date` (w00 = 1-5 Oct, then 7-day weeks from 6 Oct).
+The stored `week_detected` attribute puts pre-6 Oct detections into w08 and is not used.
+
+## Data sources
 | Data | Source | Licence |
 |---|---|---|
 | Sangrur boundary (post-2021, excludes Malerkotla) | OpenStreetMap relation 9513553 via Nominatim | ODbL 1.0, (c) OpenStreetMap contributors |
@@ -140,19 +219,49 @@ later round does not change them.
 | Sentinel-1 RTC (VV, VH) | Microsoft Planetary Computer `sentinel-1-rtc` | Copernicus open licence, RTC processing by Catalyst/PC |
 | Sentinel-2 L2A AOT (Sen2Cor aerosol optical thickness) | Microsoft Planetary Computer `sentinel-2-l2a`, asset `AOT` | Copernicus open licence |
 | ESA WorldCover 10 m 2021 v200 | Microsoft Planetary Computer `esa-worldcover` | CC BY 4.0, (c) ESA WorldCover project 2021 |
+| VIIRS 375 m active fire (S-NPP, NOAA-20, standard processing) | NASA FIRMS area API (free MAP_KEY) | NASA open data |
 
 Every file under `data/raw` and `data/processed` has a `*.provenance.json` sidecar listing scene
 IDs, dates, parameters and code version.
 
 ## Dashboard (deployment)
 `app/dashboard.py` is a Streamlit app that reads only `deploy/data/` (about 13 MB, rebuilt with
-`stubble deploy-data` after `stubble m5lite`). It shows the M2.1 candidate burnt area
-(unvalidated estimate) coloured by the week of its first clear burnt view, VIIRS hotspots, the
-labelled sample, weekly and per-cell comparisons, and a Method & limitations page, under a
-research-prototype disclaimer. Dependencies are pinned in `requirements-app.txt` (copied to
-`app/requirements.txt`, which Streamlit Community Cloud picks up next to the entry point).
+`stubble deploy-data` after `stubble m5lite`). Pages: **Map** (week slider; layers for the
+largest candidate polygons coloured by week, all candidates as points, VIIRS hotspots and the
+labelled sample), **Weekly comparison** (area vs hotspots per week, hotspots by IST hour, grid
+maps, west/east table) and **Method & limitations** (full disclaimer, method, validation
+numbers, ethics). Every chart and map labels the area "M2.1 candidate burnt area (unvalidated
+estimate)". Dependencies are pinned in `requirements-app.txt` (identical copy in
+`app/requirements.txt`, which Streamlit Community Cloud reads next to the entry point).
 
 ```bash
-pip install -r requirements-app.txt
+pip install -r requirements-app.txt      # Python 3.11; no geospatial or deep-learning stack
 streamlit run app/dashboard.py
 ```
+Streamlit Community Cloud: repository `Somnath15dec/ComputerVision`, branch `main`, main file
+`app/dashboard.py`, Python 3.11 (Advanced settings).
+
+## Limitations
+- **Label reliability:** one labeller, no field visits; self-agreement 55 % (kappa 0.17); labels
+  moved strongly toward burnt across review rounds. The labelling chart shows the rule's own
+  indices and may pull labels toward it (McNemar p = 0.289 at n = 20, not significant).
+- **10-20 m resolution:** small fields and mixed pixels at field edges; adjacent fields with the
+  same detection date merge.
+- **Haze and smoke:** 28 Oct was 1.4 % clear and 30 Oct was excluded, so late-October burns are
+  first seen in November and windows widen.
+- **Tilled or wet soil** can look like a burn scar.
+- **Observation gaps in the west:** about 21 clear views per polygon vs 30 in the east.
+- **Threshold dependence:** the area moves by tens of percent under plausible threshold changes.
+- **Hotspots are not area:** S-NPP / NOAA-20 duplicates are not merged; MODIS and NOAA-21 not used.
+
+## Ethics
+Decision support only: no contact, no fines, no automated enforcement. No personal data (no
+owner names, phone numbers or land records); fields have synthetic IDs derived from geometry,
+and the public dashboard shows labelled items as points without field outlines. Grid cells with
+mismatches are prompts for field checks, not findings about villages. Secrets live in `.env`
+(never committed).
+
+## Future work
+M4 U-Net fine-tuned from SSL4EO-S12 Sentinel-2 weights with spatially split tiles and calibrated
+confidence; a label re-test (r3) and a second labeller; photo assessment after M4; evidence packs
+per field; merged VIIRS duplicates, MODIS and NOAA-21.

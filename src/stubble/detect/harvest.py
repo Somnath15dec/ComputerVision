@@ -66,6 +66,7 @@ S2_READ = ["B02", "B03", "B04", "B08", "B11", "B12", "SCL"]
 
 @dataclass
 class Thresholds:
+    """Harvest, burn and early-burn thresholds for the per-pixel M2.1 scan."""
     ndvi_green: float
     min_green_views: int
     ndvi_harvest: float
@@ -78,6 +79,7 @@ class Thresholds:
 
     @classmethod
     def from_config(cls, cfg: Config) -> Thresholds:
+        """Build the thresholds from ``harvest_detection`` and ``burn_detection``."""
         h, b = cfg.harvest_detection, cfg.burn_detection
         return cls(h.ndvi_green, h.min_green_views, h.ndvi_harvest, b.dnbr_short_min,
                    b.albedo_rel_drop_min, b.dnbr2_min, b.confirm_days, b.char_nbr_max,

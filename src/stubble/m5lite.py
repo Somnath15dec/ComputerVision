@@ -52,6 +52,7 @@ def week_table(cfg: Config) -> pd.DataFrame:
 
 
 def burnt_by_cell_week(cfg: Config) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """M2.1 burnt ha per grid cell and detect_date week, plus totals and out-of-season polygons."""
     c = gpd.read_file(cfg.path("outputs", "m21", "candidates.gpkg"), ignore_geometry=True)
     c["week"] = week_of(c.detect_date, cfg)
     pre = c[pd.to_datetime(c.detect_date) < pd.Timestamp(cfg.season.start)]
@@ -66,6 +67,7 @@ def burnt_by_cell_week(cfg: Config) -> tuple[pd.DataFrame, dict[str, Any]]:
 
 def hotspots_by_cell_week(cfg: Config, grid: gpd.GeoDataFrame) -> tuple[pd.DataFrame,
                                                                        gpd.GeoDataFrame]:
+    """VIIRS hotspot counts per grid cell and IST week, and the points joined to cells."""
     h = gpd.read_file(cfg.path("processed", "firms", "viirs_hotspots.gpkg"))
     h["week"] = week_of(h.acq_date_ist, cfg)
     h = gpd.sjoin(h, grid[["cell_id", "geometry"]], how="left", predicate="within")
@@ -82,6 +84,7 @@ def observation_density(cfg: Config) -> pd.DataFrame:
 
 
 def run(cfg: Config) -> dict[str, Any]:
+    """Run M5-lite: write CSV/GeoJSON tables, figures and summary.json; return the summary."""
     out = cfg.path("outputs", "m5lite")
     out.mkdir(parents=True, exist_ok=True)
     grid = gpd.read_file(cfg.path("processed", "aoi", "grid.geojson"))

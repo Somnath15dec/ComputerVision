@@ -38,6 +38,7 @@ def aot_path(cfg: Config, s2_raw: Path) -> Path:
 
 
 def worldcover_path(cfg: Config) -> Path:
+    """Cached ESA WorldCover 2021 raster on the AOI grid."""
     return cfg.path("raw", "static", "worldcover_2021.tif")
 
 

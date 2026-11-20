@@ -32,11 +32,13 @@ st.set_page_config(page_title="Stubble burn-area audit: Sangrur 2025", layout="w
 
 @st.cache_data
 def load_json(name: str) -> dict:
+    """Read a JSON file from deploy/data (cached)."""
     return json.loads((DATA / name).read_text("utf-8"))
 
 
 @st.cache_data
 def load_csv(name: str) -> pd.DataFrame:
+    """Read a CSV file from deploy/data (cached)."""
     return pd.read_csv(DATA / name)
 
 
@@ -54,6 +56,7 @@ st.sidebar.caption("Sangrur district, Punjab · 1 Oct - 30 Nov 2025 · Sentinel-
 
 # ------------------------------------------------------------------------------------ map
 def map_page() -> None:
+    """Map page: week slider, metrics, pydeck layers and the per-cell table."""
     st.title("Stubble burn-area audit: Sangrur 2025")
     opts = ["All season", *weeks]
     sel = st.select_slider("Week (week of first clear burnt view / hotspot date, IST)", opts,
@@ -148,6 +151,7 @@ def map_page() -> None:
 
 # --------------------------------------------------------------------------------- weekly
 def weekly_page() -> None:
+    """Weekly comparison page: area vs hotspot chart, IST-hour chart, grid maps."""
     st.title("Our burnt-area estimate vs FIRMS hotspots, per week")
     w = weekly.copy()
     w["label"] = w.week.map(week_label)
@@ -202,6 +206,7 @@ def weekly_page() -> None:
 
 # --------------------------------------------------------------------------------- method
 def method_page() -> None:
+    """Method & limitations page: disclaimer, method, validation numbers, ethics."""
     lb = summary["labels"]
     ra = lb["repeat_agreement"]
     ce = ra.get("chart_effect") or {}

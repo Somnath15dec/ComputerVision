@@ -54,12 +54,14 @@ ROUND = lc.review_round if REVIEW else None
 
 @st.cache_resource
 def load_sample() -> gpd.GeoDataFrame:
+    """The M3 sample polygons in the grid CRS, indexed by sample_id."""
     g = gpd.read_file(cfg.path("labels", "m3_sample.geojson")).to_crs(cfg.aoi.crs)
     return g[["sample_id", "field_id", "geometry"]].set_index("sample_id")
 
 
 @st.cache_resource
 def queue(review: bool) -> list:
+    """The current labelling queue, or the review queue when ``review`` is set."""
     if review:
         return review_queue(cfg)
     return label_queue(cfg, list(load_sample().index))
@@ -76,6 +78,7 @@ def shows_aids(pass_no: int) -> bool:
 
 
 def get_strip(sample_id: str, aids: bool = True) -> tuple[list[date], bytes]:
+    """Rendered image strip (dates, PNG bytes) for a sample item, with or without aids."""
     return strip(cfg, sample_id, load_sample().geometry[sample_id], aids)
 
 
@@ -120,6 +123,7 @@ def is_done(sample_id: str, pass_no: int) -> bool:
 
 
 def first_unlabelled() -> int:
+    """Queue position of the first item without a saved label."""
     for it in q:
         if not is_done(it.sample_id, it.pass_no):
             return it.position
@@ -131,10 +135,12 @@ if "pos" not in st.session_state:
 
 
 def go(delta: int) -> None:
+    """Move the queue position by ``delta`` (clamped)."""
     st.session_state.pos = min(max(st.session_state.pos + delta, 0), n_q - 1)
 
 
 def go_to(pos: int) -> None:
+    """Jump to queue position ``pos`` (clamped)."""
     st.session_state.pos = min(max(pos, 0), n_q - 1)
 
 

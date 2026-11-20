@@ -34,11 +34,13 @@ class GridSpec:
 
     @property
     def bounds(self) -> tuple[float, float, float, float]:
+        """Grid extent as (minx, miny, maxx, maxy) in the grid CRS."""
         t = self.transform
         return (t.c, t.f + t.e * self.height, t.c + t.a * self.width, t.f)
 
     @property
     def resolution(self) -> float:
+        """Pixel size in grid CRS units (metres)."""
         return self.transform.a
 
 

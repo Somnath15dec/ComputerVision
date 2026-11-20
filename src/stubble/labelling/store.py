@@ -64,10 +64,12 @@ _ADDED = {"pass": "INTEGER NOT NULL DEFAULT 1", "queue_position": "INTEGER",
 
 
 def db_path(cfg: Config) -> Path:
+    """Path of the append-only SQLite label store."""
     return cfg.path("labels", "labels.sqlite")
 
 
 def connect(cfg: Config) -> sqlite3.Connection:
+    """Open the label store, creating the schema and adding newer columns if needed."""
     p = db_path(cfg)
     p.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(p)
@@ -145,10 +147,12 @@ def label_queue(cfg: Config, sample_ids: list[str]) -> list:
 
 
 def labels_path(cfg: Config) -> Path:
+    """Path of the exported label GeoJSON."""
     return cfg.path("labels", "m3_labels.geojson")
 
 
 def agreement_path(cfg: Config) -> Path:
+    """Path of the exported repeat-agreement JSON."""
     return cfg.path("labels", "m3_repeat_agreement.json")
 
 

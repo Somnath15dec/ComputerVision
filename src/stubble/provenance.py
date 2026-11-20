@@ -17,6 +17,7 @@ SIDE_SUFFIX = ".provenance.json"
 
 
 def sidecar_path(output: Path) -> Path:
+    """Path of the ``.provenance.json`` sidecar next to ``output``."""
     return output.with_name(output.name + SIDE_SUFFIX)
 
 
@@ -71,6 +72,7 @@ def write_provenance(
 
 
 def read_provenance(output: Path) -> dict[str, Any] | None:
+    """Read the provenance sidecar of ``output``; None if it does not exist."""
     p = sidecar_path(output)
     if not p.exists():
         return None

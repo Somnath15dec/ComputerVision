@@ -79,6 +79,7 @@ REFL = ["B02", "B03", "B04", "B08", "B8A", "B12"]
 
 @dataclass
 class ChipWindow:
+    """Chip extent around a sample item with its anchor pixel and crosshair box."""
     bounds: tuple[float, float, float, float]
     anchor: Point        # centre of the anchor pixel (grid CRS)
     box: BaseGeometry    # neutral crosshair_box_m square around the anchor
@@ -86,6 +87,7 @@ class ChipWindow:
 
 @dataclass
 class View:
+    """One clear Sentinel-2 date cut to a chip window."""
     day: date
     file: str
     clear_frac: float
@@ -180,6 +182,7 @@ def _read_halo(path: Path, bounds: tuple, halo_px: int, aot: Path | None
 
 
 def polygon_mask(geom: BaseGeometry, shape: tuple[int, int], t) -> np.ndarray:
+    """Boolean pixel mask of ``geom`` on a chip; all touched pixels for tiny polygons."""
     inside = ~geometry_mask([geom], out_shape=shape, transform=t)
     if inside.sum() < 3:  # very small polygon: count every touched pixel
         inside = ~geometry_mask([geom], out_shape=shape, transform=t, all_touched=True)

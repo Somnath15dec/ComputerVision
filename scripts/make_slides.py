@@ -123,7 +123,7 @@ text(s, Inches(0.7), Inches(3.55), Inches(7.8), Inches(1),
      "A harvest-aware audit of Sangrur district, Punjab, 1 Oct – 30 Nov 2025, compared with "
      "NASA FIRMS VIIRS hotspots", 20, RGBColor(0xD1, 0xD5, 0xDB))
 text(s, Inches(0.7), Inches(4.75), Inches(7.2), Inches(1.0),
-     ["NAME · REG NO", "Lovely Professional University"], 18, WHITE)
+     ["Somnath Kumar · Reg. No. 12414229", "Lovely Professional University"], 18, WHITE)
 text(s, Inches(0.7), Inches(5.85), Inches(7.2), Inches(1.4),
      [(f"Live: {LIVE}", 14), (f"Code: {REPO}", 14), (NOTE, 11)], 14,
      RGBColor(0xD1, 0xD5, 0xDB))

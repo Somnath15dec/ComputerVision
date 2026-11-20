@@ -47,7 +47,6 @@ weeks = weekly.week.tolist()
 week_label = {r.week: f"{r.week} ({pd.Timestamp(r.start):%d %b}-{pd.Timestamp(r.end):%d %b})"
               for r in weekly.itertuples()}
 
-st.warning(DISCLAIMER, icon="⚠️")
 page = st.sidebar.radio("Page", ["Map", "Weekly comparison", "Method & limitations"])
 st.sidebar.caption("Sangrur district, Punjab · 1 Oct - 30 Nov 2025 · Sentinel-2 / Sentinel-1 "
                    "burnt-area estimate vs NASA FIRMS VIIRS hotspots.")
@@ -210,6 +209,7 @@ def method_page() -> None:
     fc = lb["final_counts_first_pass"]
     br = lb["burnt_rate_by_source"]
     st.title("Method & limitations")
+    st.warning(DISCLAIMER, icon="⚠️")
     st.markdown(f"""
 ### Why burnt area?
 Official counts of stubble burning rely on active-fire hotspots from polar-orbiting satellites
